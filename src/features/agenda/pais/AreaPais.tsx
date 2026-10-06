@@ -15,6 +15,10 @@ import { exerciciosDoModulo } from '../../../data/catalogo'
 import { todasAsSeries } from '../../treino/series'
 import { useTreinosStore } from '../../../stores/treinosStore'
 import { FormVideo } from './FormVideo'
+import { CATEGORIAS, type CategoriaId } from '../../../data/categorias'
+import { categoriaDaSerie, categoriaDoVideo } from '../../categoria/categoria'
+import { CategoriaDoJogador } from '../../categoria/CategoriaDoJogador'
+import { SeloCategoria } from '../../categoria/SeloCategoria'
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
@@ -45,6 +49,8 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <CategoriaDoJogador />
+
       {/* Programa */}
       <section className="flex flex-col gap-2 rounded-3xl border-4 border-violet-200 bg-white p-3">
         <h2 className="text-xl font-extrabold">📋 Programa de treinos</h2>
@@ -195,7 +201,10 @@ function VideosDosTreinos() {
   return (
     <section className="flex flex-col gap-2 rounded-3xl border-4 border-violet-200 bg-white p-3">
       <h2 className="text-xl font-extrabold">🎬 Vídeos dos treinos</h2>
-      <p className="text-sm">Os vídeos abrem fora do app. Depois, cada um vai virar uma animação do bonequinho dentro do app.</p>
+      <p className="text-sm">
+        Os vídeos abrem fora do app. Depois, cada um vai virar uma animação do bonequinho dentro do app. A categoria diz a partir de quando a
+        criança vê o vídeo em "📺 Vídeos do treinador".
+      </p>
 
       <button
         type="button"
@@ -220,8 +229,8 @@ function VideosDosTreinos() {
                     </span>
                     <span className="flex flex-1 flex-col leading-tight">
                       <span className="font-bold">{e.nome}</span>
-                      <span className="text-xs font-bold text-violet-800">
-                        {tipo.emoji} {tipo.nome}
+                      <span className="flex flex-wrap items-center gap-1 text-xs font-bold text-violet-800">
+                        {tipo.emoji} {tipo.nome} <SeloCategoria id={categoriaDoVideo(e, {})} />
                       </span>
                     </span>
                   </div>
@@ -266,9 +275,28 @@ function VideosDosTreinos() {
         const mudou = valor !== atual
         return (
           <div key={t.id} className="flex flex-col gap-1 border-b-2 border-violet-50 pb-2">
-            <p className="font-bold">
-              {t.emoji} {t.nome} {programa.videos[t.id] && <span className="text-xs font-bold text-amber-700">(link trocado)</span>}
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-bold">
+                {t.emoji} {t.nome} {programa.videos[t.id] && <span className="text-xs font-bold text-amber-700">(link trocado)</span>}
+              </p>
+              <label className="flex items-center gap-1 text-xs font-bold">
+                Categoria
+                <select
+                  value={categoriaDoVideo(t, programa.categorias)}
+                  onChange={(e) => {
+                    const c = e.target.value as CategoriaId
+                    programa.mudarCategoriaVideo(t.id, c === (t.categoria ?? 'baby') ? null : c)
+                  }}
+                  className="min-h-10 rounded-xl border-2 border-violet-200 bg-white px-1 text-sm font-bold"
+                >
+                  {CATEGORIAS.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.emoji} {c.nome}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             <div className="flex gap-2">
               <input
                 type="url"
@@ -337,8 +365,8 @@ function TreinosDoApp({ aoEditar }: { aoEditar: (modulo: string) => void }) {
     <section className="flex flex-col gap-2 rounded-3xl border-4 border-violet-200 bg-white p-3">
       <h2 className="text-xl font-extrabold">💪 Treinos (botão Treinar)</h2>
       <p className="text-sm">
-        Mude os exercícios, o movimento e a velocidade do bonequinho, ou use um GIF próprio. Os treinos novos aparecem no menu Treinos e
-        podem ser colocados em qualquer dia do calendário.
+        Mude os exercícios, o movimento e a velocidade do bonequinho, ou use um GIF próprio, e a categoria em que cada treino abre. Os
+        treinos novos aparecem no menu Treinos e podem ser colocados em qualquer dia do calendário.
       </p>
       <button
         type="button"
@@ -360,7 +388,8 @@ function TreinosDoApp({ aoEditar }: { aoEditar: (modulo: string) => void }) {
                 </span>
                 <span className="flex flex-1 flex-col leading-tight">
                   <span className="font-extrabold">{s.titulo}</span>
-                  <span className="text-xs font-bold">
+                  <span className="flex flex-wrap items-center gap-1 text-xs font-bold">
+                    <SeloCategoria id={categoriaDaSerie(s, loja.categorias)} />
                     {quantos} {quantos === 1 ? 'exercício' : 'exercícios'}
                     {mudado ? ' · mudado neste aparelho' : ''}
                     {novo ? ' · criado por você' : ''}

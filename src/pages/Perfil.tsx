@@ -3,6 +3,8 @@
 import { Link } from 'react-router'
 import { AlbumConquistas } from '../components/stickers/AlbumConquistas'
 import { Avatar } from '../features/avatar/Avatar'
+import { useCategoria } from '../features/categoria/categoria'
+import { proximaCategoria } from '../data/categorias'
 import { useConfigStore } from '../stores/configStore'
 import { useProgressStore } from '../stores/progressStore'
 import { useUserStore } from '../stores/userStore'
@@ -18,6 +20,8 @@ export function Perfil() {
   const diasTreinados = useProgressStore((s) => s.diasTreinados)
   const somAtivo = useConfigStore((s) => s.somAtivo)
   const alternarSom = useConfigStore((s) => s.alternarSom)
+  const { atual: categoria, fixa } = useCategoria()
+  const proxima = proximaCategoria(categoria.id)
 
   const numeros = [
     { emoji: '🔥', valor: contadores.aquecimento ?? 0, rotulo: ['aquecimento', 'aquecimentos'] },
@@ -35,6 +39,14 @@ export function Perfil() {
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-extrabold">{apelido}</h1>
           <p className="text-lg font-bold">⭐ Nível {nivelPorXP(xp).nivel}</p>
+          <p className={`inline-block rounded-full border-2 px-2 text-base font-extrabold ${categoria.cor}`}>
+            {categoria.emoji} {categoria.nome}
+          </p>
+          {proxima && !fixa && (
+            <p className="text-sm">
+              Próxima: {proxima.emoji} {proxima.nome} no nível {proxima.nivelMinimo}
+            </p>
+          )}
         </div>
         <Link
           to="/jogador"

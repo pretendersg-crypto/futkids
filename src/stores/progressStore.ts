@@ -8,6 +8,8 @@ import { sequenciaAtual } from '../utils/sequencia'
 
 export interface ResultadoXP {
   nivel: number
+  /** Nível antes deste ganho (para saber se mudou de categoria) */
+  nivelAntes: number
   /** true quando este ganho de XP fez a criança subir de nível (hora de comemorar!) */
   subiuDeNivel: boolean
 }
@@ -79,7 +81,7 @@ export function entregarRecompensa(xp: number, moedas: number, atividade?: strin
   const depois = useProgressStore.getState()
   const nivel = nivelPorXP(depois.xp).nivel
   return {
-    resultadoXP: { nivel, subiuDeNivel: nivel > nivelAntes },
+    resultadoXP: { nivel, nivelAntes, subiuDeNivel: nivel > nivelAntes },
     bonusSequencia: depois.bonusSequencia !== bonusAntes ? depois.bonusSequencia : null,
   }
 }
@@ -99,7 +101,7 @@ export const useProgressStore = create<ProgressState>()(
         const xp = get().xp + Math.max(0, quantidade)
         set({ xp })
         const depois = nivelPorXP(xp).nivel
-        return { nivel: depois, subiuDeNivel: depois > antes }
+        return { nivel: depois, nivelAntes: antes, subiuDeNivel: depois > antes }
       },
       ganharMoedas: (quantidade) => set((s) => ({ moedas: s.moedas + Math.max(0, quantidade) })),
       gastarMoedas: (quantidade) => {

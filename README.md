@@ -4,7 +4,13 @@ Jogo de treino de futebol para crianças de 6 a 12 anos, com foco em goleiro. Fu
 do celular e pode ser instalado como app (PWA), inclusive sem internet.
 
 - **Treinos**: aquecimento (sempre antes) e séries de velocidade, rápido e devagar (intervalado),
-  força com o peso do corpo, prevenção de lesões e alongamento, com bonequinho animado, timer e contador
+  força com o peso do corpo, prevenção de lesões e alongamento, com bonequinho animado, timer e contador,
+  e os **vídeos do treinador** por categoria
+- **Categorias do jogador**: 🍼 Baby → 🌱 Novato → ⚽ Iniciante → 🌶️ Sabor Pro → 🥇 Profissional → 👑 Lenda.
+  A criança sobe pelo nível (XP): Baby 1, Novato 3, Iniciante 5, Sabor Pro 8, Profissional 12, Lenda 17.
+  Cada treino do botão Treinar e cada vídeo tem uma categoria e fica com 🔒 até a criança chegar nela.
+  Na aba Pais, um adulto pode escolher a categoria na mão e mudar a categoria de cada treino e vídeo. O que
+  está na agenda do dia abre naquele dia, mesmo acima da categoria.
 - **Goleiro**: 3 minijogos (Defesa, Reflexo, Posição) em 3 níveis + fundamentos com bola de verdade
 - **Rali de Gestos**: desafios por inclinação do celular ou toque, contador de embaixadinhas reais e
   saltos contados pelo acelerômetro (só com um adulto liberando)
@@ -181,6 +187,9 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 | Drills de reação prontos (sinais, séries, tempos e instruções) | `src/features/reacao/drills.ts` |
 | Cores e setas dos sinais de reação | `src/features/reacao/sinais.ts` |
 | Módulos da Home e da barra inferior | `src/data/modulos.ts` |
+| Categorias (nomes, ícones e nível de cada uma) | `src/data/categorias.ts` |
+| Categoria padrão de cada treino do app | `src/features/treino/series.ts` (campo `categoria`) |
+| Categoria padrão de cada vídeo do calendário | `src/data/calendarioGoleiros.ts` (campo `categoria`) |
 
 ---
 
@@ -228,7 +237,8 @@ src/
 ├── components/   ui (Modal, ProgressBar, PortaoDosPais…), stickers (figurinhas, álbum),
 │                 video (VideoPlayerModal), mascote (Bolinha)
 ├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, rali, reacao (drills,
-│                 motor dos sinais, histórico), agenda, conquistas, avatar
+│                 motor dos sinais, histórico), categoria (Baby…Lenda, cadeados), agenda,
+│                 conquistas, avatar
 ├── stores/       zustand + localStorage: userStore, progressStore, achievementsStore,
 │                 agendaStore, configStore, treinosStore, reacaoStore
 ├── data/         conteúdos (exercícios, vídeos, conquistas, agenda, apelidos, mascote)

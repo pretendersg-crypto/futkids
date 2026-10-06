@@ -7,6 +7,7 @@ import { ProgressBar } from '../components/ui/ProgressBar'
 import { saudacao } from '../data/mascote'
 import { MODULOS } from '../data/modulos'
 import { planoDoDia, treinosPendentesHoje } from '../features/agenda/semana'
+import { useCategoria } from '../features/categoria/categoria'
 import { Avatar } from '../features/avatar/Avatar'
 import { useProgramaStore, type ConfigPrograma } from '../stores/programaStore'
 import { useProgressStore } from '../stores/progressStore'
@@ -22,6 +23,7 @@ export function Home() {
   const moedas = useProgressStore((s) => s.moedas)
   const atividadesPorDia = useProgressStore((s) => s.atividadesPorDia)
   const { nivel, xpNoNivel, xpParaProximo } = nivelPorXP(xp)
+  const categoria = useCategoria().atual
   const diasTreinados = useProgressStore((s) => s.diasTreinados)
   // Assina o programa: se os pais mudarem a agenda, o sino e a dica do mascote acompanham
   const programa = useProgramaStore()
@@ -44,6 +46,9 @@ export function Home() {
 
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <p className="truncate text-xl font-extrabold">{apelido}</p>
+          <Link to="/treinos" className={`self-start rounded-full border-2 px-2 text-sm font-extrabold ${categoria.cor}`}>
+            {categoria.emoji} {categoria.nome}
+          </Link>
           <p className="flex gap-3 text-base font-bold">
             <span>⭐ Nível {nivel}</span>
             <span aria-label={`${moedas} moedas`}>🪙 {moedas}</span>

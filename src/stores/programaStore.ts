@@ -3,10 +3,12 @@
 //    a partir de uma data de início escolhida pelos pais, repetindo ao terminar (se quiserem)
 //  - "infantil": o plano de 4 semanas do app (data/agenda.json)
 // Por cima do programa, os pais podem trocar o treino de qualquer data (alteracoes) e os links
-// dos vídeos de cada treino (videos), e adicionar vídeos novos com tipo e ícone (extras).
+// dos vídeos de cada treino (videos), adicionar vídeos novos com tipo e ícone (extras) e mudar a
+// categoria em que cada vídeo do calendário é liberado (categorias).
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { DiaPrograma, TreinoExtra } from '../data/calendarioGoleiros'
+import type { CategoriaId } from '../data/categorias'
 import { diaDaSemana, hojeISO, somarDias } from '../utils/data'
 
 export type IdPrograma = 'goleiros' | 'infantil'
@@ -23,12 +25,16 @@ export interface ConfigPrograma {
   videos: Record<string, string>
   /** Vídeos de treino adicionados pelos pais (com tipo, ícone e link do YouTube) */
   extras: TreinoExtra[]
+  /** Treino do calendário → categoria do vídeo escolhida pelos pais (no lugar da original) */
+  categorias: Record<string, CategoriaId>
 }
 
 interface ProgramaState extends ConfigPrograma {
   configurar: (parte: Partial<Pick<ConfigPrograma, 'ativo' | 'inicio' | 'repetir'>>) => void
   alterarDia: (dia: string, novo: DiaPrograma | null) => void
   alterarVideo: (treino: string, url: string | null) => void
+  /** null = volta à categoria original */
+  mudarCategoriaVideo: (treino: string, categoria: CategoriaId | null) => void
   adicionarExtra: (extra: Omit<TreinoExtra, 'id'>) => void
   alterarExtra: (id: string, parte: Partial<Omit<TreinoExtra, 'id'>>) => void
   /** Remove o vídeo e tira ele dos dias em que os pais tinham colocado */
@@ -47,6 +53,7 @@ export const useProgramaStore = create<ProgramaState>()(
       alteracoes: {},
       videos: {},
       extras: [],
+      categorias: {},
       configurar: (parte) => set(parte),
       // null = volta ao que o programa diz
       alterarDia: (dia, novo) =>
@@ -62,6 +69,13 @@ export const useProgramaStore = create<ProgramaState>()(
           if (url) videos[treino] = url
           else delete videos[treino]
           return { videos }
+        }),
+      mudarCategoriaVideo: (treino, categoria) =>
+        set((s) => {
+          const categorias = { ...s.categorias }
+          if (categoria) categorias[treino] = categoria
+          else delete categorias[treino]
+          return { categorias }
         }),
       adicionarExtra: (extra) =>
         set((s) => ({ extras: [...s.extras, { ...extra, id: `extra-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}` }] })),
@@ -81,7 +95,7 @@ export const useProgramaStore = create<ProgramaState>()(
       name: 'futkids-programa',
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ ativo: s.ativo, inicio: s.inicio, repetir: s.repetir, alteracoes: s.alteracoes, videos: s.videos, extras: s.extras }),
+      partialize: (s) => ({ ativo: s.ativo, inicio: s.inicio, repetir: s.repetir, alteracoes: s.alteracoes, videos: s.videos, extras: s.extras, categorias: s.categorias }),
     },
   ),
 )

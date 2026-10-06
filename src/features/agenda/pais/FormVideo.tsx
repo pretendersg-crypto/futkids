@@ -1,8 +1,11 @@
 // Formulário para adicionar (ou editar) um vídeo de treino: tipo, ícone, nome e link do YouTube.
-// O tipo diz qual série animada do app corresponde ao vídeo e o que marca o dia como feito.
+// O tipo diz qual série animada do app corresponde ao vídeo e o que marca o dia como feito;
+// a categoria diz a partir de quando a criança vê o vídeo.
 import { useState, type FormEvent } from 'react'
 import { ICONES_TREINO, TIPOS_TREINO, tipoPorId, type TreinoExtra } from '../../../data/calendarioGoleiros'
+import type { CategoriaId } from '../../../data/categorias'
 import { linkYoutube } from '../../../utils/link'
+import { SeletorCategoria } from '../../categoria/SeletorCategoria'
 
 interface Props {
   /** Editando um vídeo já adicionado (sem = vídeo novo) */
@@ -15,6 +18,7 @@ export function FormVideo({ inicial, aoSalvar }: Props) {
   const [emoji, setEmoji] = useState(inicial?.emoji ?? TIPOS_TREINO[0].emoji)
   const [nome, setNome] = useState(inicial?.nome ?? '')
   const [link, setLink] = useState(inicial?.videoUrl ?? '')
+  const [categoria, setCategoria] = useState<CategoriaId>(inicial?.categoria ?? 'baby')
   const [erro, setErro] = useState('')
 
   function escolherTipo(id: string) {
@@ -27,7 +31,7 @@ export function FormVideo({ inicial, aoSalvar }: Props) {
     e.preventDefault()
     const url = linkYoutube(link)
     if (!url) return setErro('Cole um link do YouTube (youtube.com ou youtu.be).')
-    aoSalvar({ tipo, emoji, nome: nome.trim() || tipoPorId(tipo).nome, videoUrl: url })
+    aoSalvar({ tipo, emoji, nome: nome.trim() || tipoPorId(tipo).nome, videoUrl: url, categoria })
   }
 
   return (
@@ -72,6 +76,8 @@ export function FormVideo({ inicial, aoSalvar }: Props) {
           ))}
         </div>
       </fieldset>
+
+      <SeletorCategoria valor={categoria} aoMudar={setCategoria} rotulo="Categoria (a partir de quando a criança vê)" comNivel />
 
       <label className="flex flex-col gap-1 text-base font-bold">
         Nome (opcional)

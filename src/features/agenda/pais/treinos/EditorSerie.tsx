@@ -8,6 +8,9 @@ import { useTreinosStore } from '../../../../stores/treinosStore'
 import { limparImagensSoltas } from '../../../../utils/midiaLocal'
 import { descreverMeta } from '../../../treino/recompensa'
 import { seriePorModulo, SERIES } from '../../../treino/series'
+import type { CategoriaId } from '../../../../data/categorias'
+import { categoriaDaSerie } from '../../../categoria/categoria'
+import { SeletorCategoria } from '../../../categoria/SeletorCategoria'
 import { EditorExercicio } from './EditorExercicio'
 
 interface Props {
@@ -44,6 +47,7 @@ export function EditorSerie({ modulo: moduloInicial, aoVoltar }: Props) {
   const [titulo, setTitulo] = useState(serie?.titulo ?? '')
   const [emoji, setEmoji] = useState(serie?.emoji ?? '⭐')
   const [descricao, setDescricao] = useState(serie?.descricao ?? '')
+  const [categoria, setCategoria] = useState<CategoriaId>(() => (serie ? categoriaDaSerie(serie, loja.categorias) : 'baby'))
   const [exercicios, setExercicios] = useState<Exercicio[]>(() => loja.exercicios[modulo] ?? exerciciosDoModulo(modulo))
   const [editando, setEditando] = useState<Exercicio | null>(null)
   const [erro, setErro] = useState('')
@@ -65,7 +69,13 @@ export function EditorSerie({ modulo: moduloInicial, aoVoltar }: Props) {
   function salvar() {
     if (!original && !titulo.trim()) return setErro('Dê um nome ao treino.')
     if (exercicios.length === 0) return setErro('O treino precisa de pelo menos 1 exercício.')
-    loja.salvarSerie(modulo, exercicios, original ? undefined : { modulo, titulo: titulo.trim(), emoji, descricao: descricao.trim() || 'Treino criado pelos pais' })
+    // Treino do app em que só a categoria mudou: não marca os exercícios como "mudados"
+    const mesmosExercicios = JSON.stringify(exercicios) === JSON.stringify(loja.exercicios[modulo] ?? exerciciosDoModulo(modulo))
+    if (!original || !mesmosExercicios) {
+      loja.salvarSerie(modulo, exercicios, original ? undefined : { modulo, titulo: titulo.trim(), emoji, descricao: descricao.trim() || 'Treino criado pelos pais', categoria })
+    }
+    // Treino do app: guarda a categoria só se for diferente da original
+    if (original && modulo !== 'aquecimento') loja.mudarCategoria(modulo, categoria === serie?.categoria ? null : categoria)
     voltar()
   }
 
@@ -118,6 +128,14 @@ export function EditorSerie({ modulo: moduloInicial, aoVoltar }: Props) {
               ))}
             </div>
           </fieldset>
+        </section>
+      )}
+
+      {modulo === 'aquecimento' ? (
+        <p className="rounded-2xl bg-violet-50 p-3 text-sm">🍼 O aquecimento é sempre Baby: ele vem antes de qualquer treino.</p>
+      ) : (
+        <section className="rounded-3xl border-4 border-violet-200 bg-white p-3">
+          <SeletorCategoria valor={categoria} aoMudar={setCategoria} rotulo="Categoria: a partir de quando a criança pode fazer" comNivel />
         </section>
       )}
 

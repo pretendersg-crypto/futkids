@@ -1,7 +1,9 @@
 // PIN da área dos pais. Guardado só como resumo (hash SHA-256 com sal), nunca o PIN em si.
 // É uma trava para a criança não mexer na agenda; não é segurança contra um adulto com o aparelho.
+// Também guarda a categoria do jogador escolhida pelos pais (null = automática, pelo XP).
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import type { CategoriaId } from '../data/categorias'
 
 interface PaisState {
   /** "sal:hash" do PIN; null = ainda não criado */
@@ -9,6 +11,9 @@ interface PaisState {
   criarPin: (pin: string) => Promise<void>
   conferirPin: (pin: string) => Promise<boolean>
   apagarPin: () => void
+  /** Categoria escolhida pelos pais; null = sobe sozinha pelo XP */
+  categoriaFixa: CategoriaId | null
+  fixarCategoria: (categoria: CategoriaId | null) => void
 }
 
 async function resumo(sal: string, pin: string): Promise<string> {
@@ -31,12 +36,14 @@ export const usePaisStore = create<PaisState>()(
         return (await resumo(sal, pin)) === hash
       },
       apagarPin: () => set({ pin: null }),
+      categoriaFixa: null,
+      fixarCategoria: (categoriaFixa) => set({ categoriaFixa }),
     }),
     {
       name: 'futkids-pais',
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ pin: s.pin }),
+      partialize: (s) => ({ pin: s.pin, categoriaFixa: s.categoriaFixa }),
     },
   ),
 )

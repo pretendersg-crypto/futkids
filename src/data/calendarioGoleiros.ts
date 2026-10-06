@@ -4,6 +4,8 @@
 //  - o vídeo original do treinador (videoUrl), aberto só por um adulto; e
 //  - a série animada do app que adapta aquele treino para criança (serie). Quando um vídeo virar
 //    animação própria, basta criar a série nova e trocar o `serie` do treino aqui.
+// A `categoria` diz a partir de qual categoria do jogador (data/categorias.ts) o vídeo é liberado.
+import type { CategoriaId } from './categorias'
 
 export interface TreinoCalendario {
   id: string
@@ -18,6 +20,8 @@ export interface TreinoCalendario {
   rota?: string
   /** Tipo registrado quando a criança faz o treino (marca o dia como feito) */
   atividade: string
+  /** Categoria do vídeo (sem = Baby); os pais podem mudar na área dos pais */
+  categoria?: CategoriaId
 }
 
 export const TREINOS_CALENDARIO: TreinoCalendario[] = [
@@ -29,8 +33,9 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
     detalhe: 'Tem que ser feito sempre antes de cada treino',
     rota: '/treinos/aquecimento',
     atividade: 'aquecimento',
+    categoria: 'baby',
   },
-  { id: 'forca-velocidade', nome: 'Força e velocidade', emoji: '⚡', videoUrl: 'https://youtu.be/lLHrOZV4iUk', rota: '/treinos/velocidade', atividade: 'velocidade' },
+  { id: 'forca-velocidade', nome: 'Força e velocidade', emoji: '⚡', videoUrl: 'https://youtu.be/lLHrOZV4iUk', rota: '/treinos/velocidade', atividade: 'velocidade', categoria: 'iniciante' },
   {
     id: 'alongamento',
     nome: 'Alongamento',
@@ -39,11 +44,12 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
     detalhe: 'Fazer pelo menos 3x na semana, separado dos treinos normais do dia',
     rota: '/treinos/alongamento',
     atividade: 'alongamento',
+    categoria: 'baby',
   },
-  { id: 'hiit-1', nome: 'HIIT 1', emoji: '🐇', videoUrl: 'https://www.youtube.com/watch?v=vfY2DM3mwh4', rota: '/treinos/ritmo', atividade: 'ritmo' },
-  { id: 'hiit-2', nome: 'HIIT 2', emoji: '🐇', videoUrl: 'https://youtu.be/Ih7hZRF23x4', rota: '/treinos/ritmo', atividade: 'ritmo' },
-  { id: 'hiit-3', nome: 'HIIT 3', emoji: '🐇', videoUrl: 'https://youtu.be/PfS3f8yQt_s', rota: '/treinos/ritmo', atividade: 'ritmo' },
-  { id: 'hiit-4', nome: 'HIIT 4', emoji: '🐇', videoUrl: 'https://youtu.be/m0annLhbPjo', rota: '/treinos/ritmo', atividade: 'ritmo' },
+  { id: 'hiit-1', nome: 'HIIT 1', emoji: '🐇', videoUrl: 'https://www.youtube.com/watch?v=vfY2DM3mwh4', rota: '/treinos/ritmo', atividade: 'ritmo', categoria: 'sabor-pro' },
+  { id: 'hiit-2', nome: 'HIIT 2', emoji: '🐇', videoUrl: 'https://youtu.be/Ih7hZRF23x4', rota: '/treinos/ritmo', atividade: 'ritmo', categoria: 'sabor-pro' },
+  { id: 'hiit-3', nome: 'HIIT 3', emoji: '🐇', videoUrl: 'https://youtu.be/PfS3f8yQt_s', rota: '/treinos/ritmo', atividade: 'ritmo', categoria: 'profissional' },
+  { id: 'hiit-4', nome: 'HIIT 4', emoji: '🐇', videoUrl: 'https://youtu.be/m0annLhbPjo', rota: '/treinos/ritmo', atividade: 'ritmo', categoria: 'lenda' },
   {
     id: 'corrida-troca',
     nome: 'Corrida: troca de velocidade',
@@ -51,8 +57,9 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
     detalhe: '8 min - 2x · 30 s forte x 30 s fraco',
     rota: '/treinos/ritmo',
     atividade: 'ritmo',
+    categoria: 'iniciante',
   },
-  { id: 'forca-tecnica-cruz', nome: 'Força com técnica (cruz)', emoji: '➕', videoUrl: 'https://youtu.be/2lpAGRCbDkc', rota: '/treinos/forca', atividade: 'forca' },
+  { id: 'forca-tecnica-cruz', nome: 'Força com técnica (cruz)', emoji: '➕', videoUrl: 'https://youtu.be/2lpAGRCbDkc', rota: '/treinos/forca', atividade: 'forca', categoria: 'profissional' },
   {
     id: 'prevencao',
     nome: 'Prevenção',
@@ -61,6 +68,7 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
     detalhe: 'Feito com atenção para evitar lesões',
     rota: '/treinos/prevencao',
     atividade: 'prevencao',
+    categoria: 'novato',
   },
   {
     // No PDF: "Lavoro prevenzione + ABS + piegamenti"
@@ -70,6 +78,7 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
     videoUrl: 'https://www.youtube.com/watch?v=9dbCFx1ooDs',
     rota: '/treinos/prevencao',
     atividade: 'prevencao',
+    categoria: 'iniciante',
   },
   // Treinos do próprio app (não estão no PDF), para os pais poderem colocar na agenda
   { id: 'velocidade', nome: 'Velocidade (app)', emoji: '⚡', rota: '/treinos/velocidade', atividade: 'velocidade' },
@@ -115,6 +124,8 @@ export interface TreinoExtra {
   nome: string
   emoji: string
   videoUrl: string
+  /** Categoria em que o vídeo é liberado (sem = Baby) */
+  categoria?: CategoriaId
 }
 
 export function tipoPorId(id: string): TipoTreino {
@@ -124,7 +135,7 @@ export function tipoPorId(id: string): TipoTreino {
 /** O vídeo adicionado pelos pais, no mesmo formato dos treinos do calendário */
 export function treinoDeExtra(e: TreinoExtra): TreinoCalendario {
   const tipo = tipoPorId(e.tipo)
-  return { id: e.id, nome: e.nome, emoji: e.emoji, videoUrl: e.videoUrl, detalhe: tipo.nome, rota: tipo.rota, atividade: tipo.atividade }
+  return { id: e.id, nome: e.nome, emoji: e.emoji, videoUrl: e.videoUrl, detalhe: tipo.nome, rota: tipo.rota, atividade: tipo.atividade, categoria: e.categoria }
 }
 
 /** Treino criado pelos pais no "Treinar" (área dos pais), para entrar no calendário */

@@ -21,6 +21,7 @@ const ROTAS: RouteObject[] = [
         children: [
           { index: true, lazy: () => import('./pages/Treinos').then((m) => ({ Component: m.Treinos })) },
           { path: 'aquecimento', lazy: () => import('./pages/Aquecimento').then((m) => ({ Component: m.Aquecimento })) },
+          { path: 'videos', lazy: () => import('./pages/VideosTreino').then((m) => ({ Component: m.VideosTreino })) },
           // ex.: /treinos/velocidade, /treinos/alongamento
           { path: ':modulo', lazy: () => import('./pages/SerieTreino').then((m) => ({ Component: m.SerieTreino })) },
         ],

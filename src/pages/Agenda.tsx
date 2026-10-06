@@ -10,6 +10,8 @@ import { Missoes } from '../features/agenda/Missoes'
 import { AreaPais } from '../features/agenda/pais/AreaPais'
 import { TrancaPais } from '../features/agenda/pais/TrancaPais'
 import { descreverPosicao, diasDaSemana, LETRAS_DIAS, NOMES_DIAS, planoDoDia, treinosDoDia } from '../features/agenda/semana'
+import { categoriaLiberada, categoriaPorId } from '../data/categorias'
+import { categoriaDoItemDaAgenda, useCategoria } from '../features/categoria/categoria'
 import { useProgramaStore } from '../stores/programaStore'
 import { useProgressStore } from '../stores/progressStore'
 import { useTreinosStore } from '../stores/treinosStore'
@@ -62,6 +64,8 @@ function MinhaAgenda() {
   const programa = useProgramaStore()
   // Treinos criados pelos pais podem estar no dia de hoje: re-renderiza se mudarem
   useTreinosStore((s) => s.seriesExtras)
+  useTreinosStore((s) => s.categorias)
+  const categoria = useCategoria().atual
   const [checkinAgora, setCheckinAgora] = useState(false)
 
   const hoje = hojeISO()
@@ -134,40 +138,49 @@ function MinhaAgenda() {
         )}
         {!planoHoje.descanso && <p className="-mt-1 text-sm font-bold">🔥 O aquecimento vem sempre primeiro!</p>}
         <ul className="flex flex-col gap-2">
-          {treinosHoje.map((t) => (
-            <li
-              key={t.id}
-              className={`flex flex-col gap-2 rounded-2xl border-4 p-3 ${t.feito ? 'border-green-300 bg-green-50' : 'border-violet-300 bg-white'}`}
-            >
-              <div className="flex items-center gap-3 text-lg font-bold">
-                <span aria-hidden className="text-3xl">
-                  {t.emoji}
-                </span>
-                <span className="flex flex-1 flex-col leading-tight">
-                  {t.titulo}
-                  {t.detalhe && <span className="text-sm font-medium">{t.detalhe}</span>}
-                </span>
-                {t.feito && <span className="text-base">✅ Feito</span>}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {t.rota && (
-                  <Link to={t.rota} className="grid min-h-12 flex-1 place-items-center rounded-2xl bg-sol px-3 text-base font-extrabold shadow">
-                    Treinar ▶️
-                  </Link>
-                )}
-                {t.video && <BotaoVideo url={t.video} titulo={t.titulo} />}
-                {!t.feito && (
-                  <button
-                    type="button"
-                    onClick={() => useProgressStore.getState().registrarAtividade(t.atividade)}
-                    className="min-h-12 rounded-2xl border-4 border-green-300 bg-white px-3 text-base font-bold"
-                  >
-                    ✅ Fiz
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
+          {treinosHoje.map((t) => {
+            const catItem = categoriaPorId(categoriaDoItemDaAgenda(t))
+            return (
+              <li
+                key={t.id}
+                className={`flex flex-col gap-2 rounded-2xl border-4 p-3 ${t.feito ? 'border-green-300 bg-green-50' : 'border-violet-300 bg-white'}`}
+              >
+                <div className="flex items-center gap-3 text-lg font-bold">
+                  <span aria-hidden className="text-3xl">
+                    {t.emoji}
+                  </span>
+                  <span className="flex flex-1 flex-col leading-tight">
+                    {t.titulo}
+                    {t.detalhe && <span className="text-sm font-medium">{t.detalhe}</span>}
+                    {/* Acima da categoria da criança: a agenda (montada pelos pais) libera hoje */}
+                    {!categoriaLiberada(catItem.id, categoria.id) && (
+                      <span className="text-sm font-bold text-violet-800">
+                        🔓 Liberado hoje pelos pais ({catItem.emoji} {catItem.nome})
+                      </span>
+                    )}
+                  </span>
+                  {t.feito && <span className="text-base">✅ Feito</span>}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {t.rota && (
+                    <Link to={t.rota} className="grid min-h-12 flex-1 place-items-center rounded-2xl bg-sol px-3 text-base font-extrabold shadow">
+                      Treinar ▶️
+                    </Link>
+                  )}
+                  {t.video && <BotaoVideo url={t.video} titulo={t.titulo} />}
+                  {!t.feito && (
+                    <button
+                      type="button"
+                      onClick={() => useProgressStore.getState().registrarAtividade(t.atividade)}
+                      className="min-h-12 rounded-2xl border-4 border-green-300 bg-white px-3 text-base font-bold"
+                    >
+                      ✅ Fiz
+                    </button>
+                  )}
+                </div>
+              </li>
+            )
+          })}
         </ul>
 
         {treinouHoje ? (
