@@ -1,11 +1,15 @@
 // Barra de navegação inferior, estilo app: emoji grande + nome curto.
 // A aba ativa não depende só de cor: fica com fundo, negrito e o emoji maior.
+// O Perfil ganha uma bolinha com o número de figurinhas novas ainda não vistas no álbum.
 import { NavLink } from 'react-router'
 import { INICIO, MODULOS } from '../../data/modulos'
+import { useAchievementsStore } from '../../stores/achievementsStore'
 
 const ITENS = [INICIO, ...MODULOS]
 
 export function BottomNav() {
+  const figurinhasNovas = useAchievementsStore((s) => s.naoVistas.length)
+
   return (
     <nav
       aria-label="Menu principal"
@@ -18,7 +22,7 @@ export function BottomNav() {
               to={item.caminho}
               end={item.caminho === '/'}
               className={({ isActive }) =>
-                `m-1 flex min-h-16 flex-col items-center justify-center rounded-2xl text-xs ${
+                `relative m-1 flex min-h-16 flex-col items-center justify-center rounded-2xl text-xs ${
                   isActive ? `border-2 font-extrabold ${item.cor}` : 'border-2 border-transparent font-medium'
                 }`
               }
@@ -29,6 +33,12 @@ export function BottomNav() {
                     {item.emoji}
                   </span>
                   <span className="mt-1">{item.rotuloCurto}</span>
+                  {item.caminho === '/perfil' && figurinhasNovas > 0 && (
+                    <span className="absolute -top-1 right-0 grid min-w-6 place-items-center rounded-full bg-red-600 px-1 text-xs font-black text-white">
+                      {figurinhasNovas}
+                      <span className="sr-only"> figurinhas novas</span>
+                    </span>
+                  )}
                 </>
               )}
             </NavLink>

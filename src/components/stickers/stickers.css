@@ -1,0 +1,71 @@
+/* Animações das figurinhas (todas leves, só CSS). */
+
+.sticker g,
+.sticker rect {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Balança de um lado para o outro */
+.sticker-balanca {
+  animation: st-balanca 2.4s ease-in-out infinite;
+}
+@keyframes st-balanca {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
+/* "Respira": cresce e volta */
+.sticker-pulsa {
+  animation: st-pulsa 1.6s ease-in-out infinite;
+}
+@keyframes st-pulsa {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+
+/* Raios do fundo girando devagar */
+.sticker-gira .sticker-raios {
+  animation: st-gira 8s linear infinite;
+}
+@keyframes st-gira {
+  to { transform: rotate(360deg); }
+}
+
+/* Reflexo de brilho passando pela figurinha, com uma pausa entre uma passada e outra */
+.sticker-brilho {
+  display: none;
+}
+.sticker-brilha .sticker-brilho {
+  display: block;
+  animation: st-brilho 2.8s ease-in-out infinite;
+}
+@keyframes st-brilho {
+  0% { transform: translateX(-50px); }
+  60%, 100% { transform: translateX(170px); }
+}
+
+/* Revelação ao desbloquear: chega girando e crescendo, com um clarão.
+   Começa pequena, mas visível (nunca invisível, caso o celular trave quadros). */
+.sticker-revelar {
+  animation: st-revelar 0.9s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+@keyframes st-revelar {
+  from {
+    transform: scale(0.3) rotate(-25deg);
+    filter: brightness(1.8);
+  }
+}
+
+/* Confete da comemoração: cada pedaço cai uma vez só */
+.confete {
+  position: absolute;
+  top: -5vh;
+  border-radius: 2px;
+  animation-name: confete-cai;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes confete-cai {
+  to { transform: translateY(110vh) rotate(var(--giro, 360deg)); }
+}

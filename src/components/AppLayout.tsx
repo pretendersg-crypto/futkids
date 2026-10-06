@@ -1,6 +1,7 @@
 // Moldura de todas as telas: conteúdo da rota atual + barra de navegação fixa embaixo.
 import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
+import { Celebracao } from '../features/conquistas/Celebracao'
 import { useUserStore } from '../stores/userStore'
 import { BottomNav } from './ui/BottomNav'
 
@@ -28,6 +29,8 @@ export function AppLayout() {
         <Outlet />
       </main>
       <BottomNav />
+      {/* Janela de figurinha nova, aparece por cima de qualquer tela */}
+      <Celebracao />
     </>
   )
 }

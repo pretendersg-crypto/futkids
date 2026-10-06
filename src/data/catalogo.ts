@@ -1,5 +1,6 @@
-// Tipos e acesso aos dados de exercícios e vídeos (os dados ficam nos .json desta pasta,
-// para poderem ser editados sem mexer em código).
+// Tipos e acesso aos dados de exercícios, vídeos e conquistas (os dados ficam nos .json
+// desta pasta, para poderem ser editados sem mexer em código).
+import conquistasJson from './conquistas.json'
 import exerciciosJson from './exercicios.json'
 import videosJson from './videos.json'
 
@@ -56,4 +57,49 @@ export function urlDeMidia(caminho: string): string {
   if (!caminho || /^https?:\/\//.test(caminho)) return caminho
   const base = import.meta.env.VITE_VIDEOS_BASE_URL || '/videos/'
   return base.replace(/\/?$/, '/') + caminho.replace(/^\//, '')
+}
+
+// ---------- Conquistas ----------
+
+/** Endereço de uma imagem de figurinha: caminho relativo = pasta public/stickers/ */
+export function urlDeSticker(url: string): string {
+  return /^https?:\/\//.test(url) ? url : `/stickers/${url.replace(/^\//, '')}`
+}
+
+
+/** Regra para desbloquear uma conquista (avaliada em features/conquistas/criterios.ts) */
+export type Criterio =
+  /** Contador de atividades do progresso (ex.: chave "goleiro" = treinos de goleiro concluídos) */
+  | { tipo: 'contador'; chave: string; minimo: number }
+  | { tipo: 'nivel'; minimo: number }
+  /** Maior sequência de dias seguidos treinando */
+  | { tipo: 'sequencia'; minimo: number }
+  /** Total de dias diferentes com treino */
+  | { tipo: 'diasTreinados'; minimo: number }
+
+export type AnimacaoSticker = 'balanca' | 'pulsa' | 'gira' | 'brilha'
+
+/** Visual da figurinha. "padrao" é desenhado pelo app; os outros recebem arquivos do designer. */
+export type Sticker =
+  | { tipo: 'padrao'; emoji: string; cores: [string, string]; animacao: AnimacaoSticker }
+  /** Imagem (PNG/SVG/WebP animado) em public/stickers/ ou URL completa */
+  | { tipo: 'imagem'; url: string; emojiReserva?: string }
+  /** Animação Lottie (JSON). Ver README: a biblioteca só entra quando o primeiro arquivo chegar */
+  | { tipo: 'lottie'; url: string; emojiReserva?: string }
+
+export interface Conquista {
+  id: string
+  /** Posição no álbum (Nº 01, Nº 02...) */
+  numero: number
+  nome: string
+  descricao: string
+  criterio: Criterio
+  sticker: Sticker
+}
+
+// [...].sort em vez de toSorted: toSorted não existe em celulares mais antigos
+export const CONQUISTAS = [...(conquistasJson as Conquista[])].sort((a, b) => a.numero - b.numero)
+
+export function conquistaPorId(id: string): Conquista | undefined {
+  return CONQUISTAS.find((c) => c.id === id)
 }

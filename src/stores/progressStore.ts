@@ -24,6 +24,8 @@ interface ProgressState {
   gastarMoedas: (quantidade: number) => boolean
   /** Conta mais uma atividade concluída e marca hoje como dia de treino */
   registrarAtividade: (tipo: string) => void
+  /** Soma uma quantidade a um contador sem marcar dia de treino (ex.: embaixadinhas feitas) */
+  somarContador: (chave: string, quantidade: number) => void
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -54,6 +56,8 @@ export const useProgressStore = create<ProgressState>()(
             diasTreinados: s.diasTreinados.includes(hoje) ? s.diasTreinados : [...s.diasTreinados, hoje],
           }
         }),
+      somarContador: (chave, quantidade) =>
+        set((s) => ({ contadores: { ...s.contadores, [chave]: (s.contadores[chave] ?? 0) + Math.max(0, quantidade) } })),
     }),
     {
       name: 'futkids-progresso',

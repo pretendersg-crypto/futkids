@@ -22,7 +22,9 @@ export function Modal({ aberto, aoFechar, titulo, children }: Props) {
   return (
     <dialog
       ref={ref}
-      onClose={aoFechar}
+      // No React o "close" de uma janela aberta DENTRO desta (ex.: portão dos pais sobre a
+      // comemoração) sobe até aqui; só reage ao fechamento desta própria janela
+      onClose={(e) => e.target === ref.current && aoFechar()}
       // Toque no fundo escuro (fora da caixa) fecha a janela
       onClick={(e) => e.target === ref.current && aoFechar()}
       className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-3xl bg-white p-0 text-campo-escuro shadow-2xl backdrop:bg-black/50"

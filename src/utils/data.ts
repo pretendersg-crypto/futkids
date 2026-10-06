@@ -4,3 +4,9 @@ export function hojeISO(agora = new Date()): string {
   const dia = String(agora.getDate()).padStart(2, '0')
   return `${agora.getFullYear()}-${mes}-${dia}`
 }
+
+/** AAAA-MM-DD → DD/MM/AAAA */
+export function formatarData(iso: string): string {
+  const [ano, mes, dia] = iso.split('-')
+  return `${dia}/${mes}/${ano}`
+}
