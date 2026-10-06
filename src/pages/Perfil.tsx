@@ -2,6 +2,7 @@
 // e o álbum de figurinhas.
 import { Link } from 'react-router'
 import { AlbumConquistas } from '../components/stickers/AlbumConquistas'
+import { InstalarApp } from '../components/ui/InstalarApp'
 import { Avatar } from '../features/avatar/Avatar'
 import { useCategoria } from '../features/categoria/categoria'
 import { proximaCategoria } from '../data/categorias'
@@ -72,6 +73,8 @@ export function Perfil() {
       </ul>
 
       <AlbumConquistas />
+
+      <InstalarApp jeito="botao" />
 
       {/* Som do app (bips, comemorações): útil na sala de aula ou à noite */}
       <button

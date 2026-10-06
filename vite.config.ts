@@ -29,7 +29,8 @@ export default defineConfig(({ mode }) => ({
         theme_color: '#16a34a',
         background_color: '#f0fdf4',
         display: 'standalone',
-        orientation: 'portrait',
+        // 'any': o tablet pode ficar deitado (ex.: apoiado no chão nos drills de reação)
+        orientation: 'any',
         start_url: base,
         scope: base,
         icons: [

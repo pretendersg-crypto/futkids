@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router'
 import { Mascote, type Humor } from '../components/mascote/Mascote'
+import { InstalarApp } from '../components/ui/InstalarApp'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { saudacao } from '../data/mascote'
 import { MODULOS } from '../data/modulos'
@@ -73,6 +74,9 @@ export function Home() {
           )}
         </Link>
       </header>
+
+      {/* Aberto pelo navegador (com barra de endereço): convite para instalar como app */}
+      <InstalarApp jeito="faixa" />
 
       <Mascote humor={dica.humor} fala={`${saudacao()}, ${apelido}! ${dica.texto}`} tamanho={84} />
 

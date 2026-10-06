@@ -122,7 +122,8 @@ export function ExecutarDrill({ drill, aoTerminar }: Props) {
 
       {/* Botões de resposta (modo toque) */}
       {toque && (
-        <div className={`grid gap-2 ${botoes.length > 4 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        // Deitado (tablet/celular na horizontal): todos os botões numa linha só, sobra altura para o sinal
+        <div className={`grid gap-2 landscape:grid-flow-col landscape:auto-cols-fr landscape:grid-cols-none ${botoes.length > 4 ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {botoes.map((b) => (
             <button
               key={b.id}
@@ -133,7 +134,7 @@ export function ExecutarDrill({ drill, aoTerminar }: Props) {
                 motor.current?.responder(b.id)
               }}
               aria-label={b.cor ? b.cor.nome : b.rotulo}
-              className="min-h-20 touch-manipulation rounded-2xl border-4 border-white/70 text-4xl font-black select-none active:scale-95"
+              className="min-h-20 touch-manipulation landscape:min-h-16 rounded-2xl border-4 border-white/70 text-4xl font-black select-none active:scale-95"
               style={b.cor ? { background: b.cor.fundo, color: b.cor.texto } : { background: '#f8fafc', color: '#0f172a' }}
             >
               {b.cor ? <span className="text-lg uppercase">{b.cor.nome}</span> : b.rotulo}

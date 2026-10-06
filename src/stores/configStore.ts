@@ -5,6 +5,9 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 interface ConfigState {
   somAtivo: boolean
   alternarSom: () => void
+  /** A faixa "Instale o FutKids" da Home foi fechada ("Agora não"); o botão do Perfil continua */
+  faixaInstalarFechada: boolean
+  fecharFaixaInstalar: () => void
 }
 
 export const useConfigStore = create<ConfigState>()(
@@ -12,12 +15,14 @@ export const useConfigStore = create<ConfigState>()(
     (set) => ({
       somAtivo: true,
       alternarSom: () => set((s) => ({ somAtivo: !s.somAtivo })),
+      faixaInstalarFechada: false,
+      fecharFaixaInstalar: () => set({ faixaInstalarFechada: true }),
     }),
     {
       name: 'futkids-config',
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ somAtivo: s.somAtivo }),
+      partialize: (s) => ({ somAtivo: s.somAtivo, faixaInstalarFechada: s.faixaInstalarFechada }),
     },
   ),
 )

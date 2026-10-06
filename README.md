@@ -219,6 +219,11 @@ Abra o endereço publicado no Chrome (Android) ou Safari (iPhone):
 - **Android**: menu ⋮ → **Instalar app** (ou "Adicionar à tela inicial")
 - **iPhone**: botão Compartilhar → **Adicionar à Tela de Início**
 
+Ou pelo próprio app: quando ele está aberto pelo navegador, a Home mostra a faixa **"📲 Instale o FutKids"**
+e o Perfil tem o botão **"Instalar o app neste aparelho"** (com o portão dos pais). Onde o navegador deixa
+(Chrome/Samsung Internet no Android), instala com um toque; no iPhone/iPad mostra o passo a passo.
+Instalado, o app gira junto com a tela (bom no tablet apoiado na horizontal).
+
 ### Lembrete diário
 
 Funciona sem servidor:
