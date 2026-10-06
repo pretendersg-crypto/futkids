@@ -63,15 +63,15 @@ export function videoPorId(id: string): Video | undefined {
  */
 export function urlDeMidia(caminho: string): string {
   if (!caminho || /^https?:\/\//.test(caminho)) return caminho
-  const base = import.meta.env.VITE_VIDEOS_BASE_URL || '/videos/'
+  const base = import.meta.env.VITE_VIDEOS_BASE_URL || `${import.meta.env.BASE_URL}videos/`
   return base.replace(/\/?$/, '/') + caminho.replace(/^\//, '')
 }
 
 // ---------- Conquistas ----------
 
-/** Endereço de uma imagem de figurinha: caminho relativo = pasta public/stickers/ */
+/** Endereço de uma imagem de figurinha: caminho relativo = pasta public/stickers/ do app */
 export function urlDeSticker(url: string): string {
-  return /^https?:\/\//.test(url) ? url : `/stickers/${url.replace(/^\//, '')}`
+  return /^https?:\/\//.test(url) ? url : `${import.meta.env.BASE_URL}stickers/${url.replace(/^\//, '')}`
 }
 
 

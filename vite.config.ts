@@ -4,8 +4,13 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Caminho onde o app fica publicado. GitHub Pages (projeto): BASE_PATH=/futkids/ no build
+// (ver .github/workflows/deploy.yml). Em casa, no `npm run dev`, é a raiz.
+const base = process.env.BASE_PATH ?? '/'
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  base,
   plugins: [
     react(),
     tailwindcss(),
@@ -25,8 +30,8 @@ export default defineConfig(({ mode }) => ({
         background_color: '#f0fdf4',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: base,
+        scope: base,
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

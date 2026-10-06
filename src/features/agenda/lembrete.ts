@@ -79,7 +79,8 @@ export async function pedirPermissaoNotificacao(): Promise<PermissaoNotificacao>
 /** Mostra a notificação do sistema (pelo service worker, que é o que funciona no Android) */
 export async function mostrarNotificacao(): Promise<boolean> {
   if (permissaoNotificacao() !== 'permitida') return false
-  const opcoes = { body: MENSAGEM.corpo, icon: '/pwa-192x192.png', tag: TAG_SEGUNDO_PLANO, data: { url: '/agenda' } }
+  const base = import.meta.env.BASE_URL // "/" ou a subpasta onde o app está publicado
+  const opcoes = { body: MENSAGEM.corpo, icon: `${base}pwa-192x192.png`, tag: TAG_SEGUNDO_PLANO, data: { url: `${base}agenda` } }
   try {
     const registro = await navigator.serviceWorker?.getRegistration()
     if (registro) await registro.showNotification(MENSAGEM.titulo, opcoes)

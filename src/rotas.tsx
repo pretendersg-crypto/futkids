@@ -2,14 +2,14 @@
 // a tela "Meu jogador" fica fora, ocupando a tela inteira.
 // Início, menus e "Meu jogador" vêm no arquivo principal (abrem na hora); as telas maiores são
 // carregadas sob demanda em arquivos separados, que o PWA também guarda para funcionar offline.
-import { createBrowserRouter, Navigate } from 'react-router'
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
 import { AppLayout } from './components/AppLayout'
 import { Goleiro } from './pages/Goleiro'
 import { Home } from './pages/Home'
 import { Jogador } from './pages/Jogador'
 import { Rali } from './pages/Rali'
 
-export const router = createBrowserRouter([
+const ROTAS: RouteObject[] = [
   { path: '/jogador', element: <Jogador /> },
   {
     path: '/',
@@ -40,4 +40,9 @@ export const router = createBrowserRouter([
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
-])
+]
+
+export const router = createBrowserRouter(ROTAS, {
+  // Publicado numa subpasta (ex.: /futkids/ no GitHub Pages): as rotas continuam começando em "/"
+  basename: import.meta.env.BASE_URL.replace(/\/$/, '') || '/',
+})

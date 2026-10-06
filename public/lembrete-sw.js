@@ -48,9 +48,10 @@ async function verificarLembrete() {
   await gravar('ultimoAviso', hoje)
   await self.registration.showNotification('⚽ Hora do treino!', {
     body: 'Bora treinar um pouquinho hoje? 💪',
-    icon: '/pwa-192x192.png',
+    // Endereços relativos ao escopo do service worker: funciona na raiz ou numa subpasta (/futkids/)
+    icon: new URL('pwa-192x192.png', self.registration.scope).href,
     tag: TAG,
-    data: { url: '/agenda' },
+    data: { url: new URL('agenda', self.registration.scope).href },
   })
 }
 
@@ -61,7 +62,7 @@ self.addEventListener('periodicsync', (evento) => {
 // Tocar na notificação abre (ou traz para frente) o app na agenda
 self.addEventListener('notificationclick', (evento) => {
   evento.notification.close()
-  const url = (evento.notification.data && evento.notification.data.url) || '/'
+  const url = (evento.notification.data && evento.notification.data.url) || self.registration.scope
   evento.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((janelas) => {
       const aberta = janelas.find((j) => 'focus' in j)
