@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ProgressBar } from '../../components/ui/ProgressBar'
 import { useAgendaStore } from '../../stores/agendaStore'
+import { useProgramaStore } from '../../stores/programaStore'
 import { useProgressStore } from '../../stores/progressStore'
 import { hojeISO } from '../../utils/data'
 import {
@@ -33,7 +34,8 @@ export function Missoes() {
   const [ganhou, setGanhou] = useState<string | null>(null)
 
   const hoje = hojeISO()
-  const treinos = treinosDoDia(hoje, atividadesPorDia)
+  const programa = useProgramaStore()
+  const treinos = treinosDoDia(hoje, atividadesPorDia, programa)
   const missoes: Missao[] = [
     ...(treinos.length
       ? [{ chave: `dia:${hoje}`, emoji: '☀️', titulo: 'Missão do dia: os treinos de hoje', feito: treinos.filter((t) => t.feito).length, meta: treinos.length, premio: PREMIO_MISSAO_DIA }]

@@ -10,7 +10,10 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
   saltos contados pelo acelerômetro (só com um adulto liberando)
 - **Alimentação do Craque**: lições com o mascote, jogo das turmas dos alimentos, monte o prato,
   verdade ou mentira e garrafinha de água do treino (sem dieta, calorias ou suplementos)
-- **Agenda**: plano de 4 semanas que se repete, check-in, dias seguidos, missões e lembrete diário
+- **Agenda**: calendário de pré-temporada de goleiros (61 dias, com os vídeos do treinador) ou plano
+  infantil de 4 semanas, check-in, dias seguidos, missões e lembrete diário
+- **Área dos pais** (aba "Pais" na Agenda, com PIN): escolher o programa e a data de início, ver o mês com o que a
+  criança fez, mudar qualquer dia, trocar os links dos vídeos e ver os treinos de academia do calendário
 - **Perfil**: álbum de figurinhas, conquistas e loja do avatar com moedas
 - **Bolinha**, o mascote que guia e torce
 
@@ -89,6 +92,19 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
   `prancha`, `braco-cruzado`, `quadriceps`). Movimento novo = keyframes em `src/features/treino/boneco.css` + nome
   no tipo `AnimacaoBoneco` em `src/data/catalogo.ts`
 
+### Calendário de goleiros e vídeos do treinador: `src/data/calendarioGoleiros.ts`
+
+- `TREINOS_CALENDARIO`: cada treino do calendário. Os campos são:
+  - `videoUrl`: o vídeo original, que abre fora do app só depois da conta para adultos;
+  - `rota`: a série animada do app que adapta o treino para a criança;
+  - `atividade`: o que marca o dia como feito.
+- `PROGRAMA_GOLEIROS`: os 61 dias, na ordem do PDF. Um dia sem itens é descanso. Um item pode ter
+  `video` próprio, que vale só naquele dia.
+- **Vídeo virando animação:** crie a série nova (exercícios em `exercicios.json` + entrada em
+  `src/features/treino/series.ts`) e troque a `rota` do treino para ela.
+- **O que os pais mudam pelo app** (data de início, dias trocados, links): fica só no aparelho
+  (`futkids-programa` no localStorage). Para mudar o calendário de todo mundo, edite este arquivo.
+
 ### Vídeos de exemplo: `src/data/videos.json`
 
 ```json
@@ -135,7 +151,8 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 
 | O quê | Onde |
 | --- | --- |
-| Plano de treinos (4 semanas que se repetem; o aquecimento entra sozinho antes de cada treino) | `src/data/agenda.json` |
+| Calendário de goleiros: os 61 dias, os treinos, os links dos vídeos e a academia | `src/data/calendarioGoleiros.ts` |
+| Plano infantil (4 semanas que se repetem; o aquecimento entra sozinho antes de cada treino) | `src/data/agenda.json` |
 | Lições, alimentos, perguntas do quiz e momentos da água | `src/data/alimentacao.ts` |
 | Apelidos prontos | `src/data/apelidos.ts` |
 | Falas do mascote | `src/data/mascote.ts` |

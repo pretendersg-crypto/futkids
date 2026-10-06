@@ -8,6 +8,7 @@ import { saudacao } from '../data/mascote'
 import { MODULOS } from '../data/modulos'
 import { planoDoDia, treinosPendentesHoje } from '../features/agenda/semana'
 import { Avatar } from '../features/avatar/Avatar'
+import { useProgramaStore, type ConfigPrograma } from '../stores/programaStore'
 import { useProgressStore } from '../stores/progressStore'
 import { useUserStore } from '../stores/userStore'
 import { hojeISO } from '../utils/data'
@@ -22,8 +23,10 @@ export function Home() {
   const atividadesPorDia = useProgressStore((s) => s.atividadesPorDia)
   const { nivel, xpNoNivel, xpParaProximo } = nivelPorXP(xp)
   const diasTreinados = useProgressStore((s) => s.diasTreinados)
-  const pendentes = treinosPendentesHoje(atividadesPorDia)
-  const dica = dicaDoMascote(diasTreinados)
+  // Assina o programa: se os pais mudarem a agenda, o sino e a dica do mascote acompanham
+  const programa = useProgramaStore()
+  const pendentes = treinosPendentesHoje(atividadesPorDia, programa)
+  const dica = dicaDoMascote(diasTreinados, programa)
 
   return (
     <section className="flex flex-col gap-4">
@@ -92,13 +95,13 @@ export function Home() {
 }
 
 /** O que o mascote diz na Home, conforme o dia da criança */
-function dicaDoMascote(diasTreinados: string[]): { texto: string; humor: Humor } {
+function dicaDoMascote(diasTreinados: string[], programa: ConfigPrograma): { texto: string; humor: Humor } {
   const hoje = hojeISO()
   const seguidos = sequenciaAtual(diasTreinados, hoje)
   if (diasTreinados.includes(hoje)) {
     return seguidos >= 2 ? { texto: `${seguidos} dias seguidos! Você é demais! 🔥`, humor: 'comemorando' } : { texto: 'Treino feito hoje! Mandou bem! ⭐', humor: 'comemorando' }
   }
-  if (planoDoDia(hoje).descanso) return { texto: 'Hoje é dia de descanso, mas pode treinar se quiser! 😄', humor: 'feliz' }
+  if (planoDoDia(hoje, programa).descanso) return { texto: 'Hoje é dia de descanso, mas pode treinar se quiser! 😄', humor: 'feliz' }
   if (seguidos >= 1) return { texto: `${seguidos} ${seguidos === 1 ? 'dia seguido' : 'dias seguidos'}! Treine hoje para não perder 🔥`, humor: 'torcendo' }
   return { texto: 'Bora treinar? Comece pelo aquecimento! 🔥', humor: 'feliz' }
 }

@@ -1,20 +1,31 @@
-// Plano de treinos (ciclo de 4 semanas), dias da semana e missões, calculados a partir do progresso salvo.
-import planoJson from '../../data/agenda.json'
-import { diaDaSemana, hojeISO, somarDias } from '../../utils/data'
-import { SERIES } from '../treino/series'
+// O que treinar em cada dia e as missões, a partir do programa escolhido pelos pais
+// (calendário de goleiros ou plano infantil), das alterações feitas por eles e do progresso salvo.
+import planoInfantilJson from '../../data/agenda.json'
+import { PROGRAMA_GOLEIROS, treinoPorId, type DiaPrograma } from '../../data/calendarioGoleiros'
+import { useProgramaStore, type ConfigPrograma } from '../../stores/programaStore'
+import { diaDaSemana, formatarData, hojeISO, somarDias } from '../../utils/data'
 
 export interface TreinoSugerido {
-  /** Tipo registrado ao terminar (aquecimento, goleiro, rali, velocidade...) */
+  /** Id do treino (data/calendarioGoleiros.ts) */
+  id: string
+  /** Tipo registrado quando a criança faz o treino */
   atividade: string
   titulo: string
   emoji: string
-  rota: string
+  /** Versão animada no app */
+  rota?: string
+  /** Vídeo do treinador (já com a troca feita pelos pais, se houver) */
+  video?: string
+  detalhe?: string
 }
 
 export interface PlanoDoDia {
+  /** Dia da semana (0 = domingo) */
   dia: number
   descanso: boolean
   treinos: TreinoSugerido[]
+  /** Os pais trocaram o treino desta data */
+  alterado: boolean
 }
 
 interface DiaNoJson {
@@ -23,16 +34,7 @@ interface DiaNoJson {
   treinos?: string[]
 }
 
-/** Nomes curtos usados em data/agenda.json → treino de verdade (série, jogo ou desafio) */
-const TREINOS: Record<string, TreinoSugerido> = {
-  ...Object.fromEntries(SERIES.map((s) => [s.modulo, { atividade: s.modulo, titulo: s.titulo, emoji: s.emoji, rota: s.rota }])),
-  goleiro: { atividade: 'goleiro', titulo: 'Treino de goleiro', emoji: '🧤', rota: '/goleiro' },
-  fundamentos: { atividade: 'goleiro', titulo: 'Fundamentos do goleiro', emoji: '📚', rota: '/goleiro/fundamentos' },
-  rali: { atividade: 'rali', titulo: 'Rali de gestos', emoji: '⚽', rota: '/rali' },
-  embaixadinhas: { atividade: 'rali', titulo: 'Embaixadinhas de verdade', emoji: '⚽', rota: '/rali/contador' },
-}
-
-const SEMANAS = (planoJson.semanas as { dias: DiaNoJson[] }[]).map((s) => s.dias)
+const SEMANAS_INFANTIL = (planoInfantilJson.semanas as { dias: DiaNoJson[] }[]).map((s) => s.dias)
 
 export const LETRAS_DIAS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
 export const NOMES_DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
@@ -44,24 +46,88 @@ export const PREMIO_MISSAO_DIA = { xp: 15, moedas: 3 }
 export const PREMIO_MISSAO_SEMANA = { xp: 40, moedas: 10 }
 export const PREMIO_MISSAO_ALONGAMENTO = { xp: 25, moedas: 5 }
 
-/** Um domingo de referência: a partir dele as semanas do plano contam 1, 2, 3, 4, 1, 2... */
+/** Um domingo de referência: a partir dele as semanas do plano infantil contam 1, 2, 3, 4, 1, 2... */
 const DOMINGO_REFERENCIA = '2026-01-04'
 
-/** Em qual semana do ciclo (0 a 3) cai a data */
-export function semanaDoPlano(iso: string): number {
-  const [a, m, d] = iso.split('-').map(Number)
-  const [ra, rm, rd] = DOMINGO_REFERENCIA.split('-').map(Number)
-  const dias = Math.round((Date.UTC(a, m - 1, d) - Date.UTC(ra, rm - 1, rd)) / 86_400_000)
-  return (((Math.floor(dias / 7) % SEMANAS.length) + SEMANAS.length) % SEMANAS.length)
+/** Dias entre duas datas AAAA-MM-DD (b - a) */
+function diasEntre(a: string, b: string): number {
+  const [aa, am, ad] = a.split('-').map(Number)
+  const [ba, bm, bd] = b.split('-').map(Number)
+  return Math.round((Date.UTC(ba, bm - 1, bd) - Date.UTC(aa, am - 1, ad)) / 86_400_000)
 }
 
-/** O plano do dia. Regra do calendário: o aquecimento vem SEMPRE antes de qualquer treino. */
-export function planoDoDia(iso: string): PlanoDoDia {
-  const dia = diaDaSemana(iso)
-  const doJson = SEMANAS[semanaDoPlano(iso)].find((p) => p.dia === dia)
-  if (!doJson || doJson.descanso) return { dia, descanso: true, treinos: [] }
-  const treinos = (doJson.treinos ?? []).map((t) => TREINOS[t]).filter(Boolean)
-  return { dia, descanso: false, treinos: [TREINOS.aquecimento, ...treinos] }
+/** Em qual semana do plano infantil (0 a 3) cai a data */
+export function semanaDoPlano(iso: string): number {
+  const n = SEMANAS_INFANTIL.length
+  return ((Math.floor(diasEntre(DOMINGO_REFERENCIA, iso) / 7) % n) + n) % n
+}
+
+/** Posição da data no calendário de goleiros (0 a 60), ou null se ainda não começou / já acabou */
+export function posicaoNoCalendario(iso: string, cfg: ConfigPrograma): number | null {
+  const n = PROGRAMA_GOLEIROS.length
+  const dias = diasEntre(cfg.inicio, iso)
+  if (dias < 0) return null
+  if (dias >= n && !cfg.repetir) return null
+  return dias % n
+}
+
+/** O dia segundo o programa ativo, sem as alterações dos pais */
+export function diaDoProgramaOriginal(iso: string, cfg: ConfigPrograma): DiaPrograma {
+  if (cfg.ativo === 'goleiros') {
+    const pos = posicaoNoCalendario(iso, cfg)
+    return pos === null ? { itens: [] } : PROGRAMA_GOLEIROS[pos]
+  }
+  const doJson = SEMANAS_INFANTIL[semanaDoPlano(iso)].find((p) => p.dia === diaDaSemana(iso))
+  return { itens: doJson?.descanso ? [] : (doJson?.treinos ?? []).map((treino) => ({ treino })) }
+}
+
+/** Texto curto de onde a data está no programa, ex.: "Calendário de goleiros: dia 12 de 61" */
+export function descreverPosicao(iso: string, cfg: ConfigPrograma): string {
+  if (cfg.ativo === 'infantil') return `Plano infantil: semana ${semanaDoPlano(iso) + 1} de 4`
+  const pos = posicaoNoCalendario(iso, cfg)
+  if (pos !== null) return `Calendário de goleiros: dia ${pos + 1} de ${PROGRAMA_GOLEIROS.length}`
+  return diasEntre(cfg.inicio, iso) < 0 ? `Calendário de goleiros: começa em ${formatarData(cfg.inicio)}` : 'Calendário de goleiros: terminou'
+}
+
+/**
+ * O plano do dia: o programa ativo, ou a troca feita pelos pais para aquela data.
+ * Regra do calendário: o aquecimento vem SEMPRE antes de qualquer treino (entra sozinho).
+ */
+export function planoDoDia(iso: string, cfg: ConfigPrograma = useProgramaStore.getState()): PlanoDoDia {
+  const alteracao = cfg.alteracoes[iso]
+  const dia = alteracao ?? diaDoProgramaOriginal(iso, cfg)
+  const treinos = dia.itens.flatMap((item): TreinoSugerido[] => {
+    const t = treinoPorId(item.treino)
+    if (!t) return []
+    return [
+      {
+        id: t.id,
+        atividade: t.atividade,
+        titulo: t.nome,
+        emoji: t.emoji,
+        rota: t.rota,
+        detalhe: t.detalhe,
+        video: item.video ?? cfg.videos[t.id] ?? t.videoUrl,
+      },
+    ]
+  })
+  if (treinos.length === 0) return { dia: diaDaSemana(iso), descanso: true, treinos: [], alterado: !!alteracao }
+  const aquecimento = treinoPorId('aquecimento')!
+  const comAquecimento = treinos.some((t) => t.id === 'aquecimento')
+    ? treinos
+    : [
+        {
+          id: aquecimento.id,
+          atividade: aquecimento.atividade,
+          titulo: aquecimento.nome,
+          emoji: aquecimento.emoji,
+          rota: aquecimento.rota,
+          detalhe: aquecimento.detalhe,
+          video: cfg.videos.aquecimento ?? aquecimento.videoUrl,
+        },
+        ...treinos,
+      ]
+  return { dia: diaDaSemana(iso), descanso: false, treinos: comAquecimento, alterado: !!alteracao }
 }
 
 /** Os 7 dias (AAAA-MM-DD) da semana de `iso`, de domingo a sábado */
@@ -71,14 +137,14 @@ export function diasDaSemana(iso = hojeISO()): string[] {
 }
 
 /** Treinos sugeridos para o dia, cada um com "feito" conforme o que a criança já fez */
-export function treinosDoDia(iso: string, atividadesPorDia: Record<string, string[]>) {
+export function treinosDoDia(iso: string, atividadesPorDia: Record<string, string[]>, cfg?: ConfigPrograma) {
   const feitas = atividadesPorDia[iso] ?? []
-  return planoDoDia(iso).treinos.map((t) => ({ ...t, feito: feitas.includes(t.atividade) }))
+  return planoDoDia(iso, cfg).treinos.map((t) => ({ ...t, feito: feitas.includes(t.atividade) }))
 }
 
 /** Quantos treinos sugeridos de hoje ainda faltam (o sininho da Home mostra esse número) */
-export function treinosPendentesHoje(atividadesPorDia: Record<string, string[]>, hoje = hojeISO()): number {
-  return treinosDoDia(hoje, atividadesPorDia).filter((t) => !t.feito).length
+export function treinosPendentesHoje(atividadesPorDia: Record<string, string[]>, cfg?: ConfigPrograma, hoje = hojeISO()): number {
+  return treinosDoDia(hoje, atividadesPorDia, cfg).filter((t) => !t.feito).length
 }
 
 export function diasTreinadosNaSemana(diasTreinados: string[], hoje = hojeISO()): number {
