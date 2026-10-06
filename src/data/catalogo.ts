@@ -6,8 +6,16 @@ import videosJson from './videos.json'
 
 export type TipoExercicio = 'tempo' | 'repeticoes'
 
-/** Animações do bonequinho demonstrador (definidas em features/aquecimento/boneco.css) */
-export type AnimacaoBoneco = 'corrida' | 'polichinelo' | 'agachamento' | 'alongamento-lateral' | 'moinho'
+/** Animações do bonequinho demonstrador (definidas em features/treino/boneco.css) */
+export type AnimacaoBoneco =
+  | 'corrida'
+  | 'polichinelo'
+  | 'agachamento'
+  | 'alongamento-lateral'
+  | 'moinho'
+  | 'encaixe'
+  | 'saida-gol'
+  | 'reposicao'
 
 export interface Exercicio {
   id: string

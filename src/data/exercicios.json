@@ -10,7 +10,11 @@
     "animacao": "corrida",
     "xp": 10,
     "videoId": "aq-corrida",
-    "passos": ["Corra sem sair do lugar", "Levante bem os joelhos", "Mexa os braços"]
+    "passos": [
+      "Corra sem sair do lugar",
+      "Levante bem os joelhos",
+      "Mexa os braços"
+    ]
   },
   {
     "id": "polichinelo",
@@ -23,7 +27,11 @@
     "animacao": "polichinelo",
     "xp": 10,
     "videoId": "aq-polichinelo",
-    "passos": ["Pule abrindo braços e pernas", "Pule de novo fechando", "Siga o ritmo do bip"]
+    "passos": [
+      "Pule abrindo braços e pernas",
+      "Pule de novo fechando",
+      "Siga o ritmo do bip"
+    ]
   },
   {
     "id": "agachamento",
@@ -36,7 +44,11 @@
     "animacao": "agachamento",
     "xp": 10,
     "videoId": "aq-agachamento",
-    "passos": ["Pés afastados", "Desça como se fosse sentar", "Suba devagar"]
+    "passos": [
+      "Pés afastados",
+      "Desça como se fosse sentar",
+      "Suba devagar"
+    ]
   },
   {
     "id": "alongamento-lateral",
@@ -49,7 +61,11 @@
     "animacao": "alongamento-lateral",
     "xp": 10,
     "videoId": "aq-alongamento-lateral",
-    "passos": ["Braços para cima", "Incline para um lado e depois para o outro", "Devagar, sem sentir dor"]
+    "passos": [
+      "Braços para cima",
+      "Incline para um lado e depois para o outro",
+      "Devagar, sem sentir dor"
+    ]
   },
   {
     "id": "moinho-de-vento",
@@ -62,6 +78,61 @@
     "animacao": "moinho",
     "xp": 10,
     "videoId": "aq-moinho",
-    "passos": ["Braços bem esticados", "Gire os braços em círculos grandes", "Respire fundo"]
+    "passos": [
+      "Braços bem esticados",
+      "Gire os braços em círculos grandes",
+      "Respire fundo"
+    ]
+  },
+  {
+    "id": "encaixe",
+    "modulo": "goleiro",
+    "nome": "Encaixe",
+    "emoji": "🤲",
+    "tipo": "tempo",
+    "meta": 45,
+    "ritmoMs": 2200,
+    "animacao": "encaixe",
+    "xp": 15,
+    "videoId": "gl-encaixe",
+    "passos": [
+      "Peça para alguém jogar a bola (ou jogue na parede)",
+      "Mãos em W, com os dedões quase se tocando",
+      "Segure e puxe a bola para o peito"
+    ]
+  },
+  {
+    "id": "saida-de-gol",
+    "modulo": "goleiro",
+    "nome": "Saída de gol",
+    "emoji": "🏃",
+    "tipo": "tempo",
+    "meta": 40,
+    "ritmoMs": 1800,
+    "animacao": "saida-gol",
+    "xp": 15,
+    "videoId": "gl-saida-gol",
+    "passos": [
+      "Comece em cima da linha do gol",
+      "Corra para a frente, na direção da bola",
+      "Abra os braços e fique bem grande"
+    ]
+  },
+  {
+    "id": "reposicao",
+    "modulo": "goleiro",
+    "nome": "Reposição com a mão",
+    "emoji": "💪",
+    "tipo": "tempo",
+    "meta": 45,
+    "ritmoMs": 2400,
+    "animacao": "reposicao",
+    "xp": 15,
+    "videoId": "gl-reposicao",
+    "passos": [
+      "Segure a bola com uma mão",
+      "Leve o braço para trás e passe por cima da cabeça",
+      "Solte a bola lá na frente, para um amigo"
+    ]
   }
 ]

@@ -38,15 +38,17 @@ export function ApresentarExercicio({ exercicio, aviso, aoComecar }: Props) {
         ))}
       </ol>
 
-      <div className="grid w-full grid-cols-2 gap-3">
+      {/* Botões grudados logo acima da barra inferior: aparecem mesmo quando os passos são longos */}
+      <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] grid w-full grid-cols-2 gap-3 bg-campo-claro/95 py-2">
+
         <button
           type="button"
           onClick={() => setExemploAberto(true)}
-          className="min-h-16 rounded-3xl border-4 border-orange-300 bg-white text-xl font-extrabold"
+          className="min-h-16 rounded-3xl border-4 border-orange-300 bg-white text-lg font-extrabold whitespace-nowrap"
         >
           Ver exemplo 🎥
         </button>
-        <button type="button" onClick={aoComecar} className="min-h-16 rounded-3xl bg-sol text-xl font-extrabold shadow-lg">
+        <button type="button" onClick={aoComecar} className="min-h-16 rounded-3xl bg-sol text-lg font-extrabold whitespace-nowrap shadow-lg">
           Começar ▶️
         </button>
       </div>

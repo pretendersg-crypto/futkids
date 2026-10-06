@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { AppLayout } from './components/AppLayout'
 import { Agenda } from './pages/Agenda'
 import { Aquecimento } from './pages/Aquecimento'
+import { FundamentosGoleiro } from './pages/FundamentosGoleiro'
 import { Goleiro } from './pages/Goleiro'
 import { Home } from './pages/Home'
 import { Jogador } from './pages/Jogador'
@@ -18,7 +19,16 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'aquecimento', element: <Aquecimento /> },
-      { path: 'goleiro', element: <Goleiro /> },
+      {
+        path: 'goleiro',
+        children: [
+          { index: true, element: <Goleiro /> },
+          { path: 'fundamentos', element: <FundamentosGoleiro /> },
+          // ex.: /goleiro/defesa/iniciante. Carregado só quando abre um jogo (arquivo separado,
+          // mas guardado pelo PWA para funcionar offline)
+          { path: ':jogo/:nivel', lazy: () => import('./pages/JogoGoleiro').then((m) => ({ Component: m.JogoGoleiro })) },
+        ],
+      },
       { path: 'rali', element: <Rali /> },
       { path: 'agenda', element: <Agenda /> },
       { path: 'perfil', element: <Perfil /> },

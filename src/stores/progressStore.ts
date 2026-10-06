@@ -18,6 +18,8 @@ interface ProgressState {
   contadores: Record<string, number>
   /** Dias (AAAA-MM-DD) em que a criança treinou; base do streak da agenda */
   diasTreinados: string[]
+  /** Melhor resultado de cada jogo/nível (ex.: "goleiro:defesa:iniciante" → 8); a criança compete consigo mesma */
+  recordes: Record<string, number>
   ganharXP: (quantidade: number) => ResultadoXP
   ganharMoedas: (quantidade: number) => void
   /** Desconta moedas; devolve false (sem descontar nada) se não houver saldo */
@@ -26,6 +28,8 @@ interface ProgressState {
   registrarAtividade: (tipo: string) => void
   /** Soma uma quantidade a um contador sem marcar dia de treino (ex.: embaixadinhas feitas) */
   somarContador: (chave: string, quantidade: number) => void
+  /** Guarda o resultado se for o melhor até agora; devolve true quando é recorde novo */
+  registrarRecorde: (chave: string, valor: number) => boolean
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -35,6 +39,7 @@ export const useProgressStore = create<ProgressState>()(
       moedas: 0,
       contadores: {},
       diasTreinados: [],
+      recordes: {},
       ganharXP: (quantidade) => {
         const antes = nivelPorXP(get().xp).nivel
         const xp = get().xp + Math.max(0, quantidade)
@@ -58,6 +63,13 @@ export const useProgressStore = create<ProgressState>()(
         }),
       somarContador: (chave, quantidade) =>
         set((s) => ({ contadores: { ...s.contadores, [chave]: (s.contadores[chave] ?? 0) + Math.max(0, quantidade) } })),
+      registrarRecorde: (chave, valor) => {
+        const anterior = get().recordes[chave]
+        if (anterior !== undefined && valor <= anterior) return false
+        set((s) => ({ recordes: { ...s.recordes, [chave]: valor } }))
+        // O primeiro resultado vira recorde, mas só é comemorado se for melhor que zero
+        return anterior !== undefined || valor > 0
+      },
     }),
     {
       name: 'futkids-progresso',
@@ -65,7 +77,13 @@ export const useProgressStore = create<ProgressState>()(
       version: 1,
       storage: createJSONStorage(() => localStorage),
       // Só os dados vão para o localStorage, as funções não
-      partialize: (s) => ({ xp: s.xp, moedas: s.moedas, contadores: s.contadores, diasTreinados: s.diasTreinados }),
+      partialize: (s) => ({
+        xp: s.xp,
+        moedas: s.moedas,
+        contadores: s.contadores,
+        diasTreinados: s.diasTreinados,
+        recordes: s.recordes,
+      }),
     },
   ),
 )

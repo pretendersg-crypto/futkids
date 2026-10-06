@@ -81,6 +81,66 @@
 @keyframes moi-braco-e { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes moi-braco-d { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
+/* ================= Goleiro (vistos DE LADO, olhando para a direita) ================= */
+
+/* Bolas ficam escondidas, exceto nas animações que usam bola */
+.b-bola, .b-bola-mao { display: none; }
+
+/* ---------- Encaixe: a bola chega, as mãos vão buscar e puxam para o peito ---------- */
+.boneco--encaixe .b-bola { display: inline; animation-name: enc-bola; }
+.boneco--encaixe .b-coxa-e { transform: rotate(-12deg); }
+.boneco--encaixe .b-coxa-d { transform: rotate(12deg); }
+.boneco--encaixe .b-braco-e, .boneco--encaixe .b-braco-d { animation-name: enc-braco; }
+.boneco--encaixe .b-antebraco-e, .boneco--encaixe .b-antebraco-d { animation-name: enc-antebraco; }
+@keyframes enc-bola {
+  0% { transform: translate(55px, -4px); opacity: 0.3; }
+  10% { opacity: 1; }
+  40% { transform: translate(14px, -6px); }
+  70%, 88% { transform: translate(-8px, 6px); opacity: 1; }
+  100% { transform: translate(-8px, 6px); opacity: 0; }
+}
+@keyframes enc-braco { 0%, 100% { transform: rotate(-30deg); } 40% { transform: rotate(-85deg); } 70%, 88% { transform: rotate(-55deg); } }
+@keyframes enc-antebraco { 0%, 100% { transform: rotate(0deg); } 40% { transform: rotate(-20deg); } 70%, 88% { transform: rotate(-80deg); } }
+
+/* ---------- Saída de gol: corre para a frente e termina grande, de braços abertos ---------- */
+.boneco--saida-gol .b-corpo { animation-name: sai-corpo; }
+.boneco--saida-gol .b-braco-e { animation-name: sai-braco-e; }
+.boneco--saida-gol .b-braco-d { animation-name: sai-braco-d; }
+/* As pernas correm 3 passadas por travessia (reaproveitam a corrida) */
+.boneco--saida-gol .b-coxa-e { animation-name: cor-coxa-e; animation-duration: calc(var(--duracao, 1s) / 3); }
+.boneco--saida-gol .b-coxa-d { animation-name: cor-coxa-d; animation-duration: calc(var(--duracao, 1s) / 3); }
+.boneco--saida-gol .b-canela-e { animation-name: cor-canela-e; animation-duration: calc(var(--duracao, 1s) / 3); }
+.boneco--saida-gol .b-canela-d { animation-name: cor-canela-d; animation-duration: calc(var(--duracao, 1s) / 3); }
+@keyframes sai-corpo {
+  0% { transform: translateX(-40px); opacity: 0.4; }
+  8% { opacity: 1; }
+  70%, 92% { transform: translateX(35px); opacity: 1; }
+  100% { transform: translateX(35px); opacity: 0.4; }
+}
+@keyframes sai-braco-e { 0%, 55% { transform: rotate(30deg); } 70%, 100% { transform: rotate(-125deg); } }
+@keyframes sai-braco-d { 0%, 55% { transform: rotate(-40deg); } 70%, 100% { transform: rotate(-160deg); } }
+
+/* ---------- Reposição com a mão: braço passa por cima da cabeça e a bola sai voando ---------- */
+.boneco--reposicao .b-coxa-e { transform: rotate(-20deg); }
+.boneco--reposicao .b-coxa-d { transform: rotate(20deg); }
+.boneco--reposicao .b-braco-d { transform: rotate(-70deg); }
+.boneco--reposicao .b-braco-e { animation-name: rep-braco; }
+.boneco--reposicao .b-bola-mao { display: inline; animation-name: rep-bola-mao; }
+.boneco--reposicao .b-bola { display: inline; animation-name: rep-bola; }
+@keyframes rep-braco {
+  0% { transform: rotate(20deg); }
+  40% { transform: rotate(150deg); }
+  65% { transform: rotate(250deg); }
+  100% { transform: rotate(290deg); }
+}
+@keyframes rep-bola-mao { 0%, 62% { opacity: 1; } 63%, 100% { opacity: 0; } }
+/* A bola solta parte de onde a mão solta (ombro + braço esticado a 250°) */
+@keyframes rep-bola {
+  0%, 62% { transform: translate(10px, -24px); opacity: 0; }
+  63% { transform: translate(10px, -24px); opacity: 1; }
+  100% { transform: translate(48px, -44px); opacity: 0.2; }
+}
+
 /* O movimento do bonequinho É a instrução do exercício, então ele continua animado mesmo
    para quem pediu menos movimento (index.css desliga só as animações decorativas). */
 @media (prefers-reduced-motion: reduce) {

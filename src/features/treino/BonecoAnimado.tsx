@@ -20,8 +20,23 @@ function Braco({ lado }: { lado: 'e' | 'd' }) {
       <line x1="100" y1="64" x2="100" y2="98" {...LINHA} />
       <g className={`b-antebraco-${lado}`}>
         <line x1="100" y1="98" x2="100" y2="128" {...LINHA} />
+        {/* Bola na mão (só aparece na reposição, pelo CSS) */}
+        {lado === 'e' && (
+          <g className="b-bola-mao">
+            <Bola cx={100} cy={137} />
+          </g>
+        )}
       </g>
     </g>
+  )
+}
+
+function Bola({ cx, cy }: { cx: number; cy: number }) {
+  return (
+    <>
+      <circle cx={cx} cy={cy} r="10" fill="#FFFFFF" stroke="#14532D" strokeWidth="3" />
+      <circle cx={cx} cy={cy} r="3.5" fill="#14532D" />
+    </>
   )
 }
 
@@ -40,10 +55,11 @@ function Perna({ lado }: { lado: 'e' | 'd' }) {
 export function BonecoAnimado({ animacao, ritmoMs, tamanho = 180, pausado = false }: Props) {
   return (
     <svg
-      // Começa em y=-12: com os braços para cima as mãos chegam a y≈0 e precisam de folga
-      viewBox="0 -12 200 232"
+      // Começa em y=-24: com os braços para cima as mãos chegam a y≈0, e na reposição a bola
+      // na mão sobe ainda mais
+      viewBox="0 -24 200 244"
       width={tamanho}
-      height={tamanho * 1.16}
+      height={tamanho * 1.22}
       className={`boneco boneco--${animacao} ${pausado ? 'pausado' : ''}`}
       style={{ '--duracao': `${ritmoMs}ms` } as CSSProperties}
       aria-hidden
@@ -62,6 +78,10 @@ export function BonecoAnimado({ animacao, ritmoMs, tamanho = 180, pausado = fals
           <circle cx="107" cy="36" r="2.5" fill="#14532D" />
           <path d="M92 45 Q100 51 108 45" fill="none" stroke="#14532D" strokeWidth="3" strokeLinecap="round" />
         </g>
+      </g>
+      {/* Bola solta: chega nas mãos (encaixe) ou sai voando (reposição); escondida nos demais */}
+      <g className="b-bola">
+        <Bola cx={150} cy={66} />
       </g>
     </svg>
   )

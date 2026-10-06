@@ -1,0 +1,40 @@
+/* Visual dos minijogos de goleiro. */
+
+/* Rede do gol: quadriculado leve */
+.rede-gol {
+  background-color: rgb(255 255 255 / 0.25);
+  background-image:
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.55) 0 2px, transparent 2px 14px),
+    repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.55) 0 2px, transparent 2px 14px);
+}
+
+/* Gramado com faixas */
+.gramado {
+  background-image: repeating-linear-gradient(0deg, #22c55e 0 28px, #16a34a 28px 56px);
+}
+
+/* Reflexo: anel que fecha em volta da bola mostrando o tempo que falta */
+.anel-tempo {
+  animation: anel-fecha var(--tempo, 1s) linear forwards;
+}
+@keyframes anel-fecha {
+  from {
+    transform: scale(1.9);
+    opacity: 0.3;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Mensagem de resultado ("DEFENDEU!") */
+.aviso-jogada {
+  animation: aviso-jogada 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+/* Anima só "scale": a centralização usa a propriedade "translate" (classes do Tailwind) */
+@keyframes aviso-jogada {
+  from {
+    scale: 0.5;
+  }
+}

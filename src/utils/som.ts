@@ -37,6 +37,18 @@ export const sons = {
     bip(660, 120)
     setTimeout(() => bip(990, 220), 130)
   },
+  /** Goleiro defendeu: duas notas subindo */
+  defesa: () => {
+    bip(784, 100)
+    setTimeout(() => bip(1175, 180), 90)
+  },
+  /** Tomou gol: duas notas descendo, baixinho (sem bronca) */
+  gol: () => {
+    bip(392, 140, 0.12)
+    setTimeout(() => bip(330, 220, 0.12), 130)
+  },
+  /** Apito antes do chute */
+  apito: () => bip(1400, 180, 0.15),
   /** Figurinha nova: arpejo "tcharam!" (dó, mi, sol, dó) */
   vitoria: () => {
     ;[523, 659, 784, 1047].forEach((nota, i) => setTimeout(() => bip(nota, i === 3 ? 400 : 140), i * 120))
