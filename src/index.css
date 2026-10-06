@@ -24,3 +24,25 @@ body {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Entrada suave de cada tela: só desliza, sem começar invisível */
+@keyframes entrada-tela {
+  from {
+    transform: translateY(12px);
+  }
+}
+
+.entrada-tela {
+  animation: entrada-tela 0.2s ease-out;
+}
+
+/* Quem pediu menos movimento no sistema não vê animações decorativas */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
