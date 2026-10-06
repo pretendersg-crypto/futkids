@@ -1,10 +1,9 @@
 // Sequências de dias seguidos de treino (streak), a partir das datas AAAA-MM-DD.
-import { hojeISO } from './data'
+import { hojeISO, somarDias } from './data'
 
-/** Dia anterior a uma data AAAA-MM-DD (conta em UTC para não sofrer com horário de verão) */
+/** Dia anterior a uma data AAAA-MM-DD */
 export function diaAnterior(iso: string): string {
-  const [ano, mes, dia] = iso.split('-').map(Number)
-  return new Date(Date.UTC(ano, mes - 1, dia) - 86_400_000).toISOString().slice(0, 10)
+  return somarDias(iso, -1)
 }
 
 /** Maior sequência de dias seguidos em toda a história */

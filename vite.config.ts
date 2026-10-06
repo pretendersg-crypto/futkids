@@ -36,6 +36,8 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         // Cacheia o app inteiro para funcionar offline; vídeos ficam fora (são grandes)
         globPatterns: ['**/*.{js,css,html,svg,png,webp,json,mp3,ogg}'],
+        // Lembrete de treino em segundo plano e clique na notificação (public/lembrete-sw.js)
+        importScripts: ['lembrete-sw.js'],
       },
       // Liga o service worker também no `npm run dev`, para testar a instalação
       devOptions: { enabled: true },

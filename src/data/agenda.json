@@ -1,0 +1,45 @@
+{
+  "comentario": "Plano semanal sugerido. dia: 0 = domingo ... 6 = sábado. 'atividade' é o tipo registrado ao terminar o treino (aquecimento, goleiro, rali); 'rota' é a tela que abre.",
+  "dias": [
+    { "dia": 0, "descanso": true, "mensagem": "Dia de descanso! Brinque à vontade 😴", "treinos": [] },
+    {
+      "dia": 1,
+      "treinos": [
+        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
+        { "atividade": "goleiro", "titulo": "Treino de goleiro", "emoji": "🧤", "rota": "/goleiro" }
+      ]
+    },
+    {
+      "dia": 2,
+      "treinos": [
+        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
+        { "atividade": "rali", "titulo": "Rali de gestos", "emoji": "⚽", "rota": "/rali" }
+      ]
+    },
+    {
+      "dia": 3,
+      "treinos": [
+        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
+        { "atividade": "goleiro", "titulo": "Fundamentos do goleiro", "emoji": "📚", "rota": "/goleiro/fundamentos" }
+      ]
+    },
+    {
+      "dia": 4,
+      "treinos": [
+        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
+        { "atividade": "rali", "titulo": "Rali de gestos", "emoji": "⚽", "rota": "/rali" }
+      ]
+    },
+    {
+      "dia": 5,
+      "treinos": [
+        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
+        { "atividade": "goleiro", "titulo": "Treino de goleiro", "emoji": "🧤", "rota": "/goleiro" }
+      ]
+    },
+    {
+      "dia": 6,
+      "treinos": [{ "atividade": "rali", "titulo": "Embaixadinhas de verdade", "emoji": "⚽", "rota": "/rali/contador" }]
+    }
+  ]
+}

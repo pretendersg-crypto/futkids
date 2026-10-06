@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { MODULOS } from '../data/modulos'
+import { treinosPendentesHoje } from '../features/agenda/semana'
 import { Avatar } from '../features/avatar/Avatar'
 import { useProgressStore } from '../stores/progressStore'
 import { useUserStore } from '../stores/userStore'
@@ -14,7 +15,9 @@ export function Home() {
   const avatar = useUserStore((s) => s.avatar)
   const xp = useProgressStore((s) => s.xp)
   const moedas = useProgressStore((s) => s.moedas)
+  const atividadesPorDia = useProgressStore((s) => s.atividadesPorDia)
   const { nivel, xpNoNivel, xpParaProximo } = nivelPorXP(xp)
+  const pendentes = treinosPendentesHoje(atividadesPorDia)
 
   return (
     <section className="flex flex-col gap-4">
@@ -42,13 +45,18 @@ export function Home() {
           </p>
         </div>
 
-        {/* Sino da agenda do dia. Na etapa 8 ganha o aviso de treino pendente. */}
+        {/* Sino da agenda do dia, com quantos treinos sugeridos de hoje ainda faltam */}
         <Link
           to="/agenda"
-          aria-label="Agenda de hoje"
-          className="grid size-14 shrink-0 place-items-center self-start rounded-full bg-violet-100 text-3xl"
+          aria-label={pendentes > 0 ? `Agenda de hoje: ${pendentes} ${pendentes === 1 ? 'treino' : 'treinos'} para fazer` : 'Agenda de hoje'}
+          className="relative grid size-14 shrink-0 place-items-center self-start rounded-full bg-violet-100 text-3xl"
         >
-          🔔
+          <span aria-hidden>🔔</span>
+          {pendentes > 0 && (
+            <span aria-hidden className="absolute -top-1 -right-1 grid min-w-6 place-items-center rounded-full bg-red-600 px-1 text-xs font-black text-white">
+              {pendentes}
+            </span>
+          )}
         </Link>
       </header>
 

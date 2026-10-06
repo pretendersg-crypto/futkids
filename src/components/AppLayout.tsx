@@ -1,6 +1,8 @@
 // Moldura de todas as telas: conteúdo da rota atual + barra de navegação fixa embaixo.
 import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
+import { AvisoLembrete } from '../features/agenda/AvisoLembrete'
+import { useLembreteDiario } from '../features/agenda/useLembrete'
 import { Celebracao } from '../features/conquistas/Celebracao'
 import { useUserStore } from '../stores/userStore'
 import { BottomNav } from './ui/BottomNav'
@@ -8,6 +10,7 @@ import { BottomNav } from './ui/BottomNav'
 export function AppLayout() {
   const { pathname } = useLocation()
   const apelido = useUserStore((s) => s.apelido)
+  useLembreteDiario()
 
   // Cada tela nova começa do topo
   useEffect(() => {
@@ -31,6 +34,8 @@ export function AppLayout() {
       <BottomNav />
       {/* Janela de figurinha nova, aparece por cima de qualquer tela */}
       <Celebracao />
+      {/* Faixa "Hora de treinar!" do lembrete diário */}
+      <AvisoLembrete />
     </>
   )
 }
