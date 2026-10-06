@@ -1,14 +1,17 @@
-// Mapa de rotas do app. Todas as telas ficam dentro do AppLayout (que mostra a barra inferior).
+// Mapa de rotas do app. As telas dos módulos ficam dentro do AppLayout (que mostra a barra inferior);
+// a tela "Meu jogador" fica fora, ocupando a tela inteira.
 import { createBrowserRouter, Navigate } from 'react-router'
 import { AppLayout } from './components/AppLayout'
 import { Agenda } from './pages/Agenda'
 import { Aquecimento } from './pages/Aquecimento'
 import { Goleiro } from './pages/Goleiro'
 import { Home } from './pages/Home'
+import { Jogador } from './pages/Jogador'
 import { Perfil } from './pages/Perfil'
 import { Rali } from './pages/Rali'
 
 export const router = createBrowserRouter([
+  { path: '/jogador', element: <Jogador /> },
   {
     path: '/',
     element: <AppLayout />,

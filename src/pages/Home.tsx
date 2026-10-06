@@ -1,16 +1,58 @@
-// Tela inicial: botões grandes para cada módulo.
-// Avatar, nível, XP e o sino da agenda entram na etapa 3.
+// Tela inicial: cartão do jogador (avatar, apelido, nível, XP, moedas, sino da agenda)
+// e botões grandes para cada módulo.
 import { motion } from 'framer-motion'
 import { Link } from 'react-router'
+import { ProgressBar } from '../components/ui/ProgressBar'
 import { MODULOS } from '../data/modulos'
+import { Avatar } from '../features/avatar/Avatar'
+import { useProgressStore } from '../stores/progressStore'
+import { useUserStore } from '../stores/userStore'
+import { nivelPorXP } from '../utils/nivel'
 
 export function Home() {
+  const apelido = useUserStore((s) => s.apelido)
+  const avatar = useUserStore((s) => s.avatar)
+  const xp = useProgressStore((s) => s.xp)
+  const moedas = useProgressStore((s) => s.moedas)
+  const { nivel, xpNoNivel, xpParaProximo } = nivelPorXP(xp)
+
   return (
     <section className="flex flex-col gap-4">
-      <header className="pt-4 text-center">
-        <h1 className="text-4xl font-extrabold text-campo">FutKids ⚽</h1>
-        <p className="mt-1 text-xl">Vamos treinar hoje?</p>
+      <header className="flex items-center gap-3 rounded-3xl border-4 border-green-200 bg-white p-3 shadow-md">
+        <Link
+          to="/jogador"
+          aria-label="Mudar meu jogador"
+          className="relative shrink-0 rounded-full border-4 border-campo bg-green-100"
+        >
+          <Avatar config={avatar} tamanho={76} />
+          <span aria-hidden className="absolute -right-1 -bottom-1 grid size-7 place-items-center rounded-full bg-white text-sm shadow">
+            ✏️
+          </span>
+        </Link>
+
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <p className="truncate text-xl font-extrabold">{apelido}</p>
+          <p className="flex gap-3 text-base font-bold">
+            <span>⭐ Nível {nivel}</span>
+            <span aria-label={`${moedas} moedas`}>🪙 {moedas}</span>
+          </p>
+          <ProgressBar valor={xpNoNivel} maximo={xpParaProximo} rotulo={`XP para o nível ${nivel + 1}`} />
+          <p className="text-sm">
+            {xpNoNivel} / {xpParaProximo} XP
+          </p>
+        </div>
+
+        {/* Sino da agenda do dia. Na etapa 8 ganha o aviso de treino pendente. */}
+        <Link
+          to="/agenda"
+          aria-label="Agenda de hoje"
+          className="grid size-14 shrink-0 place-items-center self-start rounded-full bg-violet-100 text-3xl"
+        >
+          🔔
+        </Link>
       </header>
+
+      <p className="text-center text-xl font-bold">Vamos treinar hoje?</p>
 
       <ul className="grid grid-cols-2 gap-4">
         {MODULOS.map((modulo, i) => (

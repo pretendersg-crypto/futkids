@@ -1,15 +1,20 @@
 // Moldura de todas as telas: conteúdo da rota atual + barra de navegação fixa embaixo.
 import { useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router'
+import { Navigate, Outlet, useLocation } from 'react-router'
+import { useUserStore } from '../stores/userStore'
 import { BottomNav } from './ui/BottomNav'
 
 export function AppLayout() {
   const { pathname } = useLocation()
+  const apelido = useUserStore((s) => s.apelido)
 
   // Cada tela nova começa do topo
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [pathname])
+
+  // Primeira vez no app: antes de tudo, monta o jogador
+  if (!apelido) return <Navigate to="/jogador" replace />
 
   return (
     <>
