@@ -8,8 +8,8 @@ export function SerieAquecimento() {
       titulo="🔥 Aquecimento"
       textoComecar="Começar aquecimento 🔥"
       atividade="aquecimento"
-      voltarPara="/"
-      textoVoltar="Início 🏠"
+      voltarPara="/treinos"
+      textoVoltar="Treinos 💪"
     />
   )
 }

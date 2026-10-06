@@ -4,7 +4,8 @@ import conquistasJson from './conquistas.json'
 import exerciciosJson from './exercicios.json'
 import videosJson from './videos.json'
 
-export type TipoExercicio = 'tempo' | 'repeticoes'
+/** tempo: dura `meta` segundos · repeticoes: `meta` vezes no ritmo · intervalos: `meta` rodadas de rápido + devagar */
+export type TipoExercicio = 'tempo' | 'repeticoes' | 'intervalos'
 
 /** Animações do bonequinho demonstrador (definidas em features/treino/boneco.css) */
 export type AnimacaoBoneco =
@@ -16,6 +17,12 @@ export type AnimacaoBoneco =
   | 'encaixe'
   | 'saida-gol'
   | 'reposicao'
+  | 'pontinha'
+  | 'equilibrio'
+  | 'cruz'
+  | 'prancha'
+  | 'braco-cruzado'
+  | 'quadriceps'
 
 export interface Exercicio {
   id: string
@@ -24,8 +31,10 @@ export interface Exercicio {
   nome: string
   emoji: string
   tipo: TipoExercicio
-  /** Segundos (tipo "tempo") ou número de repetições (tipo "repeticoes") */
+  /** Segundos (tipo "tempo"), número de repetições ("repeticoes") ou de rodadas ("intervalos") */
   meta: number
+  /** Só no tipo "intervalos": segundos de cada parte da rodada (ex.: 15 rápido + 15 devagar) */
+  intervalo?: { forteS: number; fracoS: number }
   /** Duração de um ciclo do movimento: ritmo do bonequinho e, nas repetições, tempo de cada uma */
   ritmoMs: number
   animacao: AnimacaoBoneco

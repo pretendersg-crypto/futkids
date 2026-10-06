@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { ConfigLembrete } from '../features/agenda/ConfigLembrete'
 import { Missoes } from '../features/agenda/Missoes'
-import { diasDaSemana, LETRAS_DIAS, NOMES_DIAS, planoDoDia, treinosDoDia } from '../features/agenda/semana'
+import { diasDaSemana, LETRAS_DIAS, NOMES_DIAS, planoDoDia, semanaDoPlano, treinosDoDia } from '../features/agenda/semana'
 import { useProgressStore } from '../stores/progressStore'
 import { diaDaSemana, hojeISO } from '../utils/data'
 import { melhorSequencia, sequenciaAtual } from '../utils/sequencia'
@@ -46,14 +46,15 @@ export function Agenda() {
         </div>
       </div>
 
-      {/* A semana, de domingo a sábado */}
+      {/* A semana, de domingo a sábado (o plano muda a cada semana, num ciclo de 4) */}
+      <p className="-mb-3 text-center text-sm font-bold">Plano de treino: semana {semanaDoPlano(hoje) + 1} de 4</p>
       <ol className="grid grid-cols-7 gap-1" aria-label="Esta semana">
         {diasDaSemana(hoje).map((dia) => {
           const treinou = diasTreinados.includes(dia)
           const ehHoje = dia === hoje
           const futuro = dia > hoje
           const plano = planoDoDia(dia)
-          const icone = treinou ? '✅' : plano.descanso ? '😴' : futuro || ehHoje ? (plano.treinos[0]?.emoji ?? '⚽') : '·'
+          const icone = treinou ? '✅' : plano.descanso ? '😴' : futuro || ehHoje ? (plano.treinos[1] ?? plano.treinos[0])?.emoji ?? '⚽' : '·' // o treino principal (o 1º é sempre o aquecimento)
           const situacao = treinou ? 'treinou' : plano.descanso ? 'descanso' : futuro ? 'vai treinar' : ehHoje ? 'hoje' : 'não treinou'
           return (
             <li
@@ -80,7 +81,10 @@ export function Agenda() {
       {/* Hoje */}
       <section className="flex flex-col gap-2">
         <h2 className="text-xl font-extrabold">Hoje · {NOMES_DIAS[diaDaSemana(hoje)]}</h2>
-        {planoHoje.descanso && <p className="rounded-2xl bg-white p-3 text-lg">{planoHoje.mensagem}</p>}
+        {planoHoje.descanso && (
+          <p className="rounded-2xl bg-white p-3 text-lg">Dia de descanso! O corpo também fica forte descansando. Brinque à vontade 😴</p>
+        )}
+        {!planoHoje.descanso && <p className="-mt-1 text-sm font-bold">🔥 O aquecimento vem sempre primeiro!</p>}
         <ul className="flex flex-col gap-2">
           {treinosHoje.map((t) => (
             <li key={t.titulo}>

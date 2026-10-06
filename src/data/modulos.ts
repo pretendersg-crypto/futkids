@@ -14,6 +14,8 @@ export interface Modulo {
   convite: string
   /** Classes Tailwind de cor do módulo (fundo claro + borda forte, texto sempre escuro) */
   cor: string
+  /** false = só aparece na Home (a barra inferior já está cheia) */
+  naBarra?: boolean
 }
 
 export const INICIO: Modulo = {
@@ -27,11 +29,11 @@ export const INICIO: Modulo = {
 
 export const MODULOS: Modulo[] = [
   {
-    caminho: '/aquecimento',
-    emoji: '🔥',
-    titulo: 'Aquecimento',
-    rotuloCurto: 'Aquecer',
-    convite: 'Prepare o corpo!',
+    caminho: '/treinos',
+    emoji: '💪',
+    titulo: 'Treinos',
+    rotuloCurto: 'Treinos',
+    convite: 'Aqueça, corra e fique forte!',
     cor: 'bg-orange-100 border-orange-500',
   },
   {
@@ -49,6 +51,15 @@ export const MODULOS: Modulo[] = [
     rotuloCurto: 'Rali',
     convite: 'Embaixadinha, passe e chute!',
     cor: 'bg-lime-100 border-lime-600',
+  },
+  {
+    caminho: '/alimentacao',
+    emoji: '🍎',
+    titulo: 'Alimentação do Craque',
+    rotuloCurto: 'Comida',
+    convite: 'Combustível para jogar!',
+    cor: 'bg-rose-100 border-rose-500',
+    naBarra: false,
   },
   {
     caminho: '/agenda',

@@ -6,5 +6,22 @@
   {"id": "aq-moinho", "titulo": "Moinho de vento", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
   {"id": "gl-encaixe", "titulo": "Encaixe", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
   {"id": "gl-saida-gol", "titulo": "Saída de gol", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
-  {"id": "gl-reposicao", "titulo": "Reposição com a mão", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""}
+  {"id": "gl-reposicao", "titulo": "Reposição com a mão", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-pique-no-lugar", "titulo": "Pique no lugar", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-cruz-velocidade", "titulo": "Passos em cruz", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-polichinelo-rapido", "titulo": "Polichinelo rápido", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-rapido-devagar", "titulo": "Corrida rápido e devagar", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-polichinelo-rapido-devagar", "titulo": "Polichinelo rápido e devagar", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-agachamento-forca", "titulo": "Agachamento", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-prancha-forca", "titulo": "Prancha", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-pontinha-forca", "titulo": "Ponta dos pés", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-cruz-forca", "titulo": "Passos em cruz", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-equilibrio-1", "titulo": "Equilíbrio num pé", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-equilibrio-2", "titulo": "Equilíbrio no outro pé", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-prancha-prevencao", "titulo": "Prancha", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-pontinha-prevencao", "titulo": "Ponta dos pés", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-alongar-lateral", "titulo": "Alongamento lateral", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-alongar-coxa", "titulo": "Alongamento da coxa", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-alongar-braco", "titulo": "Braço cruzado", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""},
+  {"id": "tr-alongar-moinho", "titulo": "Moinho de vento", "duracao": 0, "urlVideo": "", "thumbnailUrl": ""}
 ]

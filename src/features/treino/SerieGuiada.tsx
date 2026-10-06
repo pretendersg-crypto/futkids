@@ -9,6 +9,7 @@ import { FALAS_FIM, sortearFala } from '../../data/mascote'
 import { entregarRecompensa, type ResultadoRecompensa } from '../../stores/progressStore'
 import { destravarSom } from '../../utils/som'
 import { ApresentarExercicio } from './ApresentarExercicio'
+import { AvisoAquecer } from './AvisoAquecer'
 import { Contagem } from './Contagem'
 import { ExecutarExercicio } from './ExecutarExercicio'
 import { calcularRecompensa, descreverMeta, minutosDaSerie, type Recompensa } from './recompensa'
@@ -75,6 +76,7 @@ export function SerieGuiada({ modulo, titulo, textoComecar, atividade, voltarPar
             {SERIE.length} exercícios · uns {minutosDaSerie(SERIE)} minutos
           </p>
         </header>
+        {modulo !== 'aquecimento' && <AvisoAquecer />}
         <ol className="flex flex-col gap-2">
           {SERIE.map((e) => (
             <li key={e.id} className="flex items-center gap-3 rounded-2xl border-2 border-orange-200 bg-white p-3">

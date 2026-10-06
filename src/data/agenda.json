@@ -1,45 +1,49 @@
 {
-  "comentario": "Plano semanal sugerido. dia: 0 = domingo ... 6 = sábado. 'atividade' é o tipo registrado ao terminar o treino (aquecimento, goleiro, rali); 'rota' é a tela que abre.",
-  "dias": [
-    { "dia": 0, "descanso": true, "mensagem": "Dia de descanso! Brinque à vontade 😴", "treinos": [] },
+  "comentario": "Plano de 4 semanas que se repete (como um calendário de pré-temporada, adaptado para crianças a partir de 6 anos). dia: 0 = domingo ... 6 = sábado. O aquecimento entra sozinho antes de todo treino. Treinos possíveis: velocidade, ritmo, forca, prevencao, alongamento, goleiro, fundamentos, rali, embaixadinhas.",
+  "semanas": [
     {
-      "dia": 1,
-      "treinos": [
-        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
-        { "atividade": "goleiro", "titulo": "Treino de goleiro", "emoji": "🧤", "rota": "/goleiro" }
+      "dias": [
+        { "dia": 0, "descanso": true },
+        { "dia": 1, "treinos": ["velocidade"] },
+        { "dia": 2, "treinos": ["alongamento"] },
+        { "dia": 3, "treinos": ["ritmo"] },
+        { "dia": 4, "treinos": ["goleiro"] },
+        { "dia": 5, "treinos": ["alongamento"] },
+        { "dia": 6, "treinos": ["embaixadinhas"] }
       ]
     },
     {
-      "dia": 2,
-      "treinos": [
-        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
-        { "atividade": "rali", "titulo": "Rali de gestos", "emoji": "⚽", "rota": "/rali" }
+      "dias": [
+        { "dia": 0, "descanso": true },
+        { "dia": 1, "treinos": ["prevencao"] },
+        { "dia": 2, "treinos": ["ritmo"] },
+        { "dia": 3, "treinos": ["velocidade"] },
+        { "dia": 4, "treinos": ["fundamentos"] },
+        { "dia": 5, "treinos": ["alongamento"] },
+        { "dia": 6, "treinos": ["rali"] }
       ]
     },
     {
-      "dia": 3,
-      "treinos": [
-        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
-        { "atividade": "goleiro", "titulo": "Fundamentos do goleiro", "emoji": "📚", "rota": "/goleiro/fundamentos" }
+      "dias": [
+        { "dia": 0, "descanso": true },
+        { "dia": 1, "treinos": ["ritmo"] },
+        { "dia": 2, "treinos": ["velocidade"] },
+        { "dia": 3, "treinos": ["forca"] },
+        { "dia": 4, "treinos": ["goleiro"] },
+        { "dia": 5, "treinos": ["alongamento"] },
+        { "dia": 6, "treinos": ["embaixadinhas"] }
       ]
     },
     {
-      "dia": 4,
-      "treinos": [
-        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
-        { "atividade": "rali", "titulo": "Rali de gestos", "emoji": "⚽", "rota": "/rali" }
+      "dias": [
+        { "dia": 0, "descanso": true },
+        { "dia": 1, "treinos": ["prevencao"] },
+        { "dia": 2, "treinos": ["ritmo"] },
+        { "dia": 3, "treinos": ["alongamento"] },
+        { "dia": 4, "treinos": ["fundamentos"] },
+        { "dia": 5, "treinos": ["alongamento"] },
+        { "dia": 6, "treinos": ["forca"] }
       ]
-    },
-    {
-      "dia": 5,
-      "treinos": [
-        { "atividade": "aquecimento", "titulo": "Aquecimento", "emoji": "🔥", "rota": "/aquecimento" },
-        { "atividade": "goleiro", "titulo": "Treino de goleiro", "emoji": "🧤", "rota": "/goleiro" }
-      ]
-    },
-    {
-      "dia": 6,
-      "treinos": [{ "atividade": "rali", "titulo": "Embaixadinhas de verdade", "emoji": "⚽", "rota": "/rali/contador" }]
     }
   ]
 }

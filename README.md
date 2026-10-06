@@ -3,11 +3,14 @@
 Jogo de treino de futebol para crianças de 6 a 12 anos, com foco em goleiro. Funciona no navegador
 do celular e pode ser instalado como app (PWA), inclusive sem internet.
 
-- **Aquecimento** guiado com bonequinho animado, timer e contador de repetições
+- **Treinos**: aquecimento (sempre antes) e séries de velocidade, rápido e devagar (intervalado),
+  força com o peso do corpo, prevenção de lesões e alongamento, com bonequinho animado, timer e contador
 - **Goleiro**: 3 minijogos (Defesa, Reflexo, Posição) em 3 níveis + fundamentos com bola de verdade
 - **Rali de Gestos**: desafios por inclinação do celular ou toque, contador de embaixadinhas reais e
   saltos contados pelo acelerômetro (só com um adulto liberando)
-- **Agenda**: plano da semana, check-in, dias seguidos, missões e lembrete diário
+- **Alimentação do Craque**: lições com o mascote, jogo das turmas dos alimentos, monte o prato,
+  verdade ou mentira e garrafinha de água do treino (sem dieta, calorias ou suplementos)
+- **Agenda**: plano de 4 semanas que se repete, check-in, dias seguidos, missões e lembrete diário
 - **Perfil**: álbum de figurinhas, conquistas e loja do avatar com moedas
 - **Bolinha**, o mascote que guia e torce
 
@@ -55,7 +58,7 @@ Abra no celular o endereço `https://…:5173` que aparece no terminal e aceite 
 
 Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 
-### Exercícios (aquecimento e fundamentos do goleiro): `src/data/exercicios.json`
+### Exercícios (treinos e fundamentos do goleiro): `src/data/exercicios.json`
 
 ```json
 {
@@ -73,12 +76,18 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 }
 ```
 
-- `modulo`: `aquecimento` ou `goleiro` (a série aparece no módulo correspondente, na ordem do arquivo)
-- `tipo`: `tempo` (`meta` em segundos) ou `repeticoes` (`meta` = quantas vezes; o app conta sozinho no
-  ritmo de `ritmoMs`, com um bip a cada repetição)
+- `modulo`: `aquecimento`, `velocidade`, `ritmo`, `forca`, `prevencao`, `alongamento` (séries do menu
+  Treinos, listadas em `src/features/treino/series.ts`) ou `goleiro` (fundamentos). A série mostra os
+  exercícios na ordem do arquivo
+- `tipo`:
+  - `tempo`: `meta` em segundos
+  - `repeticoes`: `meta` = quantas vezes. O app conta sozinho no ritmo de `ritmoMs`, com um bip a cada repetição
+  - `intervalos`: `meta` = rodadas de parte rápida + parte devagar, com
+    `"intervalo": { "forteS": 15, "fracoS": 15 }`
 - `animacao`: um dos movimentos do bonequinho (`corrida`, `polichinelo`, `agachamento`,
-  `alongamento-lateral`, `moinho`, `encaixe`, `saida-gol`, `reposicao`). Movimento novo = keyframes em
-  `src/features/treino/boneco.css` + nome no tipo `AnimacaoBoneco` em `src/data/catalogo.ts`
+  `alongamento-lateral`, `moinho`, `encaixe`, `saida-gol`, `reposicao`, `pontinha`, `equilibrio`, `cruz`,
+  `prancha`, `braco-cruzado`, `quadriceps`). Movimento novo = keyframes em `src/features/treino/boneco.css` + nome
+  no tipo `AnimacaoBoneco` em `src/data/catalogo.ts`
 
 ### Vídeos de exemplo: `src/data/videos.json`
 
@@ -108,7 +117,9 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 
 - `numero`: a vaga no álbum
 - `criterio.tipo`:
-  - `contador`: as chaves existentes são `aquecimento`, `goleiro`, `rali`, `checkin` e `embaixadinhas`
+  - `contador`: as chaves existentes são `aquecimento`, `velocidade`, `ritmo`, `forca`, `prevencao`,
+    `alongamento`, `goleiro`, `rali`, `checkin`, `embaixadinhas`, `alimentacao`, `turmas-perfeito`,
+    `quiz-comida-perfeito`, `prato-campeao` e `agua-dias`
   - `nivel`
   - `sequencia`: dias seguidos (recorde)
   - `diasTreinados`
@@ -124,7 +135,8 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 
 | O quê | Onde |
 | --- | --- |
-| Plano da semana da agenda | `src/data/agenda.json` |
+| Plano de treinos (4 semanas que se repetem; o aquecimento entra sozinho antes de cada treino) | `src/data/agenda.json` |
+| Lições, alimentos, perguntas do quiz e momentos da água | `src/data/alimentacao.ts` |
 | Apelidos prontos | `src/data/apelidos.ts` |
 | Falas do mascote | `src/data/mascote.ts` |
 | Itens do avatar e preços da loja | `src/features/avatar/opcoesAvatar.ts` (campo `preco`) |

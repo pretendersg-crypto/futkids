@@ -141,6 +141,79 @@
   100% { transform: translate(48px, -44px); opacity: 0.2; }
 }
 
+/* ================= Plano de treino: força, velocidade, prevenção e alongamento ================= */
+
+/* ---------- Ponta dos pés (panturrilha): sobe e desce devagar ---------- */
+.boneco--pontinha .b-corpo { animation-name: pon-corpo; }
+.boneco--pontinha .b-braco-e { transform: rotate(35deg); }
+.boneco--pontinha .b-braco-d { transform: rotate(-35deg); }
+@keyframes pon-corpo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+/* ---------- Equilíbrio num pé só: joelho levantado, braços abertos, balançando de leve ---------- */
+.boneco--equilibrio .b-corpo { transform-origin: 100px 204px; animation-name: equ-corpo; }
+/* De frente, o joelho levantado aparece como uma coxa "encurtada" */
+.boneco--equilibrio .b-coxa-e { transform: rotate(10deg) scaleY(0.45); }
+.boneco--equilibrio .b-coxa-d { transform: rotate(0deg); }
+.boneco--equilibrio .b-braco-e { transform: rotate(80deg); }
+.boneco--equilibrio .b-braco-d { transform: rotate(-80deg); }
+@keyframes equ-corpo { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+/* ---------- Passos em cruz (goleiro): esquerda, direita, frente e trás, sempre voltando ao meio ---------- */
+.boneco--cruz .b-corpo { transform-origin: 100px 130px; animation-name: cru-corpo; animation-timing-function: steps(1, end); }
+/* Base de goleiro: joelhos flexionados e mãos prontas na frente */
+.boneco--cruz .b-coxa-e { transform: rotate(18deg); }
+.boneco--cruz .b-canela-e { transform: rotate(-18deg); }
+.boneco--cruz .b-coxa-d { transform: rotate(-18deg); }
+.boneco--cruz .b-canela-d { transform: rotate(18deg); }
+.boneco--cruz .b-braco-e { transform: rotate(35deg); }
+.boneco--cruz .b-antebraco-e { transform: rotate(-70deg); }
+.boneco--cruz .b-braco-d { transform: rotate(-35deg); }
+.boneco--cruz .b-antebraco-d { transform: rotate(70deg); }
+/* steps(1): pula de um ponto para o outro, como passos rápidos (frente = maior, trás = menor) */
+@keyframes cru-corpo {
+  0% { transform: translate(0, 4px); }
+  12.5% { transform: translate(-32px, 4px); }
+  25% { transform: translate(0, 4px); }
+  37.5% { transform: translate(32px, 4px); }
+  50% { transform: translate(0, 4px); }
+  62.5% { transform: translate(0, 14px) scale(1.1); }
+  75% { transform: translate(0, 4px); }
+  87.5% { transform: translate(0, -4px) scale(0.9); }
+  100% { transform: translate(0, 4px); }
+}
+
+/* ---------- Prancha (de lado): corpo reto como uma tábua, mãos no chão embaixo dos ombros ---------- */
+/* O corpo inteiro gira 63° em volta do quadril e desce até o chão; os braços giram 63° para o
+   lado contrário e ficam retos para baixo. Respirando: o corpo sobe e desce bem pouco. */
+.boneco--prancha .b-corpo { transform-origin: 100px 130px; animation-name: pra-corpo; }
+.boneco--prancha .b-coxa-e,
+.boneco--prancha .b-coxa-d { transform: rotate(0deg); }
+.boneco--prancha .b-braco-e,
+.boneco--prancha .b-braco-d { transform: rotate(63deg); }
+@keyframes pra-corpo {
+  0%, 100% { transform: translate(26px, 40px) rotate(-63deg); }
+  50% { transform: translate(26px, 38px) rotate(-63deg); }
+}
+
+/* ---------- Braço cruzado: um braço na frente do peito, o outro segura; troca de lado na metade ---------- */
+.boneco--braco-cruzado .b-braco-e { animation-name: bc-braco-e; }
+.boneco--braco-cruzado .b-antebraco-e { animation-name: bc-antebraco-e; }
+.boneco--braco-cruzado .b-braco-d { animation-name: bc-braco-d; }
+.boneco--braco-cruzado .b-antebraco-d { animation-name: bc-antebraco-d; }
+@keyframes bc-braco-e { 0%, 40%, 100% { transform: rotate(-80deg); } 50%, 90% { transform: rotate(25deg); } }
+@keyframes bc-antebraco-e { 0%, 40%, 100% { transform: rotate(0deg); } 50%, 90% { transform: rotate(110deg); } }
+@keyframes bc-braco-d { 0%, 40%, 100% { transform: rotate(-25deg); } 50%, 90% { transform: rotate(80deg); } }
+@keyframes bc-antebraco-d { 0%, 40%, 100% { transform: rotate(-110deg); } 50%, 90% { transform: rotate(0deg); } }
+
+/* ---------- Alongamento da coxa (de lado): segura o pé atrás, perto do bumbum, num pé só ---------- */
+.boneco--quadriceps .b-corpo { transform-origin: 100px 204px; animation-name: equ-corpo; }
+/* Coxa um pouco para trás: assim a canela dobrada (pé perto do bumbum) aparece ao lado dela */
+.boneco--quadriceps .b-coxa-e { transform: rotate(25deg); }
+.boneco--quadriceps .b-canela-e { transform: rotate(160deg); }
+.boneco--quadriceps .b-coxa-d { transform: rotate(0deg); }
+.boneco--quadriceps .b-braco-e { transform: rotate(15deg); }
+.boneco--quadriceps .b-braco-d { transform: rotate(-70deg); }
+
 /* O movimento do bonequinho É a instrução do exercício, então ele continua animado mesmo
    para quem pediu menos movimento (index.css desliga só as animações decorativas). */
 @media (prefers-reduced-motion: reduce) {

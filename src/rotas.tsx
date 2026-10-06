@@ -16,7 +16,18 @@ const ROTAS: RouteObject[] = [
     element: <AppLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'aquecimento', lazy: () => import('./pages/Aquecimento').then((m) => ({ Component: m.Aquecimento })) },
+      {
+        path: 'treinos',
+        children: [
+          { index: true, lazy: () => import('./pages/Treinos').then((m) => ({ Component: m.Treinos })) },
+          { path: 'aquecimento', lazy: () => import('./pages/Aquecimento').then((m) => ({ Component: m.Aquecimento })) },
+          // ex.: /treinos/velocidade, /treinos/alongamento
+          { path: ':modulo', lazy: () => import('./pages/SerieTreino').then((m) => ({ Component: m.SerieTreino })) },
+        ],
+      },
+      // Endereço antigo do aquecimento (links salvos, notificações antigas)
+      { path: 'aquecimento', element: <Navigate to="/treinos/aquecimento" replace /> },
+      { path: 'alimentacao/*', lazy: () => import('./pages/Alimentacao').then((m) => ({ Component: m.Alimentacao })) },
       {
         path: 'goleiro',
         children: [

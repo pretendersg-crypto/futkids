@@ -5,7 +5,17 @@ import { ProgressBar } from '../../components/ui/ProgressBar'
 import { useAgendaStore } from '../../stores/agendaStore'
 import { useProgressStore } from '../../stores/progressStore'
 import { hojeISO } from '../../utils/data'
-import { diasDaSemana, diasTreinadosNaSemana, META_SEMANAL, PREMIO_MISSAO_DIA, PREMIO_MISSAO_SEMANA, treinosDoDia } from './semana'
+import {
+  diasDaSemana,
+  diasDeAlongamentoNaSemana,
+  diasTreinadosNaSemana,
+  META_ALONGAMENTO,
+  META_SEMANAL,
+  PREMIO_MISSAO_ALONGAMENTO,
+  PREMIO_MISSAO_DIA,
+  PREMIO_MISSAO_SEMANA,
+  treinosDoDia,
+} from './semana'
 
 interface Missao {
   chave: string
@@ -35,6 +45,14 @@ export function Missoes() {
       feito: Math.min(META_SEMANAL, diasTreinadosNaSemana(diasTreinados, hoje)),
       meta: META_SEMANAL,
       premio: PREMIO_MISSAO_SEMANA,
+    },
+    {
+      chave: `alongamento:${diasDaSemana(hoje)[0]}`,
+      emoji: '🧘',
+      titulo: `Missão da semana: alongar ${META_ALONGAMENTO} vezes`,
+      feito: Math.min(META_ALONGAMENTO, diasDeAlongamentoNaSemana(atividadesPorDia, hoje)),
+      meta: META_ALONGAMENTO,
+      premio: PREMIO_MISSAO_ALONGAMENTO,
     },
   ]
 

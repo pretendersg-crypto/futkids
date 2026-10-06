@@ -5,7 +5,7 @@ import { NavLink } from 'react-router'
 import { INICIO, MODULOS } from '../../data/modulos'
 import { useAchievementsStore } from '../../stores/achievementsStore'
 
-const ITENS = [INICIO, ...MODULOS]
+const ITENS = [INICIO, ...MODULOS.filter((m) => m.naBarra !== false)]
 
 export function BottomNav() {
   const figurinhasNovas = useAchievementsStore((s) => s.naoVistas.length)

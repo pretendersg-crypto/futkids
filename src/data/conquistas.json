@@ -4,103 +4,394 @@
     "numero": 1,
     "nome": "Motor ligado",
     "descricao": "Faça seu primeiro aquecimento",
-    "criterio": { "tipo": "contador", "chave": "aquecimento", "minimo": 1 },
-    "sticker": { "tipo": "padrao", "emoji": "🔥", "cores": ["#FDBA74", "#EA580C"], "animacao": "balanca" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "aquecimento",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🔥",
+      "cores": [
+        "#FDBA74",
+        "#EA580C"
+      ],
+      "animacao": "balanca"
+    }
   },
   {
     "id": "aquecimento-5",
     "numero": 2,
     "nome": "Esquentadinho",
     "descricao": "Faça 5 aquecimentos",
-    "criterio": { "tipo": "contador", "chave": "aquecimento", "minimo": 5 },
-    "sticker": { "tipo": "padrao", "emoji": "🌶️", "cores": ["#FCA5A5", "#DC2626"], "animacao": "pulsa" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "aquecimento",
+      "minimo": 5
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🌶️",
+      "cores": [
+        "#FCA5A5",
+        "#DC2626"
+      ],
+      "animacao": "pulsa"
+    }
   },
   {
     "id": "aquecimento-20",
     "numero": 3,
     "nome": "Máquina de aquecer",
     "descricao": "Faça 20 aquecimentos",
-    "criterio": { "tipo": "contador", "chave": "aquecimento", "minimo": 20 },
-    "sticker": { "tipo": "padrao", "emoji": "🚂", "cores": ["#FDE68A", "#D97706"], "animacao": "brilha" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "aquecimento",
+      "minimo": 20
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🚂",
+      "cores": [
+        "#FDE68A",
+        "#D97706"
+      ],
+      "animacao": "brilha"
+    }
   },
   {
     "id": "goleiro-1",
     "numero": 4,
     "nome": "Primeira defesa",
     "descricao": "Faça seu primeiro treino de goleiro",
-    "criterio": { "tipo": "contador", "chave": "goleiro", "minimo": 1 },
-    "sticker": { "tipo": "padrao", "emoji": "🧤", "cores": ["#7DD3FC", "#0284C7"], "animacao": "balanca" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "goleiro",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🧤",
+      "cores": [
+        "#7DD3FC",
+        "#0284C7"
+      ],
+      "animacao": "balanca"
+    }
   },
   {
     "id": "goleiro-5",
     "numero": 5,
     "nome": "Paredão",
     "descricao": "Faça 5 treinos de goleiro",
-    "criterio": { "tipo": "contador", "chave": "goleiro", "minimo": 5 },
-    "sticker": { "tipo": "padrao", "emoji": "🧱", "cores": ["#93C5FD", "#1D4ED8"], "animacao": "pulsa" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "goleiro",
+      "minimo": 5
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🧱",
+      "cores": [
+        "#93C5FD",
+        "#1D4ED8"
+      ],
+      "animacao": "pulsa"
+    }
   },
   {
     "id": "goleiro-20",
     "numero": 6,
     "nome": "Muralha",
     "descricao": "Faça 20 treinos de goleiro",
-    "criterio": { "tipo": "contador", "chave": "goleiro", "minimo": 20 },
-    "sticker": { "tipo": "padrao", "emoji": "🛡️", "cores": ["#A5B4FC", "#4338CA"], "animacao": "brilha" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "goleiro",
+      "minimo": 20
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🛡️",
+      "cores": [
+        "#A5B4FC",
+        "#4338CA"
+      ],
+      "animacao": "brilha"
+    }
   },
   {
     "id": "primeiro-rali",
     "numero": 7,
     "nome": "Dada a largada",
     "descricao": "Complete seu primeiro rali de gestos",
-    "criterio": { "tipo": "contador", "chave": "rali", "minimo": 1 },
-    "sticker": { "tipo": "padrao", "emoji": "🏁", "cores": ["#BEF264", "#4D7C0F"], "animacao": "balanca" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "rali",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🏁",
+      "cores": [
+        "#BEF264",
+        "#4D7C0F"
+      ],
+      "animacao": "balanca"
+    }
   },
   {
     "id": "embaixadinhas-100",
     "numero": 8,
     "nome": "Rei da embaixadinha",
     "descricao": "Some 100 embaixadinhas",
-    "criterio": { "tipo": "contador", "chave": "embaixadinhas", "minimo": 100 },
-    "sticker": { "tipo": "padrao", "emoji": "⚽", "cores": ["#86EFAC", "#15803D"], "animacao": "gira" }
+    "criterio": {
+      "tipo": "contador",
+      "chave": "embaixadinhas",
+      "minimo": 100
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "⚽",
+      "cores": [
+        "#86EFAC",
+        "#15803D"
+      ],
+      "animacao": "gira"
+    }
   },
   {
     "id": "sequencia-3",
     "numero": 9,
     "nome": "Três seguidos",
     "descricao": "Treine 3 dias seguidos",
-    "criterio": { "tipo": "sequencia", "minimo": 3 },
-    "sticker": { "tipo": "padrao", "emoji": "📅", "cores": ["#C4B5FD", "#7C3AED"], "animacao": "pulsa" }
+    "criterio": {
+      "tipo": "sequencia",
+      "minimo": 3
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "📅",
+      "cores": [
+        "#C4B5FD",
+        "#7C3AED"
+      ],
+      "animacao": "pulsa"
+    }
   },
   {
     "id": "sequencia-7",
     "numero": 10,
     "nome": "Semana de craque",
     "descricao": "Treine 7 dias seguidos",
-    "criterio": { "tipo": "sequencia", "minimo": 7 },
-    "sticker": { "tipo": "padrao", "emoji": "🗓️", "cores": ["#F0ABFC", "#A21CAF"], "animacao": "brilha" }
+    "criterio": {
+      "tipo": "sequencia",
+      "minimo": 7
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🗓️",
+      "cores": [
+        "#F0ABFC",
+        "#A21CAF"
+      ],
+      "animacao": "brilha"
+    }
   },
   {
     "id": "dias-30",
     "numero": 11,
     "nome": "Treino é vida",
     "descricao": "Treine em 30 dias diferentes",
-    "criterio": { "tipo": "diasTreinados", "minimo": 30 },
-    "sticker": { "tipo": "padrao", "emoji": "🏅", "cores": ["#FDE047", "#CA8A04"], "animacao": "brilha" }
+    "criterio": {
+      "tipo": "diasTreinados",
+      "minimo": 30
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🏅",
+      "cores": [
+        "#FDE047",
+        "#CA8A04"
+      ],
+      "animacao": "brilha"
+    }
   },
   {
     "id": "nivel-5",
     "numero": 12,
     "nome": "Nível 5",
     "descricao": "Chegue ao nível 5",
-    "criterio": { "tipo": "nivel", "minimo": 5 },
-    "sticker": { "tipo": "padrao", "emoji": "⭐", "cores": ["#FEF08A", "#EAB308"], "animacao": "gira" }
+    "criterio": {
+      "tipo": "nivel",
+      "minimo": 5
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "⭐",
+      "cores": [
+        "#FEF08A",
+        "#EAB308"
+      ],
+      "animacao": "gira"
+    }
   },
   {
     "id": "nivel-10",
     "numero": 13,
     "nome": "Estrela do time",
     "descricao": "Chegue ao nível 10",
-    "criterio": { "tipo": "nivel", "minimo": 10 },
-    "sticker": { "tipo": "padrao", "emoji": "🌟", "cores": ["#FDE68A", "#F59E0B"], "animacao": "brilha" }
+    "criterio": {
+      "tipo": "nivel",
+      "minimo": 10
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🌟",
+      "cores": [
+        "#FDE68A",
+        "#F59E0B"
+      ],
+      "animacao": "brilha"
+    }
+  },
+  {
+    "id": "prato-campeao",
+    "numero": 14,
+    "nome": "Prato de campeão",
+    "descricao": "Monte um prato colorido e completo",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "prato-campeao",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🥗",
+      "cores": [
+        "#BBF7D0",
+        "#16A34A"
+      ],
+      "animacao": "balanca"
+    }
+  },
+  {
+    "id": "turma-certinha",
+    "numero": 15,
+    "nome": "Turma certinha",
+    "descricao": "Acerte todas no jogo das turmas",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "turmas-perfeito",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🧺",
+      "cores": [
+        "#FECDD3",
+        "#E11D48"
+      ],
+      "animacao": "pulsa"
+    }
+  },
+  {
+    "id": "sabe-tudo-comida",
+    "numero": 16,
+    "nome": "Sabe tudo de comida",
+    "descricao": "Acerte todas no verdade ou mentira",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "quiz-comida-perfeito",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🧠",
+      "cores": [
+        "#E9D5FF",
+        "#9333EA"
+      ],
+      "animacao": "brilha"
+    }
+  },
+  {
+    "id": "hidratado",
+    "numero": 17,
+    "nome": "Hidratado",
+    "descricao": "Complete a garrafinha em 5 dias",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "agua-dias",
+      "minimo": 5
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "💧",
+      "cores": [
+        "#BAE6FD",
+        "#0284C7"
+      ],
+      "animacao": "pulsa"
+    }
+  },
+  {
+    "id": "alongado",
+    "numero": 18,
+    "nome": "Elástico",
+    "descricao": "Faça 10 treinos de alongamento",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "alongamento",
+      "minimo": 10
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🧘",
+      "cores": [
+        "#DDD6FE",
+        "#7C3AED"
+      ],
+      "animacao": "balanca"
+    }
+  },
+  {
+    "id": "forte",
+    "numero": 19,
+    "nome": "Força de craque",
+    "descricao": "Faça 5 treinos de força",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "forca",
+      "minimo": 5
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "💪",
+      "cores": [
+        "#BFDBFE",
+        "#2563EB"
+      ],
+      "animacao": "pulsa"
+    }
+  },
+  {
+    "id": "relampago",
+    "numero": 20,
+    "nome": "Relâmpago",
+    "descricao": "Faça 5 treinos de velocidade",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "velocidade",
+      "minimo": 5
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "⚡",
+      "cores": [
+        "#FEF08A",
+        "#CA8A04"
+      ],
+      "animacao": "brilha"
+    }
   }
 ]

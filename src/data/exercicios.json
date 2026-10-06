@@ -134,5 +134,302 @@
       "Leve o braço para trás e passe por cima da cabeça",
       "Solte a bola lá na frente, para um amigo"
     ]
+  },
+  {
+    "id": "pique-no-lugar",
+    "modulo": "velocidade",
+    "nome": "Pique no lugar",
+    "emoji": "💨",
+    "tipo": "tempo",
+    "meta": 15,
+    "ritmoMs": 450,
+    "animacao": "corrida",
+    "xp": 10,
+    "videoId": "tr-pique-no-lugar",
+    "passos": [
+      "Corra no lugar o mais rápido que puder",
+      "Os braços ajudam a ir mais rápido!",
+      "Não pare até o tempo acabar"
+    ]
+  },
+  {
+    "id": "cruz-velocidade",
+    "modulo": "velocidade",
+    "nome": "Passos em cruz",
+    "emoji": "➕",
+    "tipo": "tempo",
+    "meta": 20,
+    "ritmoMs": 2400,
+    "animacao": "cruz",
+    "xp": 10,
+    "videoId": "tr-cruz-velocidade",
+    "passos": [
+      "Fique na base de goleiro: joelhos dobrados",
+      "Pule para um lado e volte ao meio",
+      "Depois o outro lado, frente e trás"
+    ]
+  },
+  {
+    "id": "polichinelo-rapido",
+    "modulo": "velocidade",
+    "nome": "Polichinelo rápido",
+    "emoji": "⭐",
+    "tipo": "repeticoes",
+    "meta": 10,
+    "ritmoMs": 1000,
+    "animacao": "polichinelo",
+    "xp": 10,
+    "videoId": "tr-polichinelo-rapido",
+    "passos": [
+      "Abra e feche braços e pernas",
+      "Mais rápido que no aquecimento!",
+      "Siga o ritmo do bip"
+    ]
+  },
+  {
+    "id": "rapido-devagar",
+    "modulo": "ritmo",
+    "nome": "Corrida rápido e devagar",
+    "emoji": "🐇",
+    "tipo": "intervalos",
+    "meta": 4,
+    "ritmoMs": 450,
+    "animacao": "corrida",
+    "xp": 20,
+    "videoId": "tr-rapido-devagar",
+    "passos": [
+      "No RÁPIDO, corra no lugar com tudo",
+      "No devagar, corra bem devagarinho para descansar",
+      "O bip avisa quando trocar"
+    ],
+    "intervalo": {
+      "forteS": 15,
+      "fracoS": 15
+    }
+  },
+  {
+    "id": "polichinelo-rapido-devagar",
+    "modulo": "ritmo",
+    "nome": "Polichinelo rápido e devagar",
+    "emoji": "🌟",
+    "tipo": "intervalos",
+    "meta": 3,
+    "ritmoMs": 900,
+    "animacao": "polichinelo",
+    "xp": 15,
+    "videoId": "tr-polichinelo-rapido-devagar",
+    "passos": [
+      "No RÁPIDO, polichinelo com tudo",
+      "No devagar, polichinelo bem calminho",
+      "Respire fundo no devagar"
+    ],
+    "intervalo": {
+      "forteS": 10,
+      "fracoS": 20
+    }
+  },
+  {
+    "id": "agachamento-forca",
+    "modulo": "forca",
+    "nome": "Agachamento",
+    "emoji": "🦵",
+    "tipo": "repeticoes",
+    "meta": 8,
+    "ritmoMs": 2600,
+    "animacao": "agachamento",
+    "xp": 10,
+    "videoId": "tr-agachamento-forca",
+    "passos": [
+      "Pés afastados, costas retas",
+      "Desça devagar, como se fosse sentar",
+      "Suba empurrando o chão"
+    ]
+  },
+  {
+    "id": "prancha-forca",
+    "modulo": "forca",
+    "nome": "Prancha",
+    "emoji": "🧱",
+    "tipo": "tempo",
+    "meta": 10,
+    "ritmoMs": 3000,
+    "animacao": "prancha",
+    "xp": 15,
+    "videoId": "tr-prancha-forca",
+    "passos": [
+      "Mãos no chão, embaixo dos ombros",
+      "Corpo retinho como uma tábua",
+      "Segure e continue respirando"
+    ]
+  },
+  {
+    "id": "pontinha-forca",
+    "modulo": "forca",
+    "nome": "Ponta dos pés",
+    "emoji": "🦶",
+    "tipo": "repeticoes",
+    "meta": 12,
+    "ritmoMs": 1600,
+    "animacao": "pontinha",
+    "xp": 10,
+    "videoId": "tr-pontinha-forca",
+    "passos": [
+      "Pés juntinhos",
+      "Suba na ponta dos pés devagar",
+      "Desça devagar também"
+    ]
+  },
+  {
+    "id": "cruz-forca",
+    "modulo": "forca",
+    "nome": "Passos em cruz",
+    "emoji": "➕",
+    "tipo": "tempo",
+    "meta": 20,
+    "ritmoMs": 2400,
+    "animacao": "cruz",
+    "xp": 10,
+    "videoId": "tr-cruz-forca",
+    "passos": [
+      "Base de goleiro: joelhos dobrados, mãos prontas",
+      "Pule para os lados, para a frente e para trás",
+      "Sempre volte para o meio"
+    ]
+  },
+  {
+    "id": "equilibrio-1",
+    "modulo": "prevencao",
+    "nome": "Equilíbrio num pé",
+    "emoji": "🦩",
+    "tipo": "tempo",
+    "meta": 15,
+    "ritmoMs": 3000,
+    "animacao": "equilibrio",
+    "xp": 10,
+    "videoId": "tr-equilibrio-1",
+    "passos": [
+      "Levante um joelho",
+      "Abra os braços como um avião",
+      "Olhe para um ponto fixo"
+    ]
+  },
+  {
+    "id": "equilibrio-2",
+    "modulo": "prevencao",
+    "nome": "Equilíbrio no outro pé",
+    "emoji": "🦩",
+    "tipo": "tempo",
+    "meta": 15,
+    "ritmoMs": 3000,
+    "animacao": "equilibrio",
+    "xp": 10,
+    "videoId": "tr-equilibrio-2",
+    "passos": [
+      "Agora levante o outro joelho",
+      "Braços abertos",
+      "Se cair, tudo bem: tente de novo!"
+    ]
+  },
+  {
+    "id": "prancha-prevencao",
+    "modulo": "prevencao",
+    "nome": "Prancha",
+    "emoji": "🧱",
+    "tipo": "tempo",
+    "meta": 10,
+    "ritmoMs": 3000,
+    "animacao": "prancha",
+    "xp": 15,
+    "videoId": "tr-prancha-prevencao",
+    "passos": [
+      "Mãos embaixo dos ombros",
+      "Barriga firme, corpo reto",
+      "Faça com atenção, sem pressa"
+    ]
+  },
+  {
+    "id": "pontinha-prevencao",
+    "modulo": "prevencao",
+    "nome": "Ponta dos pés",
+    "emoji": "🦶",
+    "tipo": "repeticoes",
+    "meta": 10,
+    "ritmoMs": 1600,
+    "animacao": "pontinha",
+    "xp": 10,
+    "videoId": "tr-pontinha-prevencao",
+    "passos": [
+      "Pés juntinhos",
+      "Suba devagar",
+      "Desça devagar: deixa o tornozelo forte"
+    ]
+  },
+  {
+    "id": "alongar-lateral",
+    "modulo": "alongamento",
+    "nome": "Alongamento lateral",
+    "emoji": "🙆",
+    "tipo": "tempo",
+    "meta": 20,
+    "ritmoMs": 4000,
+    "animacao": "alongamento-lateral",
+    "xp": 10,
+    "videoId": "tr-alongar-lateral",
+    "passos": [
+      "Braços para cima",
+      "Incline para um lado e depois para o outro",
+      "Devagar, sem sentir dor"
+    ]
+  },
+  {
+    "id": "alongar-coxa",
+    "modulo": "alongamento",
+    "nome": "Alongamento da coxa",
+    "emoji": "🦵",
+    "tipo": "tempo",
+    "meta": 20,
+    "ritmoMs": 4000,
+    "animacao": "quadriceps",
+    "xp": 10,
+    "videoId": "tr-alongar-coxa",
+    "passos": [
+      "Segure o pé atrás, perto do bumbum",
+      "Pode se apoiar na parede",
+      "Na metade do tempo, troque de perna"
+    ]
+  },
+  {
+    "id": "alongar-braco",
+    "modulo": "alongamento",
+    "nome": "Braço cruzado",
+    "emoji": "💪",
+    "tipo": "tempo",
+    "meta": 20,
+    "ritmoMs": 8000,
+    "animacao": "braco-cruzado",
+    "xp": 10,
+    "videoId": "tr-alongar-braco",
+    "passos": [
+      "Passe um braço na frente do peito",
+      "O outro braço puxa de leve",
+      "Na metade do tempo, troque de braço"
+    ]
+  },
+  {
+    "id": "alongar-moinho",
+    "modulo": "alongamento",
+    "nome": "Moinho de vento",
+    "emoji": "🌀",
+    "tipo": "tempo",
+    "meta": 15,
+    "ritmoMs": 1600,
+    "animacao": "moinho",
+    "xp": 10,
+    "videoId": "tr-alongar-moinho",
+    "passos": [
+      "Braços bem esticados",
+      "Gire devagar, em círculos grandes",
+      "Respire fundo"
+    ]
   }
 ]
