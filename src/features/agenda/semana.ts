@@ -3,6 +3,7 @@
 import planoInfantilJson from '../../data/agenda.json'
 import { PROGRAMA_GOLEIROS, treinoPorId, type DiaPrograma } from '../../data/calendarioGoleiros'
 import { useProgramaStore, type ConfigPrograma } from '../../stores/programaStore'
+import { useTreinosStore } from '../../stores/treinosStore'
 import { diaDaSemana, formatarData, hojeISO, somarDias } from '../../utils/data'
 
 export interface TreinoSugerido {
@@ -97,7 +98,8 @@ export function planoDoDia(iso: string, cfg: ConfigPrograma = useProgramaStore.g
   const alteracao = cfg.alteracoes[iso]
   const dia = alteracao ?? diaDoProgramaOriginal(iso, cfg)
   const treinos = dia.itens.flatMap((item): TreinoSugerido[] => {
-    const t = treinoPorId(item.treino, cfg.extras)
+    // Treinos criados pelos pais no "Treinar" também podem estar no calendário
+    const t = treinoPorId(item.treino, cfg.extras, useTreinosStore.getState().seriesExtras)
     if (!t) return []
     return [
       {

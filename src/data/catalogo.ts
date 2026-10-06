@@ -43,6 +43,8 @@ export interface Exercicio {
   videoId: string
   /** 2 ou 3 instruções bem curtas */
   passos: string[]
+  /** GIF/imagem próprio enviado pelos pais (id no IndexedDB); no lugar do bonequinho */
+  gif?: string
 }
 
 export interface Video {

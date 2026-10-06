@@ -11,7 +11,7 @@ import type { Exercicio } from '../../data/catalogo'
 import { useTimer } from '../../hooks/useTimer'
 import { useWakeLock } from '../../hooks/useWakeLock'
 import { sons } from '../../utils/som'
-import { BonecoAnimado } from './BonecoAnimado'
+import { Demonstracao } from './Demonstracao'
 import { duracaoDoExercicio } from './recompensa'
 
 interface Props {
@@ -81,8 +81,8 @@ export function ExecutarExercicio({ exercicio, aoConcluir, aoPular }: Props) {
         </p>
       )}
 
-      <BonecoAnimado
-        animacao={exercicio.animacao}
+      <Demonstracao
+        exercicio={exercicio}
         ritmoMs={rapido ? ritmoMs : ritmoMs * FATOR_DEVAGAR}
         tamanho={tipo === 'intervalos' ? 120 : 150}
         pausado={pausado}

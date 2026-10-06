@@ -1,14 +1,14 @@
 // Série guiada de exercícios (aquecimento, fundamentos do goleiro...):
 // início → (apresentar → 3,2,1 → executar) × exercícios → fim com recompensa.
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
-import { exerciciosDoModulo } from '../../data/catalogo'
 import { Mascote } from '../../components/mascote/Mascote'
 import { PainelRecompensa } from '../../components/ui/PainelRecompensa'
 import { FALAS_FIM, sortearFala } from '../../data/mascote'
 import { entregarRecompensa, type ResultadoRecompensa } from '../../stores/progressStore'
 import { destravarSom } from '../../utils/som'
 import { ApresentarExercicio } from './ApresentarExercicio'
+import { useExerciciosDaSerie } from './series'
 import { AvisoAquecer } from './AvisoAquecer'
 import { Contagem } from './Contagem'
 import { ExecutarExercicio } from './ExecutarExercicio'
@@ -31,7 +31,7 @@ interface Props {
 }
 
 export function SerieGuiada({ modulo, titulo, textoComecar, atividade, voltarPara, textoVoltar }: Props) {
-  const SERIE = useMemo(() => exerciciosDoModulo(modulo), [modulo])
+  const SERIE = useExerciciosDaSerie(modulo)
   const [fase, setFase] = useState<Fase>('inicio')
   const [indice, setIndice] = useState(0)
   const [feitos, setFeitos] = useState<string[]>([])

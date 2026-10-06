@@ -14,6 +14,13 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
   infantil de 4 semanas, check-in, dias seguidos, missões e lembrete diário
 - **Área dos pais** (aba "Pais" na Agenda, com PIN): escolher o programa e a data de início, ver o mês com o que a
   criança fez, mudar qualquer dia, trocar os links dos vídeos e ver os treinos de academia do calendário
+- **Treinos editáveis pelos pais** (aba Pais → "💪 Treinos (botão Treinar)"):
+  - mudar os exercícios de qualquer série: nome, ícone, por tempo, repetições ou rápido e devagar, quantidade,
+    velocidade e qual movimento do bonequinho (galeria com prévia), além dos passos;
+  - usar um GIF próprio no lugar do bonequinho (até 3 MB, guardado no aparelho);
+  - criar treinos novos, que aparecem no menu Treinos e podem entrar em qualquer dia do calendário.
+
+  Tudo fica só no aparelho (`futkids-treinos` no localStorage e os GIFs no IndexedDB `futkids-midia`).
 - **Perfil**: álbum de figurinhas, conquistas e loja do avatar com moedas
 - **Bolinha**, o mascote que guia e torce
 

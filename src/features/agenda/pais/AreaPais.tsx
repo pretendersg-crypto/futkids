@@ -10,6 +10,10 @@ import { linkSeguro } from '../../../utils/link'
 import { LinkVideo } from '../BotaoVideo'
 import { descreverPosicao, LETRAS_DIAS, planoDoDia } from '../semana'
 import { EditorDia } from './EditorDia'
+import { EditorSerie } from './treinos/EditorSerie'
+import { exerciciosDoModulo } from '../../../data/catalogo'
+import { todasAsSeries } from '../../treino/series'
+import { useTreinosStore } from '../../../stores/treinosStore'
 import { FormVideo } from './FormVideo'
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
@@ -28,6 +32,14 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
   const hoje = hojeISO()
   const [mes, setMes] = useState(() => ({ ano: Number(hoje.slice(0, 4)), mes: Number(hoje.slice(5, 7)) - 1 }))
   const [editando, setEditando] = useState<string | null>(null)
+  // Editor de um treino do "Treinar" (ocupa a área inteira): módulo, 'novo' ou null
+  const [editandoSerie, setEditandoSerie] = useState<string | null>(null)
+  // Assina os treinos dos pais: o calendário mostra nomes/ícones atualizados
+  useTreinosStore((s) => s.seriesExtras)
+
+  if (editandoSerie) {
+    return <EditorSerie modulo={editandoSerie === 'novo' ? null : editandoSerie} aoVoltar={() => setEditandoSerie(null)} />
+  }
 
   const andarMes = (passo: number) => setMes(({ ano, mes: m }) => ({ ano: ano + Math.floor((m + passo) / 12), mes: (((m + passo) % 12) + 12) % 12 }))
 
@@ -141,6 +153,8 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
           )
         })}
       </section>
+
+      <TreinosDoApp aoEditar={setEditandoSerie} />
 
       <VideosDosTreinos />
 
@@ -310,6 +324,56 @@ function VideosDosTreinos() {
           />
         )}
       </Modal>
+    </section>
+  )
+}
+
+/** Treinos do botão "Treinar": editar os exercícios de cada um e criar treinos novos */
+function TreinosDoApp({ aoEditar }: { aoEditar: (modulo: string) => void }) {
+  const loja = useTreinosStore()
+  const series = todasAsSeries(loja.seriesExtras)
+
+  return (
+    <section className="flex flex-col gap-2 rounded-3xl border-4 border-violet-200 bg-white p-3">
+      <h2 className="text-xl font-extrabold">💪 Treinos (botão Treinar)</h2>
+      <p className="text-sm">
+        Mude os exercícios, o movimento e a velocidade do bonequinho, ou use um GIF próprio. Os treinos novos aparecem no menu Treinos e
+        podem ser colocados em qualquer dia do calendário.
+      </p>
+      <button
+        type="button"
+        onClick={() => aoEditar('novo')}
+        className="min-h-14 rounded-2xl border-4 border-dashed border-violet-400 bg-violet-50 text-lg font-extrabold"
+      >
+        ➕ Adicionar treino
+      </button>
+      <ul className="flex flex-col gap-2">
+        {series.map((s) => {
+          const quantos = (loja.exercicios[s.modulo] ?? exerciciosDoModulo(s.modulo)).length
+          const mudado = !!loja.exercicios[s.modulo] && !loja.seriesExtras.some((x) => x.modulo === s.modulo)
+          const novo = loja.seriesExtras.some((x) => x.modulo === s.modulo)
+          return (
+            <li key={s.modulo}>
+              <button type="button" onClick={() => aoEditar(s.modulo)} className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border-4 p-2 text-left ${s.cor}`}>
+                <span aria-hidden className="text-3xl">
+                  {s.emoji}
+                </span>
+                <span className="flex flex-1 flex-col leading-tight">
+                  <span className="font-extrabold">{s.titulo}</span>
+                  <span className="text-xs font-bold">
+                    {quantos} {quantos === 1 ? 'exercício' : 'exercícios'}
+                    {mudado ? ' · mudado neste aparelho' : ''}
+                    {novo ? ' · criado por você' : ''}
+                  </span>
+                </span>
+                <span aria-hidden className="text-xl">
+                  ✏️
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }

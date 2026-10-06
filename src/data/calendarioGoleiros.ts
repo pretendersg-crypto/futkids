@@ -126,10 +126,27 @@ export function treinoDeExtra(e: TreinoExtra): TreinoCalendario {
   return { id: e.id, nome: e.nome, emoji: e.emoji, videoUrl: e.videoUrl, detalhe: tipo.nome, rota: tipo.rota, atividade: tipo.atividade }
 }
 
-/** Busca um treino do calendário ou um vídeo adicionado pelos pais */
-export function treinoPorId(id: string, extras: TreinoExtra[] = []): TreinoCalendario | undefined {
+/** Treino criado pelos pais no "Treinar" (área dos pais), para entrar no calendário */
+export interface SerieDosPais {
+  modulo: string
+  titulo: string
+  emoji: string
+}
+
+/** Id no calendário de um treino criado pelos pais */
+export const idDeSerie = (modulo: string) => `serie:${modulo}`
+
+export function treinoDeSerie(s: SerieDosPais): TreinoCalendario {
+  return { id: idDeSerie(s.modulo), nome: s.titulo, emoji: s.emoji, rota: `/treinos/${s.modulo}`, atividade: s.modulo, detalhe: 'Treino criado pelos pais' }
+}
+
+/** Busca um treino do calendário, um vídeo adicionado ou um treino criado pelos pais */
+export function treinoPorId(id: string, extras: TreinoExtra[] = [], series: SerieDosPais[] = []): TreinoCalendario | undefined {
   const extra = extras.find((e) => e.id === id)
-  return extra ? treinoDeExtra(extra) : TREINOS_CALENDARIO.find((t) => t.id === id)
+  if (extra) return treinoDeExtra(extra)
+  const serie = series.find((s) => idDeSerie(s.modulo) === id)
+  if (serie) return treinoDeSerie(serie)
+  return TREINOS_CALENDARIO.find((t) => t.id === id)
 }
 
 /** Um item da agenda de um dia. `video` sobrescreve o vídeo padrão do treino só naquele dia. */

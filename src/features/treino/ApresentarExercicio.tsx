@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { VideoPlayerModal } from '../../components/video/VideoPlayerModal'
 import { videoPorId, type Exercicio } from '../../data/catalogo'
-import { BonecoAnimado } from './BonecoAnimado'
+import { Demonstracao } from './Demonstracao'
 import { descreverMeta } from './recompensa'
 
 interface Props {
@@ -25,7 +25,7 @@ export function ApresentarExercicio({ exercicio, aviso, aoComecar }: Props) {
       </h2>
       <p className="rounded-full bg-orange-100 px-4 py-1 text-xl font-bold">{descreverMeta(exercicio)}</p>
 
-      <BonecoAnimado animacao={exercicio.animacao} ritmoMs={exercicio.ritmoMs} tamanho={140} />
+      <Demonstracao exercicio={exercicio} tamanho={140} />
 
       <ol className="flex w-full flex-col gap-2 text-left text-lg">
         {exercicio.passos.map((passo, i) => (
@@ -59,7 +59,7 @@ export function ApresentarExercicio({ exercicio, aviso, aoComecar }: Props) {
         video={videoPorId(exercicio.videoId)}
         alternativa={
           <div className="flex flex-col items-center gap-2">
-            <BonecoAnimado animacao={exercicio.animacao} ritmoMs={exercicio.ritmoMs} tamanho={220} />
+            <Demonstracao exercicio={exercicio} tamanho={220} />
             <p className="text-center text-lg">Faça igual ao bonequinho! 👆</p>
           </div>
         }

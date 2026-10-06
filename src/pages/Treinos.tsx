@@ -3,12 +3,14 @@
 import { Link } from 'react-router'
 import { AvisoAquecer } from '../features/treino/AvisoAquecer'
 import { useAqueceuHoje } from '../features/treino/useAqueceuHoje'
-import { SERIES } from '../features/treino/series'
+import { todasAsSeries } from '../features/treino/series'
+import { useTreinosStore } from '../stores/treinosStore'
 import { useProgressStore } from '../stores/progressStore'
 
 export function Treinos() {
   const contadores = useProgressStore((s) => s.contadores)
   const aqueceu = useAqueceuHoje()
+  const extras = useTreinosStore((s) => s.seriesExtras)
 
   return (
     <section className="flex flex-col gap-4">
@@ -16,7 +18,7 @@ export function Treinos() {
       <AvisoAquecer />
 
       <ul className="flex flex-col gap-3">
-        {SERIES.map((s) => {
+        {todasAsSeries(extras).map((s) => {
           const vezes = contadores[s.modulo] ?? 0
           return (
             <li key={s.modulo}>

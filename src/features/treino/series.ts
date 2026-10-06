@@ -1,7 +1,11 @@
 // As séries de treino (vindas da ideia de um calendário de pré-temporada de goleiros, adaptado
 // para crianças a partir de 6 anos): aquecimento sempre antes, velocidade, "rápido e devagar"
 // (o intervalado), força com o peso do corpo, prevenção de lesões e alongamento.
-// Cada série usa os exercícios do módulo de mesmo nome em data/exercicios.json.
+// Cada série usa os exercícios do módulo de mesmo nome em data/exercicios.json (ou a lista editada
+// pelos pais na área dos pais, que fica em stores/treinosStore.ts).
+import { useMemo } from 'react'
+import { exerciciosDoModulo, type Exercicio } from '../../data/catalogo'
+import { useTreinosStore, type SerieExtra } from '../../stores/treinosStore'
 
 export interface SerieTreino {
   /** Módulo dos exercícios e também o tipo de atividade registrado ao terminar */
@@ -66,6 +70,20 @@ export const SERIES: SerieTreino[] = [
   },
 ]
 
-export function seriePorModulo(modulo: string | undefined): SerieTreino | undefined {
-  return SERIES.find((s) => s.modulo === modulo)
+/** Cor dos treinos criados pelos pais */
+export const COR_SERIE_EXTRA = 'border-pink-400 bg-pink-50'
+
+/** Séries do app + treinos criados pelos pais (área dos pais) */
+export function todasAsSeries(extras: SerieExtra[]): SerieTreino[] {
+  return [...SERIES, ...extras.map((e) => ({ ...e, rota: `/treinos/${e.modulo}`, cor: COR_SERIE_EXTRA }))]
+}
+
+export function seriePorModulo(modulo: string | undefined, extras: SerieExtra[] = []): SerieTreino | undefined {
+  return todasAsSeries(extras).find((s) => s.modulo === modulo)
+}
+
+/** Exercícios de uma série: a lista editada pelos pais, ou a original de data/exercicios.json */
+export function useExerciciosDaSerie(modulo: string): Exercicio[] {
+  const editados = useTreinosStore((s) => s.exercicios[modulo])
+  return useMemo(() => editados ?? exerciciosDoModulo(modulo), [editados, modulo])
 }

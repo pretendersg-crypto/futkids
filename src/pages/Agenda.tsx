@@ -12,6 +12,7 @@ import { TrancaPais } from '../features/agenda/pais/TrancaPais'
 import { descreverPosicao, diasDaSemana, LETRAS_DIAS, NOMES_DIAS, planoDoDia, treinosDoDia } from '../features/agenda/semana'
 import { useProgramaStore } from '../stores/programaStore'
 import { useProgressStore } from '../stores/progressStore'
+import { useTreinosStore } from '../stores/treinosStore'
 import { diaDaSemana, hojeISO } from '../utils/data'
 import { melhorSequencia, sequenciaAtual } from '../utils/sequencia'
 
@@ -59,6 +60,8 @@ function MinhaAgenda() {
   const atividadesPorDia = useProgressStore((s) => s.atividadesPorDia)
   const bonus = useProgressStore((s) => s.bonusSequencia)
   const programa = useProgramaStore()
+  // Treinos criados pelos pais podem estar no dia de hoje: re-renderiza se mudarem
+  useTreinosStore((s) => s.seriesExtras)
   const [checkinAgora, setCheckinAgora] = useState(false)
 
   const hoje = hojeISO()
