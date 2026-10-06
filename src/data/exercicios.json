@@ -1,0 +1,67 @@
+[
+  {
+    "id": "corrida-no-lugar",
+    "modulo": "aquecimento",
+    "nome": "Corrida no lugar",
+    "emoji": "🏃",
+    "tipo": "tempo",
+    "meta": 30,
+    "ritmoMs": 700,
+    "animacao": "corrida",
+    "xp": 10,
+    "videoId": "aq-corrida",
+    "passos": ["Corra sem sair do lugar", "Levante bem os joelhos", "Mexa os braços"]
+  },
+  {
+    "id": "polichinelo",
+    "modulo": "aquecimento",
+    "nome": "Polichinelo",
+    "emoji": "⭐",
+    "tipo": "repeticoes",
+    "meta": 15,
+    "ritmoMs": 1400,
+    "animacao": "polichinelo",
+    "xp": 10,
+    "videoId": "aq-polichinelo",
+    "passos": ["Pule abrindo braços e pernas", "Pule de novo fechando", "Siga o ritmo do bip"]
+  },
+  {
+    "id": "agachamento",
+    "modulo": "aquecimento",
+    "nome": "Agachamento",
+    "emoji": "🦵",
+    "tipo": "repeticoes",
+    "meta": 10,
+    "ritmoMs": 2400,
+    "animacao": "agachamento",
+    "xp": 10,
+    "videoId": "aq-agachamento",
+    "passos": ["Pés afastados", "Desça como se fosse sentar", "Suba devagar"]
+  },
+  {
+    "id": "alongamento-lateral",
+    "modulo": "aquecimento",
+    "nome": "Alongamento lateral",
+    "emoji": "🙆",
+    "tipo": "tempo",
+    "meta": 20,
+    "ritmoMs": 4000,
+    "animacao": "alongamento-lateral",
+    "xp": 10,
+    "videoId": "aq-alongamento-lateral",
+    "passos": ["Braços para cima", "Incline para um lado e depois para o outro", "Devagar, sem sentir dor"]
+  },
+  {
+    "id": "moinho-de-vento",
+    "modulo": "aquecimento",
+    "nome": "Moinho de vento",
+    "emoji": "🌀",
+    "tipo": "tempo",
+    "meta": 20,
+    "ritmoMs": 1600,
+    "animacao": "moinho",
+    "xp": 10,
+    "videoId": "aq-moinho",
+    "passos": ["Braços bem esticados", "Gire os braços em círculos grandes", "Respire fundo"]
+  }
+]

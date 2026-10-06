@@ -1,7 +1,5 @@
-// Tela provisória: o conteúdo de verdade entra na etapa correspondente da ordem de implementação.
-import { TelaEmConstrucao } from '../components/ui/TelaEmConstrucao'
-import { moduloPorCaminho } from '../data/modulos'
+import { SerieAquecimento } from '../features/aquecimento/SerieAquecimento'
 
 export function Aquecimento() {
-  return <TelaEmConstrucao modulo={moduloPorCaminho('/aquecimento')} />
+  return <SerieAquecimento />
 }

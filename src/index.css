@@ -46,3 +46,14 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* "Pulo" de um número ou emoji que acabou de mudar (contador, contagem regressiva) */
+@keyframes pop {
+  from {
+    transform: scale(1.5);
+  }
+}
+
+.pop {
+  animation: pop 0.3s ease-out;
+}

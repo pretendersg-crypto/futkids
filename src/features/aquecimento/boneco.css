@@ -1,0 +1,91 @@
+/* Bonequinho que demonstra os exercícios (substitui o vídeo enquanto não houver vídeos reais).
+   Cada parte do corpo gira em torno da própria articulação; as coordenadas são as do viewBox
+   de BonecoAnimado.tsx (ombro 100,64 · cotovelo 100,98 · quadril 100,130 · joelho 100,168). */
+
+.boneco g {
+  transform-box: view-box;
+  animation-duration: var(--duracao, 1s);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+.boneco.pausado g {
+  animation-play-state: paused;
+}
+
+/* Pose parada (braços e pernas levemente abertos) */
+.b-tronco { transform-origin: 100px 130px; }
+.b-braco-e { transform-origin: 100px 64px; transform: rotate(20deg); }
+.b-braco-d { transform-origin: 100px 64px; transform: rotate(-20deg); }
+.b-antebraco-e, .b-antebraco-d { transform-origin: 100px 98px; }
+.b-coxa-e { transform-origin: 100px 130px; transform: rotate(6deg); }
+.b-coxa-d { transform-origin: 100px 130px; transform: rotate(-6deg); }
+.b-canela-e, .b-canela-d { transform-origin: 100px 168px; }
+
+/* ---------- Corrida no lugar: joelhos sobem alternados, braços balançam ---------- */
+/* Visto DE LADO (olhando para a direita): de frente, joelho subindo e braço balançando não aparecem.
+   Cada perna sobe o joelho para a frente uma vez por ciclo; o braço do lado oposto vai junto. */
+.boneco--corrida .b-corpo { animation-name: cor-corpo; }
+.boneco--corrida .b-coxa-e { animation-name: cor-coxa-e; }
+.boneco--corrida .b-coxa-d { animation-name: cor-coxa-d; }
+.boneco--corrida .b-canela-e { animation-name: cor-canela-e; }
+.boneco--corrida .b-canela-d { animation-name: cor-canela-d; }
+.boneco--corrida .b-braco-e { animation-name: cor-braco-e; }
+.boneco--corrida .b-braco-d { animation-name: cor-braco-d; }
+/* Antebraços sempre dobrados para a frente */
+.boneco--corrida .b-antebraco-e, .boneco--corrida .b-antebraco-d { transform: rotate(-80deg); }
+@keyframes cor-corpo { 0%, 50%, 100% { transform: translateY(-4px); } 25%, 75% { transform: translateY(0); } }
+@keyframes cor-coxa-e { 0%, 100% { transform: rotate(-60deg); } 50% { transform: rotate(0deg); } }
+@keyframes cor-canela-e { 0%, 100% { transform: rotate(80deg); } 50% { transform: rotate(0deg); } }
+@keyframes cor-coxa-d { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-60deg); } }
+@keyframes cor-canela-d { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(80deg); } }
+@keyframes cor-braco-e { 0%, 100% { transform: rotate(30deg); } 50% { transform: rotate(-40deg); } }
+@keyframes cor-braco-d { 0%, 100% { transform: rotate(-40deg); } 50% { transform: rotate(30deg); } }
+
+/* ---------- Polichinelo: abre braços e pernas pulando ---------- */
+.boneco--polichinelo .b-corpo { animation-name: pol-corpo; }
+.boneco--polichinelo .b-braco-e { animation-name: pol-braco-e; }
+.boneco--polichinelo .b-braco-d { animation-name: pol-braco-d; }
+.boneco--polichinelo .b-coxa-e { animation-name: pol-coxa-e; }
+.boneco--polichinelo .b-coxa-d { animation-name: pol-coxa-d; }
+@keyframes pol-corpo { 0%, 50%, 100% { transform: translateY(0); } 25%, 75% { transform: translateY(-10px); } }
+@keyframes pol-braco-e { 0%, 100% { transform: rotate(15deg); } 50% { transform: rotate(145deg); } }
+@keyframes pol-braco-d { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-145deg); } }
+@keyframes pol-coxa-e { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(26deg); } }
+@keyframes pol-coxa-d { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(-26deg); } }
+
+/* ---------- Agachamento: desce dobrando os joelhos, braços abrem para equilibrar ---------- */
+.boneco--agachamento .b-corpo { animation-name: aga-corpo; }
+.boneco--agachamento .b-braco-e { animation-name: aga-braco-e; }
+.boneco--agachamento .b-braco-d { animation-name: aga-braco-d; }
+.boneco--agachamento .b-coxa-e { animation-name: aga-coxa-e; }
+.boneco--agachamento .b-coxa-d { animation-name: aga-coxa-d; }
+.boneco--agachamento .b-canela-e { animation-name: aga-canela-e; }
+.boneco--agachamento .b-canela-d { animation-name: aga-canela-d; }
+@keyframes aga-corpo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(16px); } }
+@keyframes aga-braco-e { 0%, 100% { transform: rotate(20deg); } 50% { transform: rotate(85deg); } }
+@keyframes aga-braco-d { 0%, 100% { transform: rotate(-20deg); } 50% { transform: rotate(-85deg); } }
+@keyframes aga-coxa-e { 0%, 100% { transform: rotate(6deg); } 50% { transform: rotate(40deg); } }
+@keyframes aga-coxa-d { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(-40deg); } }
+@keyframes aga-canela-e { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-70deg); } }
+@keyframes aga-canela-d { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(70deg); } }
+
+/* ---------- Alongamento lateral: braços para cima, tronco inclina para os lados ---------- */
+.boneco--alongamento-lateral .b-braco-e { transform: rotate(165deg); }
+.boneco--alongamento-lateral .b-braco-d { transform: rotate(-165deg); }
+.boneco--alongamento-lateral .b-tronco { animation-name: lat-tronco; }
+@keyframes lat-tronco { 0%, 50%, 100% { transform: rotate(0deg); } 25% { transform: rotate(20deg); } 75% { transform: rotate(-20deg); } }
+
+/* ---------- Moinho de vento: braços giram em círculos ---------- */
+.boneco--moinho .b-braco-e { animation-name: moi-braco-e; animation-timing-function: linear; }
+.boneco--moinho .b-braco-d { animation-name: moi-braco-d; animation-timing-function: linear; }
+@keyframes moi-braco-e { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes moi-braco-d { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+/* O movimento do bonequinho É a instrução do exercício, então ele continua animado mesmo
+   para quem pediu menos movimento (index.css desliga só as animações decorativas). */
+@media (prefers-reduced-motion: reduce) {
+  .boneco g {
+    animation-duration: var(--duracao, 1s) !important;
+    animation-iteration-count: infinite !important;
+  }
+}
