@@ -57,6 +57,33 @@ interface ProgressState {
   registrarRecorde: (chave: string, valor: number) => boolean
 }
 
+export interface ResultadoRecompensa {
+  /** Nível final e se subiu, já contando o bônus de sequência que o treino pode ter disparado */
+  resultadoXP: ResultadoXP
+  /** Bônus de dias seguidos ganho AGORA (primeiro treino do dia), para a tela de fim mostrar */
+  bonusSequencia: BonusSequencia | null
+}
+
+/**
+ * Entrega a recompensa de um treino concluído: XP, moedas e (se houver) o registro da atividade.
+ * Mede o nível antes e depois de TUDO, então "Subiu de nível!" também aparece quando quem fez
+ * subir foi o bônus de sequência. Chamar uma vez, no evento de fim do treino.
+ */
+export function entregarRecompensa(xp: number, moedas: number, atividade?: string): ResultadoRecompensa {
+  const loja = useProgressStore.getState()
+  const nivelAntes = nivelPorXP(loja.xp).nivel
+  const bonusAntes = loja.bonusSequencia
+  loja.ganharXP(xp)
+  loja.ganharMoedas(moedas)
+  if (atividade) loja.registrarAtividade(atividade)
+  const depois = useProgressStore.getState()
+  const nivel = nivelPorXP(depois.xp).nivel
+  return {
+    resultadoXP: { nivel, subiuDeNivel: nivel > nivelAntes },
+    bonusSequencia: depois.bonusSequencia !== bonusAntes ? depois.bonusSequencia : null,
+  }
+}
+
 export const useProgressStore = create<ProgressState>()(
   persist(
     (set, get) => ({

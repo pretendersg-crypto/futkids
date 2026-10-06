@@ -30,7 +30,7 @@ export function ApresentarExercicio({ exercicio, aviso, aoComecar }: Props) {
       <ol className="flex w-full flex-col gap-2 text-left text-lg">
         {exercicio.passos.map((passo, i) => (
           <li key={passo} className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm">
-            <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-fogo font-black text-white">
+            <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-orange-700 font-black text-white">
               {i + 1}
             </span>
             {passo}

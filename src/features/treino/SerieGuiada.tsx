@@ -3,7 +3,10 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { exerciciosDoModulo } from '../../data/catalogo'
-import { useProgressStore, type ResultadoXP } from '../../stores/progressStore'
+import { Mascote } from '../../components/mascote/Mascote'
+import { PainelRecompensa } from '../../components/ui/PainelRecompensa'
+import { FALAS_FIM, sortearFala } from '../../data/mascote'
+import { entregarRecompensa, type ResultadoRecompensa } from '../../stores/progressStore'
 import { destravarSom } from '../../utils/som'
 import { ApresentarExercicio } from './ApresentarExercicio'
 import { Contagem } from './Contagem'
@@ -32,7 +35,7 @@ export function SerieGuiada({ modulo, titulo, textoComecar, atividade, voltarPar
   const [indice, setIndice] = useState(0)
   const [feitos, setFeitos] = useState<string[]>([])
   const [ultimoPulado, setUltimoPulado] = useState(false)
-  const [resultado, setResultado] = useState<{ recompensa: Recompensa; xp: ResultadoXP } | null>(null)
+  const [resultado, setResultado] = useState<{ recompensa: Recompensa; entrega: ResultadoRecompensa; fala: string } | null>(null)
 
   const exercicio = SERIE[indice]
 
@@ -56,11 +59,10 @@ export function SerieGuiada({ modulo, titulo, textoComecar, atividade, voltarPar
     }
     // Fim da série: a recompensa é dada aqui (num evento), nunca durante a renderização
     const recompensa = calcularRecompensa(SERIE, feitosAgora)
-    const progresso = useProgressStore.getState()
-    const xp = progresso.ganharXP(recompensa.xp)
-    progresso.ganharMoedas(recompensa.moedas)
-    if (feitosAgora.length > 0) progresso.registrarAtividade(atividade)
-    setResultado({ recompensa, xp })
+    // Só conta como treino (e dia de treino) se fez pelo menos um exercício
+    const entrega = entregarRecompensa(recompensa.xp, recompensa.moedas, feitosAgora.length > 0 ? atividade : undefined)
+    const fala = sortearFala(recompensa.completa ? FALAS_FIM.otimo : feitosAgora.length > 0 ? FALAS_FIM.bom : FALAS_FIM.esforco)
+    setResultado({ recompensa, entrega, fala })
     setFase('fim')
   }
 
@@ -96,27 +98,17 @@ export function SerieGuiada({ modulo, titulo, textoComecar, atividade, voltarPar
   }
 
   if (fase === 'fim' && resultado) {
-    const { recompensa, xp } = resultado
+    const { recompensa, entrega, fala } = resultado
     return (
       <div className="flex flex-col items-center gap-4 pt-6 text-center">
-        <span aria-hidden className="pop text-8xl">
-          {recompensa.completa ? '🏆' : feitos.length > 0 ? '👏' : '💪'}
-        </span>
+        <Mascote humor={recompensa.completa ? 'comemorando' : 'torcendo'} fala={fala} tamanho={90} />
         <h1 className="text-3xl font-extrabold">
           {recompensa.completa ? 'Treino completo!' : feitos.length > 0 ? 'Boa!' : 'Vamos tentar de novo?'}
         </h1>
         <p className="text-xl">
           Você fez {feitos.length} de {SERIE.length} exercícios.
         </p>
-        {recompensa.xp > 0 && (
-          <p className="flex gap-4 rounded-3xl border-4 border-yellow-400 bg-yellow-100 px-6 py-3 text-2xl font-extrabold">
-            <span>⭐ +{recompensa.xp} XP</span>
-            <span>🪙 +{recompensa.moedas}</span>
-          </p>
-        )}
-        {xp.subiuDeNivel && (
-          <p className="pop rounded-3xl bg-campo px-6 py-3 text-2xl font-extrabold text-white">🎉 Subiu para o nível {xp.nivel}!</p>
-        )}
+        <PainelRecompensa xp={recompensa.xp} moedas={recompensa.moedas} {...entrega} />
         <div className="grid w-full grid-cols-2 gap-3 pt-2">
           <button
             type="button"
@@ -143,7 +135,7 @@ export function SerieGuiada({ modulo, titulo, textoComecar, atividade, voltarPar
             aria-hidden
             className={`grid place-items-center rounded-full border-2 text-xs font-black ${
               i === indice ? 'size-8 border-fogo bg-orange-100' : 'size-6 border-orange-200 bg-white'
-            } ${feitos.includes(e.id) ? 'border-campo bg-campo text-white' : ''}`}
+            } ${feitos.includes(e.id) ? 'border-green-700 bg-green-700 text-white' : ''}`}
           >
             {feitos.includes(e.id) ? '✓' : ''}
           </li>

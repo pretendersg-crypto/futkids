@@ -21,7 +21,7 @@ export function HudRali({ segundos, pontos, combo }: Props) {
           {pontos}
         </span>
       </p>
-      <p className={`rounded-2xl py-1 shadow-sm ${mult > 1 ? 'bg-fogo text-white' : 'bg-white'}`}>
+      <p className={`rounded-2xl py-1 shadow-sm ${mult > 1 ? 'bg-orange-700 text-white' : 'bg-white'}`}>
         <span className="block text-xs font-bold">🔥 Combo</span>
         <span className="text-2xl font-black">
           {combo}

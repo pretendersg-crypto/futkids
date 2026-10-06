@@ -22,7 +22,7 @@ export function Contagem({ aoTerminar }: Props) {
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4" aria-live="assertive">
       <p className="text-2xl font-bold">Prepare-se!</p>
       {/* key troca a cada número, refazendo o "pulo" do número */}
-      <span key={numero} className="pop text-9xl font-black text-fogo">
+      <span key={numero} className="pop text-9xl font-black text-orange-600">
         {numero > 0 ? numero : 'Vai!'}
       </span>
     </div>

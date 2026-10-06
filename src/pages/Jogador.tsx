@@ -3,6 +3,7 @@
 // As mudanças ficam num rascunho e só são salvas no "Pronto!".
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { Mascote } from '../components/mascote/Mascote'
 import { apelidoAleatorio } from '../data/apelidos'
 import { Avatar } from '../features/avatar/Avatar'
 import { EditorAvatar } from '../features/avatar/EditorAvatar'
@@ -39,7 +40,7 @@ export function Jogador() {
         )}
         <h1 className="text-3xl font-extrabold">{primeiraVez ? 'Bem-vindo! 👋' : 'Meu jogador'}</h1>
       </header>
-      {primeiraVez && <p className="-mt-3 text-xl">Monte o seu jogador:</p>}
+      {primeiraVez && <Mascote humor="torcendo" fala="Oi! Eu sou o Bolinha! Vamos montar o seu jogador? ⚽" tamanho={80} />}
 
       <div className="flex flex-col items-center rounded-3xl border-4 border-green-200 bg-white py-3">
         <Avatar config={avatar} tamanho={150} />

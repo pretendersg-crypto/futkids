@@ -1,5 +1,7 @@
 // Sons curtos gerados na hora (Web Audio), sem baixar arquivos de áudio.
 // Os navegadores só liberam som depois de um toque: chame destravarSom() dentro de um onClick.
+// O botão de som do Perfil (configStore.somAtivo) desliga todos de uma vez.
+import { useConfigStore } from '../stores/configStore'
 
 let contexto: AudioContext | null = null
 
@@ -13,7 +15,7 @@ export function destravarSom() {
 }
 
 function bip(frequencia: number, duracaoMs: number, volume = 0.2) {
-  if (!contexto) return
+  if (!contexto || !useConfigStore.getState().somAtivo) return
   const agora = contexto.currentTime
   const oscilador = contexto.createOscillator()
   const ganho = contexto.createGain()

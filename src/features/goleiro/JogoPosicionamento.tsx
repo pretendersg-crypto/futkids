@@ -145,7 +145,7 @@ export function JogoPosicionamento({ nivel, aoTerminar }: Props) {
             >
               <span aria-hidden>🧤</span>
               {certa && (
-                <span aria-hidden className="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full bg-campo text-xs font-black text-white">
+                <span aria-hidden className="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full bg-green-700 text-xs font-black text-white">
                   ✓
                 </span>
               )}

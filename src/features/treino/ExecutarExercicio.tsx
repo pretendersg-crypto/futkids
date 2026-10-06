@@ -51,7 +51,7 @@ export function ExecutarExercicio({ exercicio, aoConcluir, aoPular }: Props) {
       ) : (
         <div className="flex w-full flex-col items-center gap-2">
           <p className="text-2xl font-bold" aria-live="polite">
-            <span key={repeticoes} className="pop inline-block text-7xl font-black text-fogo">
+            <span key={repeticoes} className="pop inline-block text-7xl font-black text-orange-600">
               {repeticoes}
             </span>{' '}
             / {exercicio.meta}

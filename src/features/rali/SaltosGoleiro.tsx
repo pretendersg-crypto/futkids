@@ -154,7 +154,7 @@ function Pulando({ etapa, saltos, aoComecarAPular, aoSaltar, aoSemSensor, aoTerm
       {pulando ? (
         <>
           <p className="text-2xl font-bold">Pule! 🦘 Faltam {Math.ceil(tempo.restanteMs / 1000)} s</p>
-          <span key={saltos} className="pop text-9xl font-black text-fogo">
+          <span key={saltos} className="pop text-9xl font-black text-orange-600">
             {saltos}
           </span>
           <p className="text-lg">saltos</p>
@@ -162,7 +162,7 @@ function Pulando({ etapa, saltos, aoComecarAPular, aoSaltar, aoSemSensor, aoTerm
       ) : (
         <>
           <p className="text-2xl font-bold">Guarde o celular no bolso 📱👖</p>
-          <span key={segundosPreparo} className="pop text-9xl font-black text-fogo">
+          <span key={segundosPreparo} className="pop text-9xl font-black text-orange-600">
             {segundosPreparo}
           </span>
           <p className="text-lg">Quando apitar, comece a pular!</p>

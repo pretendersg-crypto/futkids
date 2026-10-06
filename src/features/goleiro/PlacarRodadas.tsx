@@ -22,7 +22,7 @@ export function PlacarRodadas({ historico, rotulo = DEFESA }: Props) {
               aria-hidden
               className={`grid size-6 place-items-center rounded-full border-2 text-xs font-black ${
                 r === true
-                  ? 'border-campo bg-campo text-white'
+                  ? 'border-green-700 bg-green-700 text-white'
                   : r === false
                     ? 'border-red-300 bg-red-100 text-red-700'
                     : i === historico.length

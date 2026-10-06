@@ -1,17 +1,27 @@
-// Editor do avatar em abas: Pele, Cabelo, Cor do cabelo, Uniforme.
-// Cada opção de cabelo mostra o próprio avatar com aquele cabelo, então a criança não precisa ler.
+// Editor do avatar em abas: Pele, Cabelo, Cor do cabelo, Uniforme e Extras (acessórios).
+// As opções mostram o próprio avatar com aquela escolha, então a criança não precisa ler.
+// É também a loja: itens com preço aparecem com cadeado e o valor em moedas; tocar abre a compra.
 import { useState } from 'react'
+import { Modal } from '../../components/ui/Modal'
+import { useProgressStore } from '../../stores/progressStore'
+import { useUserStore } from '../../stores/userStore'
 import { Avatar } from './Avatar'
 import { Opcao } from './Opcao'
-import { CORES_CABELO, ESTILOS_CABELO, PELES, UNIFORMES, type AvatarConfig } from './opcoesAvatar'
+import { ACESSORIOS, chaveItem, CORES_CABELO, ESTILOS_CABELO, PELES, UNIFORMES, type AvatarConfig, type ParteAvatar } from './opcoesAvatar'
 
-type Aba = 'pele' | 'cabelo' | 'corCabelo' | 'uniforme'
+interface ItemDaAba {
+  id: string
+  nome: string
+  preco?: number
+  cor?: string
+}
 
-const ABAS: { id: Aba; emoji: string; nome: string }[] = [
-  { id: 'pele', emoji: '🙂', nome: 'Pele' },
-  { id: 'cabelo', emoji: '💇', nome: 'Cabelo' },
-  { id: 'corCabelo', emoji: '🎨', nome: 'Cor' },
-  { id: 'uniforme', emoji: '👕', nome: 'Uniforme' },
+const ABAS: { id: ParteAvatar; emoji: string; nome: string; itens: ItemDaAba[]; rotulo: (nome: string) => string }[] = [
+  { id: 'pele', emoji: '🙂', nome: 'Pele', itens: PELES, rotulo: (n) => n },
+  { id: 'cabelo', emoji: '💇', nome: 'Cabelo', itens: ESTILOS_CABELO, rotulo: (n) => `Cabelo ${n}` },
+  { id: 'corCabelo', emoji: '🎨', nome: 'Cor', itens: CORES_CABELO, rotulo: (n) => `Cabelo cor ${n}` },
+  { id: 'uniforme', emoji: '👕', nome: 'Camisa', itens: UNIFORMES, rotulo: (n) => `Uniforme ${n}` },
+  { id: 'acessorio', emoji: '🧢', nome: 'Extras', itens: ACESSORIOS, rotulo: (n) => n },
 ]
 
 interface Props {
@@ -24,12 +34,27 @@ function Bolinha({ cor }: { cor: string }) {
 }
 
 export function EditorAvatar({ valor, aoMudar }: Props) {
-  const [aba, setAba] = useState<Aba>('pele')
-  const mudar = (parte: Partial<AvatarConfig>) => aoMudar({ ...valor, ...parte })
+  const [aba, setAba] = useState<ParteAvatar>('pele')
+  const [compra, setCompra] = useState<{ parte: ParteAvatar; item: ItemDaAba } | null>(null)
+  const [semSaldo, setSemSaldo] = useState(false)
+  const moedas = useProgressStore((s) => s.moedas)
+  const comprados = useUserStore((s) => s.itensComprados)
+
+  const abaAtual = ABAS.find((a) => a.id === aba)!
+  const mudar = (parte: ParteAvatar, id: string) => aoMudar({ ...valor, [parte]: id })
+  const bloqueado = (parte: ParteAvatar, item: ItemDaAba) => !!item.preco && !comprados.includes(chaveItem(parte, item.id))
+
+  function comprar() {
+    if (!compra?.item.preco) return
+    if (useUserStore.getState().comprarItem(chaveItem(compra.parte, compra.item.id), compra.item.preco)) {
+      mudar(compra.parte, compra.item.id) // já veste o item novo
+      setCompra(null)
+    } else setSemSaldo(true)
+  }
 
   return (
     <section className="flex flex-col gap-3">
-      <div role="tablist" aria-label="Partes do avatar" className="grid grid-cols-4 gap-2">
+      <div role="tablist" aria-label="Partes do avatar" className="grid grid-cols-5 gap-1.5">
         {ABAS.map((a) => (
           <button
             key={a.id}
@@ -37,7 +62,7 @@ export function EditorAvatar({ valor, aoMudar }: Props) {
             role="tab"
             aria-selected={aba === a.id}
             onClick={() => setAba(a.id)}
-            className={`flex min-h-16 flex-col items-center justify-center rounded-2xl border-4 text-sm ${
+            className={`flex min-h-16 flex-col items-center justify-center rounded-2xl border-4 text-xs ${
               aba === a.id ? 'border-campo bg-green-100 font-extrabold' : 'border-transparent bg-white font-medium'
             }`}
           >
@@ -49,49 +74,49 @@ export function EditorAvatar({ valor, aoMudar }: Props) {
         ))}
       </div>
 
+      <p className="-mb-1 text-center text-base font-bold">
+        🪙 Você tem {moedas} {moedas === 1 ? 'moeda' : 'moedas'}
+      </p>
+
       <div role="tabpanel" className="flex flex-wrap justify-center gap-3 rounded-3xl bg-white/70 p-3">
-        {aba === 'pele' &&
-          PELES.map((p) => (
-            <Opcao key={p.id} rotulo={p.nome} selecionada={valor.pele === p.id} aoEscolher={() => mudar({ pele: p.id })}>
-              <Bolinha cor={p.cor} />
-            </Opcao>
-          ))}
-
-        {aba === 'cabelo' &&
-          ESTILOS_CABELO.map((c) => (
-            <Opcao key={c.id} rotulo={c.nome} selecionada={valor.cabelo === c.id} aoEscolher={() => mudar({ cabelo: c.id })}>
-              <Avatar config={{ ...valor, cabelo: c.id }} tamanho={60} />
-            </Opcao>
-          ))}
-
-        {aba === 'corCabelo' &&
-          CORES_CABELO.map((c) => (
+        {abaAtual.itens.map((item) => {
+          const trancado = bloqueado(aba, item)
+          return (
             <Opcao
-              key={c.id}
-              rotulo={`Cabelo ${c.nome}`}
-              selecionada={valor.corCabelo === c.id}
-              aoEscolher={() => mudar({ corCabelo: c.id })}
+              key={item.id}
+              rotulo={abaAtual.rotulo(item.nome) + (trancado ? `, bloqueado, custa ${item.preco} moedas` : '')}
+              selecionada={valor[aba] === item.id}
+              preco={trancado ? item.preco : undefined}
+              aoEscolher={() => {
+                if (!trancado) return mudar(aba, item.id)
+                setSemSaldo(false)
+                setCompra({ parte: aba, item })
+              }}
             >
-              <Bolinha cor={c.cor} />
+              {item.cor ? <Bolinha cor={item.cor} /> : <Avatar config={{ ...valor, [aba]: item.id }} tamanho={60} />}
             </Opcao>
-          ))}
-
-        {aba === 'uniforme' &&
-          UNIFORMES.map((u) => (
-            <Opcao
-              key={u.id}
-              rotulo={`Uniforme ${u.nome}`}
-              selecionada={valor.uniforme === u.id}
-              aoEscolher={() => mudar({ uniforme: u.id })}
-            >
-              {/* Camisa desenhada na cor do uniforme */}
-              <svg viewBox="0 0 40 40" width="44" height="44" aria-hidden>
-                <path d="M4 12 L14 5 Q20 10 26 5 L36 12 L32 19 L28 17 L28 36 L12 36 L12 17 L8 19 Z" fill={u.camisa} />
-                <path d="M15 6 Q20 13 25 6" fill="none" stroke={u.detalhe} strokeWidth="2.5" />
-              </svg>
-            </Opcao>
-          ))}
+          )
+        })}
       </div>
+
+      <Modal aberto={!!compra} aoFechar={() => setCompra(null)} titulo={`Comprar ${compra?.item.nome ?? ''}?`}>
+        {compra && (
+          <div className="flex flex-col items-center gap-3 text-center">
+            <Avatar config={{ ...valor, [compra.parte]: compra.item.id }} tamanho={140} />
+            <p className="text-xl font-extrabold">🪙 {compra.item.preco} moedas</p>
+            <p className="text-base">Você tem {moedas}.</p>
+            {semSaldo || moedas < (compra.item.preco ?? 0) ? (
+              <p className="rounded-2xl bg-yellow-100 p-3 text-lg font-bold">
+                Faltam {(compra.item.preco ?? 0) - moedas} moedas. Treine para ganhar mais! 💪
+              </p>
+            ) : (
+              <button type="button" onClick={comprar} className="min-h-14 w-full rounded-2xl bg-sol text-xl font-extrabold shadow">
+                Comprar 🛒
+              </button>
+            )}
+          </div>
+        )}
+      </Modal>
     </section>
   )
 }

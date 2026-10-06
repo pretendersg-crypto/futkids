@@ -1,5 +1,9 @@
-// Tela de fim da partida: estrelas, defesas, recompensa e comparação com o próprio recorde.
+// Tela de fim da partida: estrelas, mascote, defesas, recompensa e comparação com o próprio recorde.
+import { useState } from 'react'
 import { Link } from 'react-router'
+import { Mascote } from '../../components/mascote/Mascote'
+import { PainelRecompensa } from '../../components/ui/PainelRecompensa'
+import { FALAS_FIM, sortearFala } from '../../data/mascote'
 import type { ResultadoPartida } from './partida'
 
 interface Props {
@@ -11,8 +15,9 @@ interface Props {
 }
 
 export function FimDePartida({ resultado, aoJogarDeNovo, voltarPara, verbo = 'defendeu' }: Props) {
-  const { defesas, total, estrelas, xp, moedas, resultadoXP, recordeAnterior, novoRecorde } = resultado
-  const titulo = estrelas === 3 ? 'Paredão! 🧱' : estrelas === 2 ? 'Muito bem! 👏' : estrelas === 1 ? 'Boa! 💪' : 'Treino é assim mesmo! 💪'
+  const { defesas, total, estrelas, xp, moedas, recordeAnterior, novoRecorde } = resultado
+  // Sorteada uma vez (não troca a cada renderização)
+  const [fala] = useState(() => sortearFala(estrelas === 3 || novoRecorde ? FALAS_FIM.otimo : estrelas >= 1 ? FALAS_FIM.bom : FALAS_FIM.esforco))
 
   return (
     <div className="flex flex-col items-center gap-4 pt-4 text-center">
@@ -23,24 +28,18 @@ export function FimDePartida({ resultado, aoJogarDeNovo, voltarPara, verbo = 'de
           </span>
         ))}
       </p>
-      <h1 className="text-3xl font-extrabold">{titulo}</h1>
+      <Mascote humor={estrelas === 3 ? 'comemorando' : 'torcendo'} fala={fala} tamanho={80} />
       <p className="text-xl">
         Você {verbo} <b>{defesas}</b> de {total}.
       </p>
 
       {novoRecorde ? (
-        <p className="pop rounded-3xl bg-campo px-5 py-2 text-xl font-extrabold text-white">🏅 Novo recorde!</p>
+        <p className="pop rounded-3xl bg-green-700 px-5 py-2 text-xl font-extrabold text-white">🏅 Novo recorde!</p>
       ) : (
         recordeAnterior !== undefined && <p className="text-lg">Seu recorde: {recordeAnterior} de {total}. Bora bater! 🔥</p>
       )}
 
-      <p className="flex gap-4 rounded-3xl border-4 border-yellow-400 bg-yellow-100 px-6 py-3 text-2xl font-extrabold">
-        <span>⭐ +{xp} XP</span>
-        <span>🪙 +{moedas}</span>
-      </p>
-      {resultadoXP.subiuDeNivel && (
-        <p className="pop rounded-3xl bg-campo px-6 py-3 text-2xl font-extrabold text-white">🎉 Subiu para o nível {resultadoXP.nivel}!</p>
-      )}
+      <PainelRecompensa xp={xp} moedas={moedas} resultadoXP={resultado.resultadoXP} bonusSequencia={resultado.bonusSequencia} />
 
       <div className="grid w-full grid-cols-2 gap-3 pt-2">
         <button

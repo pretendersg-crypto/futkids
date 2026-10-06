@@ -1,14 +1,18 @@
-// Tela inicial: cartão do jogador (avatar, apelido, nível, XP, moedas, sino da agenda)
-// e botões grandes para cada módulo.
+// Tela inicial: cartão do jogador (avatar, apelido, nível, XP, moedas, sino da agenda),
+// o mascote com uma dica do dia e botões grandes para cada módulo.
 import { motion } from 'framer-motion'
 import { Link } from 'react-router'
+import { Mascote, type Humor } from '../components/mascote/Mascote'
 import { ProgressBar } from '../components/ui/ProgressBar'
+import { saudacao } from '../data/mascote'
 import { MODULOS } from '../data/modulos'
-import { treinosPendentesHoje } from '../features/agenda/semana'
+import { planoDoDia, treinosPendentesHoje } from '../features/agenda/semana'
 import { Avatar } from '../features/avatar/Avatar'
 import { useProgressStore } from '../stores/progressStore'
 import { useUserStore } from '../stores/userStore'
+import { hojeISO } from '../utils/data'
 import { nivelPorXP } from '../utils/nivel'
+import { sequenciaAtual } from '../utils/sequencia'
 
 export function Home() {
   const apelido = useUserStore((s) => s.apelido)
@@ -17,7 +21,9 @@ export function Home() {
   const moedas = useProgressStore((s) => s.moedas)
   const atividadesPorDia = useProgressStore((s) => s.atividadesPorDia)
   const { nivel, xpNoNivel, xpParaProximo } = nivelPorXP(xp)
+  const diasTreinados = useProgressStore((s) => s.diasTreinados)
   const pendentes = treinosPendentesHoje(atividadesPorDia)
+  const dica = dicaDoMascote(diasTreinados)
 
   return (
     <section className="flex flex-col gap-4">
@@ -60,7 +66,7 @@ export function Home() {
         </Link>
       </header>
 
-      <p className="text-center text-xl font-bold">Vamos treinar hoje?</p>
+      <Mascote humor={dica.humor} fala={`${saudacao()}, ${apelido}! ${dica.texto}`} tamanho={84} />
 
       <ul className="grid grid-cols-2 gap-4">
         {MODULOS.map((modulo, i) => (
@@ -83,4 +89,16 @@ export function Home() {
       </ul>
     </section>
   )
+}
+
+/** O que o mascote diz na Home, conforme o dia da criança */
+function dicaDoMascote(diasTreinados: string[]): { texto: string; humor: Humor } {
+  const hoje = hojeISO()
+  const seguidos = sequenciaAtual(diasTreinados, hoje)
+  if (diasTreinados.includes(hoje)) {
+    return seguidos >= 2 ? { texto: `${seguidos} dias seguidos! Você é demais! 🔥`, humor: 'comemorando' } : { texto: 'Treino feito hoje! Mandou bem! ⭐', humor: 'comemorando' }
+  }
+  if (planoDoDia(hoje).descanso) return { texto: 'Hoje é dia de descanso, mas pode treinar se quiser! 😄', humor: 'feliz' }
+  if (seguidos >= 1) return { texto: `${seguidos} ${seguidos === 1 ? 'dia seguido' : 'dias seguidos'}! Treine hoje para não perder 🔥`, humor: 'torcendo' }
+  return { texto: 'Bora treinar? Comece pelo aquecimento! 🔥', humor: 'feliz' }
 }

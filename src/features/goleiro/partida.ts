@@ -1,14 +1,13 @@
 // Fim de uma partida de goleiro: estrelas, recompensa, recorde e contagem do treino.
-import { useProgressStore, type ResultadoXP } from '../../stores/progressStore'
+import { entregarRecompensa, useProgressStore, type ResultadoRecompensa } from '../../stores/progressStore'
 import { chaveRecorde, type JogoGoleiroId, type NivelGoleiro } from './niveis'
 
-export interface ResultadoPartida {
+export interface ResultadoPartida extends ResultadoRecompensa {
   defesas: number
   total: number
   estrelas: number
   xp: number
   moedas: number
-  resultadoXP: ResultadoXP
   /** Recorde antes desta partida (undefined = primeira vez jogando) */
   recordeAnterior: number | undefined
   novoRecorde: boolean
@@ -30,10 +29,8 @@ export function finalizarPartida(jogo: JogoGoleiroId, nivel: NivelGoleiro, defes
   const chave = chaveRecorde(jogo, nivel.id)
   const recordeAnterior = progresso.recordes[chave]
   const novoRecorde = progresso.registrarRecorde(chave, defesas)
-  const resultadoXP = progresso.ganharXP(xp)
-  progresso.ganharMoedas(moedas)
   // Toda partida terminada conta como treino de goleiro (o esforço vale, mesmo com poucas defesas)
-  progresso.registrarAtividade('goleiro')
+  const recompensa = entregarRecompensa(xp, moedas, 'goleiro')
 
-  return { defesas, total, estrelas, xp, moedas, resultadoXP, recordeAnterior, novoRecorde }
+  return { defesas, total, estrelas, xp, moedas, recordeAnterior, novoRecorde, ...recompensa }
 }

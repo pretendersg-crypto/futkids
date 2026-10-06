@@ -3,6 +3,7 @@
 import { Link } from 'react-router'
 import { AlbumConquistas } from '../components/stickers/AlbumConquistas'
 import { Avatar } from '../features/avatar/Avatar'
+import { useConfigStore } from '../stores/configStore'
 import { useProgressStore } from '../stores/progressStore'
 import { useUserStore } from '../stores/userStore'
 import { nivelPorXP } from '../utils/nivel'
@@ -15,6 +16,8 @@ export function Perfil() {
   const moedas = useProgressStore((s) => s.moedas)
   const contadores = useProgressStore((s) => s.contadores)
   const diasTreinados = useProgressStore((s) => s.diasTreinados)
+  const somAtivo = useConfigStore((s) => s.somAtivo)
+  const alternarSom = useConfigStore((s) => s.alternarSom)
 
   const numeros = [
     { emoji: '🔥', valor: contadores.aquecimento ?? 0, rotulo: ['aquecimento', 'aquecimentos'] },
@@ -57,6 +60,21 @@ export function Perfil() {
       </ul>
 
       <AlbumConquistas />
+
+      {/* Som do app (bips, comemorações): útil na sala de aula ou à noite */}
+      <button
+        type="button"
+        role="switch"
+        aria-checked={somAtivo}
+        onClick={alternarSom}
+        className="flex min-h-16 items-center gap-3 rounded-2xl border-4 border-green-200 bg-white px-4 text-lg font-bold"
+      >
+        <span aria-hidden className="text-3xl">
+          {somAtivo ? '🔊' : '🔇'}
+        </span>
+        <span className="flex-1 text-left">Som do jogo</span>
+        <span className={`rounded-full px-3 py-1 ${somAtivo ? 'bg-green-700 text-white' : 'bg-gray-200'}`}>{somAtivo ? 'Ligado' : 'Desligado'}</span>
+      </button>
     </section>
   )
 }

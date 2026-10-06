@@ -5,29 +5,27 @@ import { destravarSom, sons } from '../../utils/som'
 import { FimRali } from './FimRali'
 import { finalizarRali, type ResultadoRali } from './pontuacao'
 
+const ZERADO = { sequencia: 0, melhor: 0, total: 0 }
+
 export function ContadorEmbaixadinhas() {
-  const [sequencia, setSequencia] = useState(0)
-  const [melhor, setMelhor] = useState(0)
-  const [total, setTotal] = useState(0)
+  // Um estado só, atualizado de uma vez: toques muito rápidos não perdem a conta
+  const [placar, setPlacar] = useState(ZERADO)
+  const { sequencia, melhor, total } = placar
   const [resultado, setResultado] = useState<ResultadoRali | null>(null)
 
   function mais1() {
     destravarSom()
     sons.toque(sequencia + 1)
-    setSequencia((s) => s + 1)
-    setMelhor((m) => Math.max(m, sequencia + 1))
-    setTotal((t) => t + 1)
+    setPlacar((p) => ({ sequencia: p.sequencia + 1, melhor: Math.max(p.melhor, p.sequencia + 1), total: p.total + 1 }))
   }
 
   function caiu() {
     if (sequencia > 0) sons.gol()
-    setSequencia(0)
+    setPlacar((p) => ({ ...p, sequencia: 0 }))
   }
 
   function recomecar() {
-    setSequencia(0)
-    setMelhor(0)
-    setTotal(0)
+    setPlacar(ZERADO)
     setResultado(null)
   }
 

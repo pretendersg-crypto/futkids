@@ -1,17 +1,16 @@
 // Pontuação do Rali: combo (acertos seguidos) vira multiplicador, e o fim da partida
 // entrega XP, moedas, recorde e conta o treino.
-import { useProgressStore, type ResultadoXP } from '../../stores/progressStore'
+import { entregarRecompensa, useProgressStore, type ResultadoRecompensa } from '../../stores/progressStore'
 
 /** A cada 5 acertos seguidos o multiplicador sobe: x1, x2, x3... até x5 */
 export function multiplicador(combo: number): number {
   return Math.min(5, 1 + Math.floor(combo / 5))
 }
 
-export interface ResultadoRali {
+export interface ResultadoRali extends ResultadoRecompensa {
   pontos: number
   xp: number
   moedas: number
-  resultadoXP: ResultadoXP
   recordeAnterior: number | undefined
   novoRecorde: boolean
 }
@@ -31,10 +30,8 @@ export function finalizarRali(jogo: string, pontos: number, { embaixadinhas = 0 
   const chave = `rali:${jogo}`
   const recordeAnterior = progresso.recordes[chave]
   const novoRecorde = progresso.registrarRecorde(chave, pontos)
-  const resultadoXP = progresso.ganharXP(xp)
-  progresso.ganharMoedas(moedas)
   if (embaixadinhas > 0) progresso.somarContador('embaixadinhas', embaixadinhas)
-  progresso.registrarAtividade('rali')
+  const recompensa = entregarRecompensa(xp, moedas, 'rali')
 
-  return { pontos, xp, moedas, resultadoXP, recordeAnterior, novoRecorde }
+  return { pontos, xp, moedas, recordeAnterior, novoRecorde, ...recompensa }
 }
