@@ -102,7 +102,11 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
   `video` próprio, que vale só naquele dia.
 - **Vídeo virando animação:** crie a série nova (exercícios em `exercicios.json` + entrada em
   `src/features/treino/series.ts`) e troque a `rota` do treino para ela.
-- **O que os pais mudam pelo app** (data de início, dias trocados, links): fica só no aparelho
+- **Vídeos novos pelo app:** na área dos pais, "➕ Adicionar vídeo" pede o tipo (aquecimento, alongamento, HIIT,
+  corrida, força e velocidade, força com técnica, prevenção, técnica de goleiro, academia ou outro), um ícone, um nome e o
+  link do YouTube. O tipo define a série animada e o que conta como feito (`TIPOS_TREINO` neste arquivo). O vídeo
+  pode ser colocado em qualquer dia do calendário.
+- **O que os pais mudam pelo app** (data de início, dias trocados, links, vídeos adicionados): fica só no aparelho
   (`futkids-programa` no localStorage). Para mudar o calendário de todo mundo, edite este arquivo.
 
 ### Vídeos de exemplo: `src/data/videos.json`

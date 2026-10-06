@@ -1,7 +1,7 @@
 // Editor de uma data da agenda (área dos pais): trocar, tirar ou incluir treinos, mudar o vídeo
 // só daquele dia, marcar descanso ou voltar ao que o programa diz.
 import { useState } from 'react'
-import { TREINOS_CALENDARIO, treinoPorId, type ItemDia } from '../../../data/calendarioGoleiros'
+import { TREINOS_CALENDARIO, treinoDeExtra, treinoPorId, type ItemDia } from '../../../data/calendarioGoleiros'
 import { useProgramaStore } from '../../../stores/programaStore'
 import { diaDaSemana, formatarData } from '../../../utils/data'
 import { linkSeguro } from '../../../utils/link'
@@ -20,8 +20,9 @@ export function EditorDia({ data, aoFechar }: Props) {
   const [novo, setNovo] = useState('')
   const [erro, setErro] = useState('')
 
-  const nomeOriginal = original.itens.length ? original.itens.map((i) => treinoPorId(i.treino)?.nome ?? i.treino).join(' + ') : 'Descanso'
-  const opcoes = TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento')
+  const nomeOriginal = original.itens.length ? original.itens.map((i) => treinoPorId(i.treino, programa.extras)?.nome ?? i.treino).join(' + ') : 'Descanso'
+  // Treinos do calendário + vídeos adicionados pelos pais (o aquecimento já entra sozinho)
+  const opcoes = [...TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento'), ...programa.extras.map(treinoDeExtra)]
 
   function salvar(lista: ItemDia[]) {
     for (const i of lista) {
@@ -45,7 +46,7 @@ export function EditorDia({ data, aoFechar }: Props) {
       {itens.length === 0 && <p className="rounded-2xl bg-violet-50 p-3 text-lg font-bold">😴 Dia de descanso</p>}
       <ul className="flex flex-col gap-2">
         {itens.map((item, i) => {
-          const t = treinoPorId(item.treino)
+          const t = treinoPorId(item.treino, programa.extras)
           const videoPadrao = programa.videos[item.treino] ?? t?.videoUrl
           return (
             <li key={`${item.treino}-${i}`} className="flex flex-col gap-2 rounded-2xl border-4 border-violet-200 p-2">

@@ -81,8 +81,55 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
   { id: 'embaixadinhas', nome: 'Embaixadinhas de verdade (app)', emoji: '⚽', rota: '/rali/contador', atividade: 'rali' },
 ]
 
-export function treinoPorId(id: string): TreinoCalendario | undefined {
-  return TREINOS_CALENDARIO.find((t) => t.id === id)
+// ---------- Vídeos adicionados pelos pais ----------
+
+/** Tipos de treino para os vídeos adicionados: o tipo define a série animada e o que conta como feito */
+export interface TipoTreino {
+  id: string
+  nome: string
+  emoji: string
+  rota?: string
+  atividade: string
+}
+
+export const TIPOS_TREINO: TipoTreino[] = [
+  { id: 'aquecimento', nome: 'Aquecimento', emoji: '🔥', rota: '/treinos/aquecimento', atividade: 'aquecimento' },
+  { id: 'alongamento', nome: 'Alongamento', emoji: '🧘', rota: '/treinos/alongamento', atividade: 'alongamento' },
+  { id: 'hiit', nome: 'HIIT', emoji: '🐇', rota: '/treinos/ritmo', atividade: 'ritmo' },
+  { id: 'corrida', nome: 'Corrida / troca de velocidade', emoji: '🏃', rota: '/treinos/ritmo', atividade: 'ritmo' },
+  { id: 'forca-velocidade', nome: 'Força e velocidade', emoji: '⚡', rota: '/treinos/velocidade', atividade: 'velocidade' },
+  { id: 'forca-tecnica', nome: 'Força com técnica', emoji: '➕', rota: '/treinos/forca', atividade: 'forca' },
+  { id: 'prevencao', nome: 'Prevenção', emoji: '🛡️', rota: '/treinos/prevencao', atividade: 'prevencao' },
+  { id: 'goleiro', nome: 'Técnica de goleiro', emoji: '🧤', rota: '/goleiro/fundamentos', atividade: 'goleiro' },
+  { id: 'academia', nome: 'Academia (acompanhado)', emoji: '🏋️', atividade: 'academia' },
+  { id: 'outro', nome: 'Outro', emoji: '⭐', atividade: 'outro' },
+]
+
+/** Ícones para escolher ao adicionar um vídeo */
+export const ICONES_TREINO = ['🔥', '🧘', '🐇', '🏃', '⚡', '➕', '🛡️', '🧤', '🥅', '⚽', '💪', '🦵', '🤸', '🏋️', '🎯', '⭐']
+
+export interface TreinoExtra {
+  id: string
+  tipo: string
+  nome: string
+  emoji: string
+  videoUrl: string
+}
+
+export function tipoPorId(id: string): TipoTreino {
+  return TIPOS_TREINO.find((t) => t.id === id) ?? TIPOS_TREINO[TIPOS_TREINO.length - 1]
+}
+
+/** O vídeo adicionado pelos pais, no mesmo formato dos treinos do calendário */
+export function treinoDeExtra(e: TreinoExtra): TreinoCalendario {
+  const tipo = tipoPorId(e.tipo)
+  return { id: e.id, nome: e.nome, emoji: e.emoji, videoUrl: e.videoUrl, detalhe: tipo.nome, rota: tipo.rota, atividade: tipo.atividade }
+}
+
+/** Busca um treino do calendário ou um vídeo adicionado pelos pais */
+export function treinoPorId(id: string, extras: TreinoExtra[] = []): TreinoCalendario | undefined {
+  const extra = extras.find((e) => e.id === id)
+  return extra ? treinoDeExtra(extra) : TREINOS_CALENDARIO.find((t) => t.id === id)
 }
 
 /** Um item da agenda de um dia. `video` sobrescreve o vídeo padrão do treino só naquele dia. */

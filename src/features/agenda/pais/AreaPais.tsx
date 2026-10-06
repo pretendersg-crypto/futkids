@@ -2,7 +2,7 @@
 // fez, mudar qualquer dia, editar os links dos vídeos e ver os treinos de academia do calendário.
 import { useState } from 'react'
 import { Modal } from '../../../components/ui/Modal'
-import { ACADEMIA, OBSERVACOES_CALENDARIO, PROGRAMA_GOLEIROS, TREINOS_CALENDARIO, treinoPorId } from '../../../data/calendarioGoleiros'
+import { ACADEMIA, OBSERVACOES_CALENDARIO, PROGRAMA_GOLEIROS, tipoPorId, TREINOS_CALENDARIO, treinoPorId, type TreinoExtra } from '../../../data/calendarioGoleiros'
 import { useProgramaStore } from '../../../stores/programaStore'
 import { useProgressStore } from '../../../stores/progressStore'
 import { formatarData, hojeISO, somarDias } from '../../../utils/data'
@@ -10,6 +10,7 @@ import { linkSeguro } from '../../../utils/link'
 import { LinkVideo } from '../BotaoVideo'
 import { descreverPosicao, LETRAS_DIAS, planoDoDia } from '../semana'
 import { EditorDia } from './EditorDia'
+import { FormVideo } from './FormVideo'
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
@@ -164,17 +165,87 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
   )
 }
 
-/** Link do vídeo de cada treino: os pais podem trocar (ex.: quando o treinador mandar outro) */
+/**
+ * Vídeos dos treinos: os pais adicionam vídeos novos (tipo, ícone e link do YouTube) e podem
+ * trocar o link dos vídeos do calendário (ex.: quando o treinador mandar outro).
+ */
 function VideosDosTreinos() {
   const programa = useProgramaStore()
   const [rascunho, setRascunho] = useState<Record<string, string>>({})
   const [erro, setErro] = useState<string | null>(null)
+  // Janela do formulário: 'novo' ou o vídeo sendo editado
+  const [formulario, setFormulario] = useState<'novo' | TreinoExtra | null>(null)
+  const [confirmarRemocao, setConfirmarRemocao] = useState<string | null>(null)
   const comVideo = TREINOS_CALENDARIO.filter((t) => t.videoUrl || programa.videos[t.id])
 
   return (
     <section className="flex flex-col gap-2 rounded-3xl border-4 border-violet-200 bg-white p-3">
       <h2 className="text-xl font-extrabold">🎬 Vídeos dos treinos</h2>
       <p className="text-sm">Os vídeos abrem fora do app. Depois, cada um vai virar uma animação do bonequinho dentro do app.</p>
+
+      <button
+        type="button"
+        onClick={() => setFormulario('novo')}
+        className="min-h-14 rounded-2xl border-4 border-dashed border-violet-400 bg-violet-50 text-lg font-extrabold"
+      >
+        ➕ Adicionar vídeo
+      </button>
+
+      {programa.extras.length > 0 && (
+        <>
+          <h3 className="pt-1 text-lg font-extrabold">Adicionados por você</h3>
+          <p className="-mt-1 text-sm">Para usar num dia, toque no dia do calendário e em "Incluir treino".</p>
+          <ul className="flex flex-col gap-2">
+            {programa.extras.map((e) => {
+              const tipo = tipoPorId(e.tipo)
+              return (
+                <li key={e.id} className="flex flex-col gap-2 rounded-2xl border-2 border-violet-100 p-2">
+                  <div className="flex items-center gap-2">
+                    <span aria-hidden className="text-3xl">
+                      {e.emoji}
+                    </span>
+                    <span className="flex flex-1 flex-col leading-tight">
+                      <span className="font-bold">{e.nome}</span>
+                      <span className="text-xs font-bold text-violet-800">
+                        {tipo.emoji} {tipo.nome}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <LinkVideo url={e.videoUrl} titulo="Ver" className="min-h-11 text-sm" />
+                    <button type="button" onClick={() => setFormulario(e)} className="min-h-11 rounded-xl border-2 border-violet-200 px-3 text-sm font-bold">
+                      ✏️ Editar
+                    </button>
+                    {confirmarRemocao === e.id ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          programa.removerExtra(e.id)
+                          setConfirmarRemocao(null)
+                        }}
+                        className="min-h-11 rounded-xl bg-red-600 px-3 text-sm font-bold text-white"
+                      >
+                        Confirmar remoção
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmarRemocao(e.id)}
+                        className="min-h-11 rounded-xl border-2 border-red-200 px-3 text-sm font-bold text-red-800"
+                      >
+                        🗑️ Remover
+                      </button>
+                    )}
+                  </div>
+                  {confirmarRemocao === e.id && <p className="text-xs">Ele sai também dos dias do calendário em que você colocou.</p>}
+                </li>
+              )
+            })}
+          </ul>
+        </>
+      )}
+
+      <h3 className="pt-1 text-lg font-extrabold">Do calendário</h3>
       {comVideo.map((t) => {
         const atual = programa.videos[t.id] ?? t.videoUrl ?? ''
         const valor = rascunho[t.id] ?? atual
@@ -225,6 +296,20 @@ function VideosDosTreinos() {
           </div>
         )
       })}
+
+      <Modal aberto={!!formulario} aoFechar={() => setFormulario(null)} titulo={formulario === 'novo' ? '➕ Novo vídeo' : '✏️ Editar vídeo'}>
+        {formulario && (
+          <FormVideo
+            key={formulario === 'novo' ? 'novo' : formulario.id}
+            inicial={formulario === 'novo' ? undefined : formulario}
+            aoSalvar={(dados) => {
+              if (formulario === 'novo') programa.adicionarExtra(dados)
+              else programa.alterarExtra(formulario.id, dados)
+              setFormulario(null)
+            }}
+          />
+        )}
+      </Modal>
     </section>
   )
 }

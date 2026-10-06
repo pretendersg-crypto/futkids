@@ -97,7 +97,7 @@ export function planoDoDia(iso: string, cfg: ConfigPrograma = useProgramaStore.g
   const alteracao = cfg.alteracoes[iso]
   const dia = alteracao ?? diaDoProgramaOriginal(iso, cfg)
   const treinos = dia.itens.flatMap((item): TreinoSugerido[] => {
-    const t = treinoPorId(item.treino)
+    const t = treinoPorId(item.treino, cfg.extras)
     if (!t) return []
     return [
       {

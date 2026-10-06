@@ -17,3 +17,15 @@ export function siteDoLink(url: string): string {
     return ''
   }
 }
+
+const SITES_YOUTUBE = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com', 'youtube-nocookie.com']
+
+/** Link do YouTube (youtube.com ou youtu.be), em https; null se não for */
+export function linkYoutube(texto: string): string | null {
+  const seguro = linkSeguro(texto)
+  if (!seguro) return null
+  const url = new URL(seguro)
+  if (!SITES_YOUTUBE.includes(url.hostname)) return null
+  url.protocol = 'https:'
+  return url.href
+}
