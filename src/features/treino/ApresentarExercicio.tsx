@@ -40,7 +40,6 @@ export function ApresentarExercicio({ exercicio, aviso, aoComecar }: Props) {
 
       {/* Botões grudados logo acima da barra inferior: aparecem mesmo quando os passos são longos */}
       <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] grid w-full grid-cols-2 gap-3 bg-campo-claro/95 py-2">
-
         <button
           type="button"
           onClick={() => setExemploAberto(true)}
