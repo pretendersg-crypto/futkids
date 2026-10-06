@@ -49,6 +49,8 @@ export const sons = {
   },
   /** Apito antes do chute */
   apito: () => bip(1400, 180, 0.15),
+  /** Toque na bola: a nota sobe com o combo, dá vontade de não errar */
+  toque: (combo = 0) => bip(500 + Math.min(combo, 20) * 25, 70, 0.15),
   /** Figurinha nova: arpejo "tcharam!" (dó, mi, sol, dó) */
   vitoria: () => {
     ;[523, 659, 784, 1047].forEach((nota, i) => setTimeout(() => bip(nota, i === 3 ? 400 : 140), i * 120))

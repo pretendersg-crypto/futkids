@@ -29,7 +29,14 @@ export const router = createBrowserRouter([
           { path: ':jogo/:nivel', lazy: () => import('./pages/JogoGoleiro').then((m) => ({ Component: m.JogoGoleiro })) },
         ],
       },
-      { path: 'rali', element: <Rali /> },
+      {
+        path: 'rali',
+        children: [
+          { index: true, element: <Rali /> },
+          // ex.: /rali/embaixadinha. Carregado sob demanda, como os jogos do goleiro
+          { path: ':desafio', lazy: () => import('./pages/JogoRali').then((m) => ({ Component: m.JogoRali })) },
+        ],
+      },
       { path: 'agenda', element: <Agenda /> },
       { path: 'perfil', element: <Perfil /> },
       // Endereço desconhecido: volta para o início em vez de mostrar página de erro

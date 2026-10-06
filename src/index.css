@@ -57,3 +57,14 @@ body {
 .pop {
   animation: pop 0.3s ease-out;
 }
+
+/* Mensagem de jogada no meio da tela ("DEFENDEU!", "Caiu!"). Anima só "scale": a centralização
+   usa a propriedade "translate" (classes do Tailwind) */
+.aviso-jogada {
+  animation: aviso-jogada 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes aviso-jogada {
+  from {
+    scale: 0.5;
+  }
+}

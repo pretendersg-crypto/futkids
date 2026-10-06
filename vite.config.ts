@@ -1,13 +1,17 @@
 import tailwindcss from '@tailwindcss/vite'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
+    // `npm run dev:celular`: HTTPS com certificado de teste, para abrir no celular pela rede
+    // local (sensores de movimento só funcionam em HTTPS). O `npm run dev` normal segue em HTTP.
+    mode === 'celular' && basicSsl(),
     VitePWA({
       // Atualiza o service worker sozinho quando sai versão nova (sem pedir nada pra criança)
       registerType: 'autoUpdate',
@@ -37,4 +41,4 @@ export default defineConfig({
       devOptions: { enabled: true },
     }),
   ],
-})
+}))
