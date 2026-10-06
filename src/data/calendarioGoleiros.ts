@@ -79,6 +79,7 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
   { id: 'fundamentos', nome: 'Fundamentos do goleiro (app)', emoji: '📚', rota: '/goleiro/fundamentos', atividade: 'goleiro' },
   { id: 'rali', nome: 'Rali de gestos (app)', emoji: '⚽', rota: '/rali', atividade: 'rali' },
   { id: 'embaixadinhas', nome: 'Embaixadinhas de verdade (app)', emoji: '⚽', rota: '/rali/contador', atividade: 'rali' },
+  { id: 'reacao', nome: 'Treino de reação (app)', emoji: '🚦', rota: '/reacao', atividade: 'reacao' },
 ]
 
 // ---------- Vídeos adicionados pelos pais ----------

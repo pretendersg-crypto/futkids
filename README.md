@@ -8,6 +8,14 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
 - **Goleiro**: 3 minijogos (Defesa, Reflexo, Posição) em 3 níveis + fundamentos com bola de verdade
 - **Rali de Gestos**: desafios por inclinação do celular ou toque, contador de embaixadinhas reais e
   saltos contados pelo acelerômetro (só com um adulto liberando)
+- **Reação** (ideia do app SwitchedOn): o celular mostra cores, setas (verdes ou vermelhas = "ao contrário")
+  e números, e o goleiro reage. Dois modos:
+  - **celular no chão**: os sinais passam sozinhos, em tela cheia, com bip e voz opcional, em séries com descanso
+    (ex.: cone da cor, mergulho para o lado da seta, bola do número);
+  - **toque na tela**: a criança toca a resposta e o app mede o tempo de reação e os acertos.
+
+  8 drills prontos (adaptados para 6 a 12 anos), **criar/copiar drills** (portão dos pais) e **histórico**
+  com data, sinais, séries, acertos, reação média e gráfico da evolução (`futkids-reacao` no localStorage).
 - **Alimentação do Craque**: lições com o mascote, jogo das turmas dos alimentos, monte o prato,
   verdade ou mentira e garrafinha de água do treino (sem dieta, calorias ou suplementos)
 - **Agenda**: calendário de pré-temporada de goleiros (61 dias, com os vídeos do treinador) ou plano
@@ -170,6 +178,8 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 | Itens do avatar e preços da loja | `src/features/avatar/opcoesAvatar.ts` (campo `preco`) |
 | Níveis do goleiro (velocidade, tamanho, XP) | `src/features/goleiro/niveis.ts` |
 | Desafios do rali | `src/features/rali/desafios.ts` |
+| Drills de reação prontos (sinais, séries, tempos e instruções) | `src/features/reacao/drills.ts` |
+| Cores e setas dos sinais de reação | `src/features/reacao/sinais.ts` |
 | Módulos da Home e da barra inferior | `src/data/modulos.ts` |
 
 ---
@@ -217,10 +227,10 @@ Funciona sem servidor:
 src/
 ├── components/   ui (Modal, ProgressBar, PortaoDosPais…), stickers (figurinhas, álbum),
 │                 video (VideoPlayerModal), mascote (Bolinha)
-├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, rali, agenda,
-│                 conquistas, avatar
+├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, rali, reacao (drills,
+│                 motor dos sinais, histórico), agenda, conquistas, avatar
 ├── stores/       zustand + localStorage: userStore, progressStore, achievementsStore,
-│                 agendaStore, configStore
+│                 agendaStore, configStore, treinosStore, reacaoStore
 ├── data/         conteúdos (exercícios, vídeos, conquistas, agenda, apelidos, mascote)
 ├── hooks/        useTimer, useSensor, useLoopJogo, useWakeLock
 ├── pages/        uma tela por rota (as maiores carregam sob demanda)

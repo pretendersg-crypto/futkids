@@ -393,5 +393,45 @@
       ],
       "animacao": "brilha"
     }
+  },
+  {
+    "id": "reacao-1",
+    "numero": 21,
+    "nome": "Ligado no 220",
+    "descricao": "Faça seu primeiro treino de reação",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "reacao",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🚦",
+      "cores": [
+        "#99F6E4",
+        "#0D9488"
+      ],
+      "animacao": "pulsa"
+    }
+  },
+  {
+    "id": "reacao-10",
+    "numero": 22,
+    "nome": "Reflexo de gato",
+    "descricao": "Faça 10 treinos de reação",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "reacao",
+      "minimo": 10
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🐱",
+      "cores": [
+        "#A5F3FC",
+        "#0891B2"
+      ],
+      "animacao": "balanca"
+    }
   }
 ]

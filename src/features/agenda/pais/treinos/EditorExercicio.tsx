@@ -2,6 +2,7 @@
 // bonequinho, qual movimento ele faz (galeria com prévia) ou um GIF próprio, e os passos.
 import { useState, type ChangeEvent } from 'react'
 import type { Exercicio, TipoExercicio } from '../../../../data/catalogo'
+import { CampoNumero } from '../../../../components/ui/CampoNumero'
 import { ICONES_TREINO } from '../../../../data/calendarioGoleiros'
 import { ANIMACOES } from '../../../treino/animacoes'
 import { BonecoAnimado } from '../../../treino/BonecoAnimado'
@@ -21,31 +22,6 @@ const TIPOS: { id: TipoExercicio; nome: string; unidade: string; max: number }[]
 ]
 
 const CAMPO = 'min-h-12 rounded-xl border-2 border-violet-200 px-3 text-base'
-
-/** Campo numérico com botões − e + (dedos grandes, sem teclado se não quiser) */
-function Numero({ valor, min, max, passo = 1, aoMudar, rotulo }: { valor: number; min: number; max: number; passo?: number; aoMudar: (v: number) => void; rotulo: string }) {
-  const limitar = (v: number) => Math.min(max, Math.max(min, Math.round(v)))
-  return (
-    <div className="flex items-center gap-2">
-      <button type="button" aria-label={`Menos ${rotulo}`} onClick={() => aoMudar(limitar(valor - passo))} className="grid size-12 place-items-center rounded-xl bg-violet-100 text-2xl font-black">
-        −
-      </button>
-      <input
-        type="number"
-        inputMode="numeric"
-        aria-label={rotulo}
-        value={valor}
-        min={min}
-        max={max}
-        onChange={(e) => aoMudar(limitar(Number(e.target.value) || min))}
-        className={`${CAMPO} w-20 text-center text-xl font-bold`}
-      />
-      <button type="button" aria-label={`Mais ${rotulo}`} onClick={() => aoMudar(limitar(valor + passo))} className="grid size-12 place-items-center rounded-xl bg-violet-100 text-2xl font-black">
-        +
-      </button>
-    </div>
-  )
-}
 
 export function EditorExercicio({ inicial, aoSalvar }: Props) {
   const [ex, setEx] = useState<Exercicio>({ ...inicial, passos: [...inicial.passos, '', '', ''].slice(0, 3) })
@@ -128,14 +104,14 @@ export function EditorExercicio({ inicial, aoSalvar }: Props) {
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <Numero valor={ex.meta} min={1} max={tipo.max} passo={ex.tipo === 'tempo' ? 5 : 1} aoMudar={(meta) => mudar({ meta })} rotulo={tipo.unidade} />
+          <CampoNumero valor={ex.meta} min={1} max={tipo.max} passo={ex.tipo === 'tempo' ? 5 : 1} aoMudar={(meta) => mudar({ meta })} rotulo={tipo.unidade} />
           <span className="text-base font-bold">{tipo.unidade}</span>
         </div>
         {ex.tipo === 'intervalos' && (
           <div className="flex flex-col gap-2 rounded-xl bg-violet-50 p-2">
             <div className="flex items-center justify-between gap-2">
               <span className="font-bold">🔥 Rápido (s)</span>
-              <Numero
+              <CampoNumero
                 valor={ex.intervalo?.forteS ?? 15}
                 min={5}
                 max={60}
@@ -145,7 +121,7 @@ export function EditorExercicio({ inicial, aoSalvar }: Props) {
             </div>
             <div className="flex items-center justify-between gap-2">
               <span className="font-bold">🐢 Devagar (s)</span>
-              <Numero
+              <CampoNumero
                 valor={ex.intervalo?.fracoS ?? 15}
                 min={5}
                 max={60}

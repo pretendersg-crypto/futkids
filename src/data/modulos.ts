@@ -53,6 +53,14 @@ export const MODULOS: Modulo[] = [
     cor: 'bg-lime-100 border-lime-600',
   },
   {
+    caminho: '/reacao',
+    emoji: '🚦',
+    titulo: 'Treino de Reação',
+    rotuloCurto: 'Reação',
+    convite: 'Cores e setas: reaja rápido!',
+    cor: 'bg-teal-100 border-teal-500',
+  },
+  {
     caminho: '/alimentacao',
     emoji: '🍎',
     titulo: 'Alimentação do Craque',

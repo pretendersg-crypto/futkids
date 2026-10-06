@@ -45,6 +45,14 @@ const ROTAS: RouteObject[] = [
           { path: ':desafio', lazy: () => import('./pages/JogoRali').then((m) => ({ Component: m.JogoRali })) },
         ],
       },
+      {
+        path: 'reacao',
+        children: [
+          { index: true, lazy: () => import('./pages/Reacao').then((m) => ({ Component: m.Reacao })) },
+          // ex.: /reacao/mergulho-seta
+          { path: ':drill', lazy: () => import('./pages/DrillReacao').then((m) => ({ Component: m.DrillReacao })) },
+        ],
+      },
       { path: 'agenda', lazy: () => import('./pages/Agenda').then((m) => ({ Component: m.Agenda })) },
       { path: 'perfil', lazy: () => import('./pages/Perfil').then((m) => ({ Component: m.Perfil })) },
       // Endereço desconhecido: volta para o início em vez de mostrar página de erro
