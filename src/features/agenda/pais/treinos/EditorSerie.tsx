@@ -5,11 +5,11 @@ import { Modal } from '../../../../components/ui/Modal'
 import { exerciciosDoModulo, type Exercicio } from '../../../../data/catalogo'
 import { ICONES_TREINO } from '../../../../data/calendarioGoleiros'
 import { useTreinosStore } from '../../../../stores/treinosStore'
-import { limparImagensSoltas } from '../../../../utils/midiaLocal'
+import { limparMidiaSolta } from '../../../../utils/limparMidia'
 import { descreverMeta } from '../../../treino/recompensa'
 import { seriePorModulo, SERIES } from '../../../treino/series'
 import type { CategoriaId } from '../../../../data/categorias'
-import { categoriaDaSerie } from '../../../categoria/categoria'
+import { categoriaDaSerie, SERIES_SEMPRE_LIBERADAS } from '../../../categoria/categoria'
 import { SeletorCategoria } from '../../../categoria/SeletorCategoria'
 import { EditorExercicio } from './EditorExercicio'
 
@@ -53,16 +53,9 @@ export function EditorSerie({ modulo: moduloInicial, aoVoltar }: Props) {
   const [erro, setErro] = useState('')
   const [confirmar, setConfirmar] = useState<'remover' | 'restaurar' | null>(null)
 
-  /** Depois de gravar (ou desistir), apaga do aparelho os GIFs que nenhum treino usa mais */
-  function limparGifs() {
-    const usados = Object.values(useTreinosStore.getState().exercicios)
-      .flat()
-      .flatMap((e) => (e.gif ? [e.gif] : []))
-    void limparImagensSoltas(new Set(usados))
-  }
-
   function voltar() {
-    limparGifs()
+    // Depois de gravar (ou desistir), apaga do aparelho os GIFs/vídeos que nada usa mais
+    limparMidiaSolta()
     aoVoltar()
   }
 
@@ -75,7 +68,7 @@ export function EditorSerie({ modulo: moduloInicial, aoVoltar }: Props) {
       loja.salvarSerie(modulo, exercicios, original ? undefined : { modulo, titulo: titulo.trim(), emoji, descricao: descricao.trim() || 'Treino criado pelos pais', categoria })
     }
     // Treino do app: guarda a categoria só se for diferente da original
-    if (original && modulo !== 'aquecimento') loja.mudarCategoria(modulo, categoria === serie?.categoria ? null : categoria)
+    if (original && !SERIES_SEMPRE_LIBERADAS.includes(modulo)) loja.mudarCategoria(modulo, categoria === serie?.categoria ? null : categoria)
     voltar()
   }
 
@@ -131,8 +124,10 @@ export function EditorSerie({ modulo: moduloInicial, aoVoltar }: Props) {
         </section>
       )}
 
-      {modulo === 'aquecimento' ? (
-        <p className="rounded-2xl bg-violet-50 p-3 text-sm">🍼 O aquecimento é sempre Baby: ele vem antes de qualquer treino.</p>
+      {SERIES_SEMPRE_LIBERADAS.includes(modulo) ? (
+        <p className="rounded-2xl bg-violet-50 p-3 text-sm">
+          🍼 {modulo === 'aquecimento' ? 'O aquecimento é sempre Baby: ele vem antes de qualquer treino.' : 'Os fundamentos do goleiro ficam sempre liberados.'}
+        </p>
       ) : (
         <section className="rounded-3xl border-4 border-violet-200 bg-white p-3">
           <SeletorCategoria valor={categoria} aoMudar={setCategoria} rotulo="Categoria: a partir de quando a criança pode fazer" comNivel />

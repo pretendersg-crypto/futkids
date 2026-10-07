@@ -45,6 +45,10 @@ export interface Exercicio {
   passos: string[]
   /** GIF/imagem próprio enviado pelos pais (id no IndexedDB); no lugar do bonequinho */
   gif?: string
+  /** Vídeo real no YouTube (link colocado pelos pais) */
+  video?: string
+  /** Vídeo real gravado no aparelho pelos pais/treinador (id no IndexedDB) */
+  videoLocal?: string
 }
 
 export interface Video {

@@ -6,7 +6,9 @@ import { Link, Navigate, useParams } from 'react-router'
 import { PainelRecompensa } from '../components/ui/PainelRecompensa'
 import { circuitoPorId, ESTILO_MOVIMENTO, NOME_NIVEL, type Circuito } from '../features/saidaGol/circuitos'
 import { DesenhoGesto } from '../features/saidaGol/DesenhoGesto'
-import { GESTOS } from '../features/saidaGol/gestos'
+import { gestoProntoPorId } from '../features/saidaGol/gestos'
+import { useGestos } from '../features/saidaGol/useGestos'
+import { VideoReal } from '../components/video/VideoReal'
 import { QuadraCones } from '../features/saidaGol/QuadraCones'
 import { entregarRecompensa, type ResultadoRecompensa } from '../stores/progressStore'
 
@@ -35,7 +37,10 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
   const [recompensa, setRecompensa] = useState<ResultadoRecompensa | null>(null)
   const total = circuito.passos.length
   const atual = circuito.passos[passo]
-  const gesto = GESTOS[atual.gesto]
+  // Gestos com as mudanças dos pais (desenho, textos e vídeos); o do app se não achar
+  const gestos = useGestos()
+  const gestoPorId = (id: string) => gestos.find((g) => g.id === id) ?? gestoProntoPorId(id)!
+  const gesto = gestoPorId(atual.gesto)
 
   // "Ver andando": avança sozinho e para no último passo
   useEffect(() => {
@@ -105,7 +110,7 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
         <p className="text-xl leading-snug font-extrabold">{atual.texto}</p>
         <div className="flex items-center gap-3">
           <div className="shrink-0 rounded-2xl bg-green-50 p-1">
-            <DesenhoGesto key={atual.gesto} gesto={atual.gesto} tamanho={130} />
+            <DesenhoGesto key={atual.gesto} desenho={gesto.desenho} nome={gesto.nome} tamanho={130} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs font-bold tracking-wide text-sky-800 uppercase">Gesto técnico</p>
@@ -118,6 +123,10 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
           </div>
         </div>
         <p className="rounded-xl bg-amber-50 p-2 text-sm">⚠️ {gesto.atencao}</p>
+        <VideoReal titulo={gesto.nome} video={gesto.video} videoLocal={gesto.videoLocal} />
+        <Link to={`/goleiro/gestos/${gesto.id}`} className="self-start text-sm font-bold text-sky-800 underline">
+          Ver tudo sobre {gesto.nome} 📖
+        </Link>
 
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -170,7 +179,7 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
             >
               <span className="grid size-6 shrink-0 place-items-center rounded-full bg-sky-600 text-xs font-black text-white">{i + 1}</span>
               <span className="flex-1">{p.texto}</span>
-              <span className="shrink-0 text-xs font-bold text-sky-800">{GESTOS[p.gesto].nome}</span>
+              <span className="shrink-0 text-xs font-bold text-sky-800">{gestoPorId(p.gesto).nome}</span>
             </button>
           </li>
         ))}

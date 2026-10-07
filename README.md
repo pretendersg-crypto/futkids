@@ -14,8 +14,16 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
 - **Goleiro**: 3 minijogos (Defesa, Reflexo, Posição) em 3 níveis + fundamentos com bola de verdade
   + **Saída do gol com cones**: 7 circuitos (sai e volta, saída em V, arco do gol, encaixe e reposição,
   1 contra 1 com a cruz, bola alta, circuito completo) com o desenho da quadra, os cones e as setas de cada
-  passo (o goleiro anda pelo desenho), e o **gesto técnico desenhado** em cada passo (posição base, saída,
-  recuo, lateral, encaixe, reposição rolando, cruz, bola alta em W), além do "dicionário" dos gestos
+  passo (o goleiro anda pelo desenho), e o **gesto técnico desenhado** em cada passo
+  + **📖 Fundamentos e gestos**: catálogo com 21 gestos desenhados em 9 categorias (postura e
+  posicionamento, saída do gol, encaixe, desvios, quedas, 1 contra 1, reposição, jogo com os pés,
+  comunicação), cada um com como fazer, o erro comum e os **vídeos reais** colocados pelos pais
+- **Vídeos reais** (aba Pais): em cada gesto do goleiro e em cada exercício do "Treinar" dá para colocar
+  um link do YouTube (abre fora do app, com o portão dos pais) e/ou um vídeo gravado no celular (até 60 MB,
+  toca no app, fica só no aparelho, no IndexedDB `futkids-midia`)
+- **Gestão dos gestos do goleiro** (aba Pais → 🧤 Fundamentos e gestos): mudar os do app (textos, desenho,
+  vídeo) e criar novos, com desenho pronto ou imagem/GIF própria. Os Fundamentos do goleiro também entram
+  no editor do "Treinar", como o Aquecimento
 - **Rali de Gestos**: desafios por inclinação do celular ou toque, contador de embaixadinhas reais e
   saltos contados pelo acelerômetro (só com um adulto liberando)
 - **Reação** (ideia do app SwitchedOn): o celular mostra cores, setas (verdes ou vermelhas = "ao contrário")
@@ -196,8 +204,9 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 Cada circuito tem os `cones` (posição em metros: `x` = 0 é o meio do gol, de -10 a 10; `y` = 0 é a linha
 do gol e cresce para a quadra; a área vai até 6 m), a `bola` (se usa) e os `passos`: de qual cone para
 qual, o `movimento` (`parado`, `saida`, `recuo`, `lateral` ou `bola`), o `gesto` técnico e o texto.
-Os gestos (desenho e "como fazer") ficam em `src/features/saidaGol/gestos.ts`: o desenho é a pose do
-bonequinho (cabeça, pescoço, quadril, cotovelos, mãos, joelhos e pés num quadro de 140 x 150).
+Os gestos (categoria, "como fazer", cuidado e desenho) ficam em `src/features/saidaGol/gestos.ts`
+(`GESTOS_PRONTOS`); os desenhos são poses do bonequinho em `POSES` (cabeça, pescoço, quadril, cotovelos,
+mãos, joelhos e pés num quadro de 140 x 150). O que os pais mudam ou criam fica em `futkids-gestos`.
 
 ### Puzzles do Futsal Tático: `src/features/tatica/puzzles/`
 
@@ -291,7 +300,7 @@ src/
 │                 motor dos sinais, histórico), categoria (Baby…Lenda, cadeados), agenda,
 │                 conquistas, avatar
 ├── stores/       zustand + localStorage: userStore, progressStore, achievementsStore,
-│                 agendaStore, configStore, treinosStore, reacaoStore, taticaStore
+│                 agendaStore, configStore, treinosStore, reacaoStore, taticaStore, gestosStore
 ├── data/         conteúdos (exercícios, vídeos, conquistas, agenda, apelidos, mascote)
 ├── hooks/        useTimer, useSensor, useLoopJogo, useWakeLock
 ├── pages/        uma tela por rota (as maiores carregam sob demanda)

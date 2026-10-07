@@ -28,9 +28,12 @@ export function useCategoria(): InfoCategoria {
   return { atual: fixa ? categoriaPorId(fixa) : pelaXP, pelaXP, fixa: !!fixa, nivel }
 }
 
-/** Categoria de um treino do "Treinar" (o aquecimento é sempre Baby: vem antes de tudo) */
+/** Treinos que nunca trancam: o aquecimento (vem antes de tudo) e os fundamentos do goleiro */
+export const SERIES_SEMPRE_LIBERADAS = ['aquecimento', 'goleiro']
+
+/** Categoria de um treino do "Treinar" */
 export function categoriaDaSerie(serie: Pick<SerieTreino, 'modulo' | 'categoria'>, trocas: Record<string, CategoriaId>): CategoriaId {
-  if (serie.modulo === 'aquecimento') return 'baby'
+  if (SERIES_SEMPRE_LIBERADAS.includes(serie.modulo)) return 'baby'
   return trocas[serie.modulo] ?? serie.categoria
 }
 

@@ -1,5 +1,5 @@
 // Formulário de um exercício (área dos pais): nome, ícone, tipo e quantidade, velocidade do
-// bonequinho, qual movimento ele faz (galeria com prévia) ou um GIF próprio, e os passos.
+// bonequinho, qual movimento ele faz (galeria com prévia) ou um GIF próprio, vídeo real e os passos.
 import { useState, type ChangeEvent } from 'react'
 import type { Exercicio, TipoExercicio } from '../../../../data/catalogo'
 import { CampoNumero } from '../../../../components/ui/CampoNumero'
@@ -8,7 +8,9 @@ import { ANIMACOES } from '../../../treino/animacoes'
 import { BonecoAnimado } from '../../../treino/BonecoAnimado'
 import { Demonstracao } from '../../../treino/Demonstracao'
 import { descreverMeta, duracaoDoExercicio } from '../../../treino/recompensa'
+import { linkYoutube } from '../../../../utils/link'
 import { salvarImagem } from '../../../../utils/midiaLocal'
+import { CampoVideoReal } from '../CampoVideoReal'
 
 interface Props {
   inicial: Exercicio
@@ -47,8 +49,11 @@ export function EditorExercicio({ inicial, aoSalvar }: Props) {
 
   function salvar() {
     if (!ex.nome.trim()) return setErro('Dê um nome ao exercício.')
+    const video = ex.video?.trim() ? linkYoutube(ex.video) : undefined
+    if (ex.video?.trim() && !video) return setErro('O link do vídeo precisa ser do YouTube (youtube.com ou youtu.be).')
     aoSalvar({
       ...ex,
+      video: video ?? undefined,
       nome: ex.nome.trim(),
       passos: ex.passos.map((p) => p.trim()).filter(Boolean),
       intervalo: ex.tipo === 'intervalos' ? (ex.intervalo ?? { forteS: 15, fracoS: 15 }) : undefined,
@@ -182,6 +187,8 @@ export function EditorExercicio({ inicial, aoSalvar }: Props) {
           </button>
         )}
       </fieldset>
+
+      <CampoVideoReal video={ex.video} videoLocal={ex.videoLocal} aoMudar={mudar} />
 
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-base font-bold">Passos (frases curtas para a criança)</legend>

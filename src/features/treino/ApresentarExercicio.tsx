@@ -1,6 +1,7 @@
 // Antes de cada exercício: o que fazer, quanto tempo/quantas vezes, exemplo e botão de começar.
 import { useState } from 'react'
 import { VideoPlayerModal } from '../../components/video/VideoPlayerModal'
+import { VideoReal } from '../../components/video/VideoReal'
 import { videoPorId, type Exercicio } from '../../data/catalogo'
 import { Demonstracao } from './Demonstracao'
 import { descreverMeta } from './recompensa'
@@ -26,6 +27,9 @@ export function ApresentarExercicio({ exercicio, aviso, aoComecar }: Props) {
       <p className="rounded-full bg-orange-100 px-4 py-1 text-xl font-bold">{descreverMeta(exercicio)}</p>
 
       <Demonstracao exercicio={exercicio} tamanho={140} />
+
+      {/* Vídeo real colocado pelos pais/treinador (gravado ou YouTube) */}
+      <VideoReal titulo={exercicio.nome} video={exercicio.video} videoLocal={exercicio.videoLocal} />
 
       <ol className="flex w-full flex-col gap-2 text-left text-lg">
         {exercicio.passos.map((passo, i) => (

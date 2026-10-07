@@ -10,6 +10,8 @@ interface Props {
   titulo: string
   /** Pula o portão (já está na área dos pais) */
   semPortao?: boolean
+  /** Texto do botão (padrão: "🎬 Vídeo") */
+  rotulo?: string
   className?: string
 }
 
@@ -28,7 +30,7 @@ export function LinkVideo({ url, titulo, className = '' }: { url: string; titulo
   )
 }
 
-export function BotaoVideo({ url, titulo, semPortao = false, className = '' }: Props) {
+export function BotaoVideo({ url, titulo, semPortao = false, className = '', rotulo = '🎬 Vídeo' }: Props) {
   const [janela, setJanela] = useState<'fechada' | 'portao' | 'liberado'>('fechada')
 
   if (semPortao) return <LinkVideo url={url} titulo="Vídeo" className={className} />
@@ -41,7 +43,7 @@ export function BotaoVideo({ url, titulo, semPortao = false, className = '' }: P
         aria-label={`Vídeo do treinador: ${titulo}`}
         className={`min-h-12 rounded-2xl border-4 border-red-200 bg-white px-3 text-base font-extrabold ${className}`}
       >
-        🎬 Vídeo
+        {rotulo}
       </button>
       <Modal aberto={janela !== 'fechada'} aoFechar={() => setJanela('fechada')} titulo="🎬 Vídeo do treinador">
         {janela === 'portao' && (

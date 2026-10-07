@@ -37,6 +37,9 @@ const ROTAS: RouteObject[] = [
           // Saída do gol com cones: lista e um circuito (ex.: /goleiro/saida/saida-em-v)
           { path: 'saida', lazy: () => import('./pages/SaidaGol').then((m) => ({ Component: m.SaidaGol })) },
           { path: 'saida/:circuito', lazy: () => import('./pages/CircuitoSaida').then((m) => ({ Component: m.CircuitoSaida })) },
+          // Catálogo dos fundamentos e gestos do goleiro e um gesto (ex.: /goleiro/gestos/cruz)
+          { path: 'gestos', lazy: () => import('./pages/FundamentosGestos').then((m) => ({ Component: m.FundamentosGestos })) },
+          { path: 'gestos/:gesto', lazy: () => import('./pages/GestoDetalhe').then((m) => ({ Component: m.GestoDetalhe })) },
           // ex.: /goleiro/defesa/iniciante
           { path: ':jogo/:nivel', lazy: () => import('./pages/JogoGoleiro').then((m) => ({ Component: m.JogoGoleiro })) },
         ],

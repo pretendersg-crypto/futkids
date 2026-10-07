@@ -1,5 +1,5 @@
 // Menu do goleiro: escolha do nível, os 3 minijogos (com o recorde de cada um), a saída do gol com
-// cones e os fundamentos.
+// cones, o catálogo dos fundamentos e gestos e o treino de fundamentos.
 import { Link, useSearchParams } from 'react-router'
 import { JOGOS, NIVEIS, chaveRecorde, nivelLiberado, nivelPorId } from '../features/goleiro/niveis'
 import { useProgressStore } from '../stores/progressStore'
@@ -71,6 +71,19 @@ export function Goleiro() {
           )
         })}
       </ul>
+
+      <Link to="/goleiro/gestos" className="flex min-h-20 items-center gap-4 rounded-3xl border-4 border-sky-400 bg-white p-4 shadow-md">
+        <span aria-hidden className="text-4xl">
+          📖
+        </span>
+        <span className="flex flex-1 flex-col">
+          <span className="text-xl font-extrabold">Fundamentos e gestos</span>
+          <span className="text-base">Todos os gestos do goleiro, com desenho e vídeo</span>
+        </span>
+        <span aria-hidden className="text-3xl">
+          ▶️
+        </span>
+      </Link>
 
       <Link to="/goleiro/saida" className="flex min-h-20 items-center gap-4 rounded-3xl border-4 border-orange-400 bg-orange-50 p-4 shadow-md">
         <span aria-hidden className="text-4xl">

@@ -1,5 +1,6 @@
 // Área dos pais (ou treinador): escolher o programa de treinos, ver o mês com o que a criança
-// fez, mudar qualquer dia, editar os links dos vídeos e ver os treinos de academia do calendário.
+// fez, mudar qualquer dia, editar os links dos vídeos, os treinos do "Treinar", os fundamentos e
+// gestos do goleiro, e ver os treinos de academia do calendário.
 import { useState } from 'react'
 import { Modal } from '../../../components/ui/Modal'
 import { ACADEMIA, OBSERVACOES_CALENDARIO, PROGRAMA_GOLEIROS, tipoPorId, TREINOS_CALENDARIO, treinoPorId, type TreinoExtra } from '../../../data/calendarioGoleiros'
@@ -15,6 +16,8 @@ import { exerciciosDoModulo } from '../../../data/catalogo'
 import { todasAsSeries } from '../../treino/series'
 import { useTreinosStore } from '../../../stores/treinosStore'
 import { FormVideo } from './FormVideo'
+import { EditorGesto } from './gestos/EditorGesto'
+import { GestosDoGoleiro } from './gestos/GestosDoGoleiro'
 import { CATEGORIAS, type CategoriaId } from '../../../data/categorias'
 import { categoriaDaSerie, categoriaDoVideo } from '../../categoria/categoria'
 import { CategoriaDoJogador } from '../../categoria/CategoriaDoJogador'
@@ -38,11 +41,16 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
   const [editando, setEditando] = useState<string | null>(null)
   // Editor de um treino do "Treinar" (ocupa a área inteira): módulo, 'novo' ou null
   const [editandoSerie, setEditandoSerie] = useState<string | null>(null)
+  // Editor de um gesto do goleiro (ocupa a área inteira): id, 'novo' ou null
+  const [editandoGesto, setEditandoGesto] = useState<string | null>(null)
   // Assina os treinos dos pais: o calendário mostra nomes/ícones atualizados
   useTreinosStore((s) => s.seriesExtras)
 
   if (editandoSerie) {
     return <EditorSerie modulo={editandoSerie === 'novo' ? null : editandoSerie} aoVoltar={() => setEditandoSerie(null)} />
+  }
+  if (editandoGesto) {
+    return <EditorGesto id={editandoGesto === 'novo' ? null : editandoGesto} aoVoltar={() => setEditandoGesto(null)} />
   }
 
   const andarMes = (passo: number) => setMes(({ ano, mes: m }) => ({ ano: ano + Math.floor((m + passo) / 12), mes: (((m + passo) % 12) + 12) % 12 }))
@@ -161,6 +169,8 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
       </section>
 
       <TreinosDoApp aoEditar={setEditandoSerie} />
+
+      <GestosDoGoleiro aoEditar={(id) => setEditandoGesto(id ?? 'novo')} />
 
       <VideosDosTreinos />
 

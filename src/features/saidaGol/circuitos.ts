@@ -2,7 +2,6 @@
 // Posições em METROS, olhando da quadra para o gol: x = 0 é o meio do gol (de -10 a 10, a largura
 // da quadra), y = 0 é a linha do gol e cresce para dentro da quadra (a área vai até 6 m).
 // Cada passo diz de onde para onde o goleiro vai, como se mexe e qual gesto técnico usar.
-import type { GestoId } from './gestos'
 
 export type CorCone = 'laranja' | 'amarelo' | 'azul' | 'vermelho'
 
@@ -27,7 +26,8 @@ export interface PassoCircuito {
   de: string
   para?: string
   movimento: Movimento
-  gesto: GestoId
+  /** Id do gesto técnico (os do app, em gestos.ts; a criança vê a versão mudada pelos pais) */
+  gesto: string
   texto: string
 }
 

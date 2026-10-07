@@ -69,6 +69,16 @@ export const SERIES: SerieTreino[] = [
     cor: 'border-emerald-400 bg-emerald-100',
   },
   {
+    // Fundamentos do goleiro: fica em /goleiro/fundamentos, mas os pais editam igual aos outros
+    modulo: 'goleiro',
+    titulo: 'Fundamentos do goleiro',
+    emoji: '🧤',
+    descricao: 'Encaixe, saída de gol e reposição',
+    rota: '/goleiro/fundamentos',
+    categoria: 'baby',
+    cor: 'border-sky-400 bg-sky-100',
+  },
+  {
     modulo: 'alongamento',
     titulo: 'Alongamento',
     emoji: '🧘',

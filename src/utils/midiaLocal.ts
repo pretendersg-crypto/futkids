@@ -1,11 +1,13 @@
-// GIFs/imagens próprios dos exercícios, enviados pelos pais: ficam no IndexedDB do aparelho
-// (o localStorage é pequeno demais para imagens). Nada é enviado para fora.
+// GIFs/imagens e vídeos gravados pelos pais (exercícios e gestos do goleiro): ficam no IndexedDB
+// do aparelho (o localStorage é pequeno demais para isso). Nada é enviado para fora.
 
 const BANCO = 'futkids-midia'
 const LOJA = 'imagens'
 /** Tamanho máximo de um GIF (o aparelho tem espaço limitado) */
 export const TAMANHO_MAXIMO = 3 * 1024 * 1024
 export const TIPOS_ACEITOS = ['image/gif', 'image/webp', 'image/png', 'image/jpeg']
+/** Vídeo gravado no celular: curto (um gesto), para não encher o aparelho */
+export const TAMANHO_MAXIMO_VIDEO = 60 * 1024 * 1024
 
 function abrir(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -36,6 +38,15 @@ export async function salvarImagem(arquivo: File): Promise<string> {
   return id
 }
 
+/** Guarda um vídeo (gravado ou escolhido no aparelho) e devolve o id */
+export async function salvarVideo(arquivo: File): Promise<string> {
+  if (!arquivo.type.startsWith('video/')) throw new Error('Escolha um arquivo de vídeo.')
+  if (arquivo.size > TAMANHO_MAXIMO_VIDEO) throw new Error('O vídeo passa de 60 MB. Grave um vídeo mais curto (uns 20 segundos).')
+  const id = `vid-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+  await operar('readwrite', (l) => l.put(arquivo, id))
+  return id
+}
+
 export async function lerImagem(id: string): Promise<Blob | undefined> {
   try {
     return await operar<Blob | undefined>('readonly', (l) => l.get(id) as IDBRequest<Blob | undefined>)
@@ -52,7 +63,7 @@ export async function apagarImagem(id: string): Promise<void> {
   }
 }
 
-/** Apaga as imagens que nenhum exercício usa mais (ex.: GIF trocado, exercício removido) */
+/** Apaga imagens e vídeos que nada usa mais (chame por utils/limparMidia.ts, que sabe o que está em uso) */
 export async function limparImagensSoltas(usadas: Set<string>): Promise<void> {
   try {
     const ids = await operar<IDBValidKey[]>('readonly', (l) => l.getAllKeys())
