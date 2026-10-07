@@ -154,12 +154,29 @@ export function treinoDeSerie(s: SerieDosPais): TreinoCalendario {
   return { id: idDeSerie(s.modulo), nome: s.titulo, emoji: s.emoji, rota: `/treinos/${s.modulo}`, atividade: s.modulo, detalhe: 'Treino criado pelos pais' }
 }
 
-/** Busca um treino do calendário, um vídeo adicionado ou um treino criado pelos pais */
-export function treinoPorId(id: string, extras: TreinoExtra[] = [], series: SerieDosPais[] = []): TreinoCalendario | undefined {
+/** Treino de fundamentos do goleiro montado pelos pais (escolhendo gestos do catálogo) */
+export interface FundamentosDosPais {
+  id: string
+  nome: string
+  emoji: string
+}
+
+/** Id no calendário de um treino de fundamentos */
+export const idDeFundamentos = (id: string) => `fund:${id}`
+
+export function treinoDeFundamentos(f: FundamentosDosPais): TreinoCalendario {
+  // Conta como treino de goleiro (marca o dia como feito do mesmo jeito que os fundamentos do app)
+  return { id: idDeFundamentos(f.id), nome: f.nome, emoji: f.emoji, rota: `/goleiro/treino/${f.id}`, atividade: 'goleiro', detalhe: 'Treino de fundamentos' }
+}
+
+/** Busca um treino do calendário, um vídeo adicionado, um treino criado pelos pais ou um treino de fundamentos */
+export function treinoPorId(id: string, extras: TreinoExtra[] = [], series: SerieDosPais[] = [], fundamentos: FundamentosDosPais[] = []): TreinoCalendario | undefined {
   const extra = extras.find((e) => e.id === id)
   if (extra) return treinoDeExtra(extra)
   const serie = series.find((s) => idDeSerie(s.modulo) === id)
   if (serie) return treinoDeSerie(serie)
+  const fundamento = fundamentos.find((f) => idDeFundamentos(f.id) === id)
+  if (fundamento) return treinoDeFundamentos(fundamento)
   return TREINOS_CALENDARIO.find((t) => t.id === id)
 }
 

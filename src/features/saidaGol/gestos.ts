@@ -176,8 +176,9 @@ const DADOS_POSES = {
   },
   'queda-lateral': {
     vista: 'frente',
-    cabeca: p(100, 108),
-    pescoco: p(88, 112),
+    // Cabeça um pouco acima dos braços (não some atrás das luvas)
+    cabeca: p(94, 98),
+    pescoco: p(86, 110),
     quadril: p(52, 120),
     cotovelos: [p(100, 98), p(104, 106)],
     maos: [p(116, 96), p(118, 104)],

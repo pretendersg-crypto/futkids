@@ -18,6 +18,8 @@ import { useTreinosStore } from '../../../stores/treinosStore'
 import { FormVideo } from './FormVideo'
 import { EditorGesto } from './gestos/EditorGesto'
 import { GestosDoGoleiro } from './gestos/GestosDoGoleiro'
+import { EditorTreinoFundamentos } from './gestos/EditorTreinoFundamentos'
+import { TreinosDeFundamentos } from './gestos/TreinosDeFundamentos'
 import { CATEGORIAS, type CategoriaId } from '../../../data/categorias'
 import { categoriaDaSerie, categoriaDoVideo } from '../../categoria/categoria'
 import { CategoriaDoJogador } from '../../categoria/CategoriaDoJogador'
@@ -43,11 +45,16 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
   const [editandoSerie, setEditandoSerie] = useState<string | null>(null)
   // Editor de um gesto do goleiro (ocupa a área inteira): id, 'novo' ou null
   const [editandoGesto, setEditandoGesto] = useState<string | null>(null)
+  // Editor de um treino de fundamentos: id, 'novo' ou null
+  const [editandoFund, setEditandoFund] = useState<string | null>(null)
   // Assina os treinos dos pais: o calendário mostra nomes/ícones atualizados
   useTreinosStore((s) => s.seriesExtras)
 
   if (editandoSerie) {
     return <EditorSerie modulo={editandoSerie === 'novo' ? null : editandoSerie} aoVoltar={() => setEditandoSerie(null)} />
+  }
+  if (editandoFund) {
+    return <EditorTreinoFundamentos id={editandoFund === 'novo' ? null : editandoFund} aoVoltar={() => setEditandoFund(null)} />
   }
   if (editandoGesto) {
     return <EditorGesto id={editandoGesto === 'novo' ? null : editandoGesto} aoVoltar={() => setEditandoGesto(null)} />
@@ -169,6 +176,8 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
       </section>
 
       <TreinosDoApp aoEditar={setEditandoSerie} />
+
+      <TreinosDeFundamentos aoEditar={(id) => setEditandoFund(id ?? 'novo')} />
 
       <GestosDoGoleiro aoEditar={(id) => setEditandoGesto(id ?? 'novo')} />
 

@@ -4,6 +4,7 @@ import { categoriaPorId, categoriaPorNivel, posicaoCategoria, type Categoria, ty
 import { useProgramaStore } from '../../stores/programaStore'
 import { usePaisStore } from '../../stores/paisStore'
 import { useProgressStore } from '../../stores/progressStore'
+import { useTreinosFundamentosStore } from '../../stores/treinosFundamentosStore'
 import { useTreinosStore } from '../../stores/treinosStore'
 import { hojeISO } from '../../utils/data'
 import { nivelPorXP } from '../../utils/nivel'
@@ -47,6 +48,7 @@ export function useAgendaDeHoje(): { rotas: Set<string>; ids: Set<string> } {
   const programa = useProgramaStore()
   // Assina os treinos dos pais: o plano do dia usa os nomes deles
   useTreinosStore((s) => s.seriesExtras)
+  useTreinosFundamentosStore((s) => s.treinos)
   const treinos = planoDoDia(hojeISO(), programa).treinos
   return { rotas: new Set(treinos.flatMap((t) => (t.rota ? [t.rota] : []))), ids: new Set(treinos.map((t) => t.id)) }
 }
@@ -56,7 +58,7 @@ export function categoriaDoItemDaAgenda(t: Pick<TreinoSugerido, 'id' | 'rota'>):
   const programa = useProgramaStore.getState()
   const treinos = useTreinosStore.getState()
   const candidatas: CategoriaId[] = []
-  const doCalendario = treinoPorId(t.id, programa.extras, treinos.seriesExtras)
+  const doCalendario = treinoPorId(t.id, programa.extras, treinos.seriesExtras, useTreinosFundamentosStore.getState().treinos)
   if (doCalendario?.videoUrl) candidatas.push(categoriaDoVideo(doCalendario, programa.categorias))
   const serie = todasAsSeries(treinos.seriesExtras).find((s) => s.rota === t.rota)
   if (serie) candidatas.push(categoriaDaSerie(serie, treinos.categorias))

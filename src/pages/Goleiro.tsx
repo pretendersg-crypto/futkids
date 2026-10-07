@@ -3,6 +3,7 @@
 import { Link, useSearchParams } from 'react-router'
 import { JOGOS, NIVEIS, chaveRecorde, nivelLiberado, nivelPorId } from '../features/goleiro/niveis'
 import { useProgressStore } from '../stores/progressStore'
+import { useTreinosFundamentosStore } from '../stores/treinosFundamentosStore'
 import { nivelPorXP } from '../utils/nivel'
 
 export function Goleiro() {
@@ -10,6 +11,7 @@ export function Goleiro() {
   const recordes = useProgressStore((s) => s.recordes)
   const nivelJogador = nivelPorXP(xp).nivel
   const [params, setParams] = useSearchParams()
+  const treinosFundamentos = useTreinosFundamentosStore((s) => s.treinos)
 
   // Nível escolhido fica no endereço (?nivel=...), assim o "voltar" do jogo cai no mesmo nível
   const liberados = NIVEIS.filter((n) => nivelLiberado(n, nivelJogador))
@@ -71,6 +73,32 @@ export function Goleiro() {
           )
         })}
       </ul>
+
+      {treinosFundamentos.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xl font-extrabold">📋 Treinos de fundamentos</h2>
+          <ul className="flex flex-col gap-2">
+            {treinosFundamentos.map((t) => (
+              <li key={t.id}>
+                <Link to={`/goleiro/treino/${t.id}`} className="flex min-h-18 items-center gap-4 rounded-3xl border-4 border-sky-400 bg-sky-50 p-3 shadow-md">
+                  <span aria-hidden className="text-4xl">
+                    {t.emoji}
+                  </span>
+                  <span className="flex flex-1 flex-col">
+                    <span className="text-xl font-extrabold">{t.nome}</span>
+                    <span className="text-sm font-bold">
+                      {t.itens.length} fundamentos{t.descricao ? ` · ${t.descricao}` : ''}
+                    </span>
+                  </span>
+                  <span aria-hidden className="text-3xl">
+                    ▶️
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <Link to="/goleiro/gestos" className="flex min-h-20 items-center gap-4 rounded-3xl border-4 border-sky-400 bg-white p-4 shadow-md">
         <span aria-hidden className="text-4xl">

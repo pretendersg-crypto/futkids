@@ -21,6 +21,10 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
 - **Vídeos reais** (aba Pais): em cada gesto do goleiro e em cada exercício do "Treinar" dá para colocar
   um link do YouTube (abre fora do app, com o portão dos pais) e/ou um vídeo gravado no celular (até 60 MB,
   toca no app, fica só no aparelho, no IndexedDB `futkids-midia`)
+- **Treinos de fundamentos** (aba Pais → 📋 Treinos de fundamentos): escolher gestos do catálogo, quantas
+  vezes ou quantos segundos cada um (e um recado), dar um nome e salvar. Aparecem na tela do Goleiro e podem
+  entrar em qualquer dia da agenda (toque no dia → "Incluir treino"); fazer o treino marca o dia. Vêm 3
+  prontos (Fundamentos básicos, Defesa no 1 contra 1, Quedas e desvios), que dá para mudar ou apagar
 - **Gestão dos gestos do goleiro** (aba Pais → 🧤 Fundamentos e gestos): mudar os do app (textos, desenho,
   vídeo) e criar novos, com desenho pronto ou imagem/GIF própria. Os Fundamentos do goleiro também entram
   no editor do "Treinar", como o Aquecimento
@@ -300,7 +304,8 @@ src/
 │                 motor dos sinais, histórico), categoria (Baby…Lenda, cadeados), agenda,
 │                 conquistas, avatar
 ├── stores/       zustand + localStorage: userStore, progressStore, achievementsStore,
-│                 agendaStore, configStore, treinosStore, reacaoStore, taticaStore, gestosStore
+│                 agendaStore, configStore, treinosStore, reacaoStore, taticaStore, gestosStore,
+│                 treinosFundamentosStore
 ├── data/         conteúdos (exercícios, vídeos, conquistas, agenda, apelidos, mascote)
 ├── hooks/        useTimer, useSensor, useLoopJogo, useWakeLock
 ├── pages/        uma tela por rota (as maiores carregam sob demanda)

@@ -39,6 +39,18 @@ interface ProgramaState extends ConfigPrograma {
   alterarExtra: (id: string, parte: Partial<Omit<TreinoExtra, 'id'>>) => void
   /** Remove o vídeo e tira ele dos dias em que os pais tinham colocado */
   removerExtra: (id: string) => void
+  /** Tira um treino dos dias em que os pais tinham colocado (ex.: treino de fundamentos apagado) */
+  tirarDosDias: (treino: string) => void
+}
+
+/** As trocas dos pais sem um treino. Dia que só tinha ele volta ao que o programa diz (não vira descanso sem querer). */
+function semOTreino(alteracoes: Record<string, DiaPrograma>, treino: string): Record<string, DiaPrograma> {
+  const resultado: Record<string, DiaPrograma> = {}
+  for (const [dia, d] of Object.entries(alteracoes)) {
+    const itens = d.itens.filter((i) => i.treino !== treino)
+    if (itens.length > 0 || d.itens.length === 0) resultado[dia] = { itens }
+  }
+  return resultado
 }
 
 /** Domingo da semana atual: o calendário de goleiros começa num domingo */
@@ -80,16 +92,8 @@ export const useProgramaStore = create<ProgramaState>()(
       adicionarExtra: (extra) =>
         set((s) => ({ extras: [...s.extras, { ...extra, id: `extra-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}` }] })),
       alterarExtra: (id, parte) => set((s) => ({ extras: s.extras.map((e) => (e.id === id ? { ...e, ...parte } : e)) })),
-      removerExtra: (id) =>
-        set((s) => {
-          const alteracoes: Record<string, DiaPrograma> = {}
-          for (const [dia, d] of Object.entries(s.alteracoes)) {
-            const itens = d.itens.filter((i) => i.treino !== id)
-            // Dia que só tinha esse vídeo volta ao que o programa diz (não vira descanso sem querer)
-            if (itens.length > 0 || d.itens.length === 0) alteracoes[dia] = { itens }
-          }
-          return { extras: s.extras.filter((e) => e.id !== id), alteracoes }
-        }),
+      removerExtra: (id) => set((s) => ({ extras: s.extras.filter((e) => e.id !== id), alteracoes: semOTreino(s.alteracoes, id) })),
+      tirarDosDias: (treino) => set((s) => ({ alteracoes: semOTreino(s.alteracoes, treino) })),
     }),
     {
       name: 'futkids-programa',
