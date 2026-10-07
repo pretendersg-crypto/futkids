@@ -433,5 +433,45 @@
       ],
       "animacao": "balanca"
     }
+  },
+  {
+    "id": "tatica-1",
+    "numero": 23,
+    "nome": "Cabeça de craque",
+    "descricao": "Termine uma rodada do Futsal Tático",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "tatica",
+      "minimo": 1
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "🧠",
+      "cores": [
+        "#A7F3D0",
+        "#059669"
+      ],
+      "animacao": "pulsa"
+    }
+  },
+  {
+    "id": "tatica-10",
+    "numero": 24,
+    "nome": "Professor de tática",
+    "descricao": "Termine 10 rodadas do Futsal Tático",
+    "criterio": {
+      "tipo": "contador",
+      "chave": "tatica",
+      "minimo": 10
+    },
+    "sticker": {
+      "tipo": "padrao",
+      "emoji": "📋",
+      "cores": [
+        "#BBF7D0",
+        "#15803D"
+      ],
+      "animacao": "brilha"
+    }
   }
 ]

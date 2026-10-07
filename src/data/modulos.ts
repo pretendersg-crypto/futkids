@@ -61,6 +61,15 @@ export const MODULOS: Modulo[] = [
     cor: 'bg-teal-100 border-teal-500',
   },
   {
+    caminho: '/tatica',
+    emoji: '🧠',
+    titulo: 'Futsal Tático',
+    rotuloCurto: 'Tática',
+    convite: 'Qual é a melhor jogada?',
+    cor: 'bg-emerald-100 border-emerald-500',
+    naBarra: false,
+  },
+  {
     caminho: '/alimentacao',
     emoji: '🍎',
     titulo: 'Alimentação do Craque',

@@ -22,6 +22,11 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
 
   8 drills prontos (adaptados para 6 a 12 anos), **criar/copiar drills** (portão dos pais) e **histórico**
   com data, sinais, séries, acertos, reação média e gráfico da evolução (`futkids-reacao` no localStorage).
+- **Futsal Tático** (Home → 🧠): puzzles de "qual a melhor jogada?" como os de xadrez, numa quadra vista de
+  cima. Toque no jogador que pisca e na seta da jogada (passe, correr, chutar, driblar, marcar). Explicação
+  de cada escolha, dica, revelar, puzzles de **sequência** (tabela, pivô, 2 contra 1, bloqueio...), rating
+  (Elo), acertos seguidos, rodada de 5 em modo treino ou **contra o relógio**, filtros por dificuldade e tipo,
+  lista de puzzles e gráfico do progresso. 19 puzzles: ataque, defesa (com goleiro), transição e bola parada.
 - **Alimentação do Craque**: lições com o mascote, jogo das turmas dos alimentos, monte o prato,
   verdade ou mentira e garrafinha de água do treino (sem dieta, calorias ou suplementos)
 - **Agenda**: calendário de pré-temporada de goleiros (61 dias, com os vídeos do treinador) ou plano
@@ -67,6 +72,15 @@ npm run dev:celular
 
 Abra no celular o endereço `https://…:5173` que aparece no terminal e aceite o aviso de certificado
 (é um certificado de teste). Esse modo deixa o servidor visível na rede local: use só em rede de confiança.
+
+### Testes
+
+```bash
+npm test
+```
+
+Testes (Vitest) do Futsal Tático: validador de jogada, aplicação da jogada na quadra, cálculo do rating
+e conferência de todos os puzzles.
 
 ### Outros comandos
 
@@ -172,6 +186,22 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
     Para ativar, instale `lottie-web` e carregue-o com `import()` dentro de
     `src/components/stickers/StickerAnimado.tsx`, assim ele só baixa quando uma figurinha Lottie aparecer.
 
+### Puzzles do Futsal Tático: `src/features/tatica/puzzles/`
+
+Um arquivo por tipo (`ataque.ts`, `defesa.ts`, `transicao.ts`, `bolaParada.ts`). Para criar um puzzle,
+copie um parecido e mude:
+
+- `jogadores`: `azul(numero, x, y)` é o seu time, `verm(numero, x, y)` o adversário; `x` e `y` vão de 0 a 1
+  (x = 0 é o seu gol, à esquerda; x = 1 é o gol adversário; y = 0 é a lateral de cima);
+- `bola`: quem começa com a bola (ex.: `'a10'`);
+- `passos`: cada jogada, com a `pergunta` e as `opcoes` (quem faz, `acao`, alvo `paraJogador('a9')`,
+  `paraPonto(x, y)` ou `GOL`, o texto do botão, se é a `correta` e a `explicacao`). Exatamente uma certa
+  por passo. Em puzzles de sequência, `depois` move outros jogadores após a jogada certa;
+- `dica`, `conceito` (o que se aprende) e `rating` (≈650 fácil … 1350 difícil).
+
+Depois rode `npm test`: ele confere todos os puzzles (uma resposta certa por passo, jogadores que existem,
+coordenadas dentro da quadra, quem passa está com a bola...).
+
 ### Outros conteúdos
 
 | O quê | Onde |
@@ -241,11 +271,12 @@ Funciona sem servidor:
 src/
 ├── components/   ui (Modal, ProgressBar, PortaoDosPais…), stickers (figurinhas, álbum),
 │                 video (VideoPlayerModal), mascote (Bolinha)
-├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, rali, reacao (drills,
+├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, rali, tatica (puzzles,
+│                 quadra SVG, validador, rating), reacao (drills,
 │                 motor dos sinais, histórico), categoria (Baby…Lenda, cadeados), agenda,
 │                 conquistas, avatar
 ├── stores/       zustand + localStorage: userStore, progressStore, achievementsStore,
-│                 agendaStore, configStore, treinosStore, reacaoStore
+│                 agendaStore, configStore, treinosStore, reacaoStore, taticaStore
 ├── data/         conteúdos (exercícios, vídeos, conquistas, agenda, apelidos, mascote)
 ├── hooks/        useTimer, useSensor, useLoopJogo, useWakeLock
 ├── pages/        uma tela por rota (as maiores carregam sob demanda)
