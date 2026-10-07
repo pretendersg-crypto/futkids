@@ -34,6 +34,9 @@ const ROTAS: RouteObject[] = [
         children: [
           { index: true, element: <Goleiro /> },
           { path: 'fundamentos', lazy: () => import('./pages/FundamentosGoleiro').then((m) => ({ Component: m.FundamentosGoleiro })) },
+          // Saída do gol com cones: lista e um circuito (ex.: /goleiro/saida/saida-em-v)
+          { path: 'saida', lazy: () => import('./pages/SaidaGol').then((m) => ({ Component: m.SaidaGol })) },
+          { path: 'saida/:circuito', lazy: () => import('./pages/CircuitoSaida').then((m) => ({ Component: m.CircuitoSaida })) },
           // ex.: /goleiro/defesa/iniciante
           { path: ':jogo/:nivel', lazy: () => import('./pages/JogoGoleiro').then((m) => ({ Component: m.JogoGoleiro })) },
         ],

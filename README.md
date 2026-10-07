@@ -12,6 +12,10 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
   Na aba Pais, um adulto pode escolher a categoria na mão e mudar a categoria de cada treino e vídeo. O que
   está na agenda do dia abre naquele dia, mesmo acima da categoria.
 - **Goleiro**: 3 minijogos (Defesa, Reflexo, Posição) em 3 níveis + fundamentos com bola de verdade
+  + **Saída do gol com cones**: 7 circuitos (sai e volta, saída em V, arco do gol, encaixe e reposição,
+  1 contra 1 com a cruz, bola alta, circuito completo) com o desenho da quadra, os cones e as setas de cada
+  passo (o goleiro anda pelo desenho), e o **gesto técnico desenhado** em cada passo (posição base, saída,
+  recuo, lateral, encaixe, reposição rolando, cruz, bola alta em W), além do "dicionário" dos gestos
 - **Rali de Gestos**: desafios por inclinação do celular ou toque, contador de embaixadinhas reais e
   saltos contados pelo acelerômetro (só com um adulto liberando)
 - **Reação** (ideia do app SwitchedOn): o celular mostra cores, setas (verdes ou vermelhas = "ao contrário")
@@ -187,6 +191,14 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
     Para ativar, instale `lottie-web` e carregue-o com `import()` dentro de
     `src/components/stickers/StickerAnimado.tsx`, assim ele só baixa quando uma figurinha Lottie aparecer.
 
+### Circuitos de saída do gol: `src/features/saidaGol/circuitos.ts`
+
+Cada circuito tem os `cones` (posição em metros: `x` = 0 é o meio do gol, de -10 a 10; `y` = 0 é a linha
+do gol e cresce para a quadra; a área vai até 6 m), a `bola` (se usa) e os `passos`: de qual cone para
+qual, o `movimento` (`parado`, `saida`, `recuo`, `lateral` ou `bola`), o `gesto` técnico e o texto.
+Os gestos (desenho e "como fazer") ficam em `src/features/saidaGol/gestos.ts`: o desenho é a pose do
+bonequinho (cabeça, pescoço, quadril, cotovelos, mãos, joelhos e pés num quadro de 140 x 150).
+
 ### Puzzles do Futsal Tático: `src/features/tatica/puzzles/`
 
 Um arquivo por tipo (`ataque.ts`, `defesa.ts`, `transicao.ts`, `bolaParada.ts`) e um só da saída de bola do
@@ -273,7 +285,8 @@ Funciona sem servidor:
 src/
 ├── components/   ui (Modal, ProgressBar, PortaoDosPais…), stickers (figurinhas, álbum),
 │                 video (VideoPlayerModal), mascote (Bolinha)
-├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, rali, tatica (puzzles,
+├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, saidaGol (circuitos com
+│                 cones e gestos desenhados), rali, tatica (puzzles,
 │                 quadra SVG, validador, rating), reacao (drills,
 │                 motor dos sinais, histórico), categoria (Baby…Lenda, cadeados), agenda,
 │                 conquistas, avatar

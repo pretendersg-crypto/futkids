@@ -86,6 +86,7 @@ export const TREINOS_CALENDARIO: TreinoCalendario[] = [
   { id: 'forca', nome: 'Força do craque (app)', emoji: '💪', rota: '/treinos/forca', atividade: 'forca' },
   { id: 'goleiro', nome: 'Jogos de goleiro (app)', emoji: '🧤', rota: '/goleiro', atividade: 'goleiro' },
   { id: 'fundamentos', nome: 'Fundamentos do goleiro (app)', emoji: '📚', rota: '/goleiro/fundamentos', atividade: 'goleiro' },
+  { id: 'saida-gol', nome: 'Saída do gol com cones (app)', emoji: '🔶', rota: '/goleiro/saida', atividade: 'goleiro' },
   { id: 'rali', nome: 'Rali de gestos (app)', emoji: '⚽', rota: '/rali', atividade: 'rali' },
   { id: 'embaixadinhas', nome: 'Embaixadinhas de verdade (app)', emoji: '⚽', rota: '/rali/contador', atividade: 'rali' },
   { id: 'reacao', nome: 'Treino de reação (app)', emoji: '🚦', rota: '/reacao', atividade: 'reacao' },
