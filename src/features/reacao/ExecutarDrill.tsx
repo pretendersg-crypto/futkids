@@ -2,6 +2,7 @@
 // sorteia os sinais é o motor (motor.ts); aqui só desenhamos a fase atual e passamos os toques.
 // No modo "toque" a criança responde na tela e o app mede o tempo de reação.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useWakeLock } from '../../hooks/useWakeLock'
 import type { Drill } from './drills'
 import { formatarMs, PLACAR_ZERO, type Placar } from './finalizar'
@@ -54,7 +55,9 @@ export function ExecutarDrill({ drill, aoTerminar }: Props) {
   // Modo automático: a cor pinta a tela inteira (dá para ver de longe)
   const fundoCor = fase.nome === 'sinal' && !toque && fase.sinal.tipo === 'cor' ? corPorId(fase.sinal.cor).fundo : undefined
 
-  return (
+  // Desenhado direto no <body> (portal): assim nenhuma animação ou "transform" das telas de fora
+  // prende a tela cheia embaixo da barra de navegação
+  return createPortal(
     <div
       className={`fixed inset-0 z-30 flex flex-col gap-3 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-slate-800 text-white`}
       style={fundoCor ? { background: fundoCor } : undefined}
@@ -158,6 +161,7 @@ export function ExecutarDrill({ drill, aoTerminar }: Props) {
           </button>
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   )
 }

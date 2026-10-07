@@ -99,7 +99,7 @@ export function EditorDia({ data, aoFechar }: Props) {
           value={novo}
           onChange={(e) => setNovo(e.target.value)}
           aria-label="Treino para incluir"
-          className="min-h-12 flex-1 rounded-xl border-2 border-violet-200 bg-white px-2 text-base"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border-2 border-violet-200 bg-white px-2 text-base"
         >
           <option value="">Incluir treino…</option>
           {opcoes.map((t) => (
