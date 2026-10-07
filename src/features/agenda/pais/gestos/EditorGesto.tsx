@@ -6,6 +6,7 @@ import { CATEGORIAS_GESTO, POSE_IDS, type Gesto } from '../../../saidaGol/gestos
 import { DesenhoGesto } from '../../../saidaGol/DesenhoGesto'
 import { useGestos } from '../../../saidaGol/useGestos'
 import { ehGestoPronto, useGestosStore } from '../../../../stores/gestosStore'
+import { pontuarTreinador } from '../../../../stores/treinadorStore'
 import { limparMidiaSolta } from '../../../../utils/limparMidia'
 import { linkYoutube } from '../../../../utils/link'
 import { salvarImagem } from '../../../../utils/midiaLocal'
@@ -74,6 +75,8 @@ export function EditorGesto({ id, aoVoltar }: Props) {
     const video = g.video?.trim() ? linkYoutube(g.video) : undefined
     if (g.video?.trim() && !video) return setErro('O link do vídeo precisa ser do YouTube (youtube.com ou youtu.be).')
     loja.salvarGesto({ ...g, nome: g.nome.trim(), resumo: g.resumo.trim(), atencao: g.atencao.trim(), comoFazer, video: video ?? undefined })
+    if (!id) pontuarTreinador('criarGesto', g.id, `Criou o gesto "${g.nome.trim()}"`)
+    if (video || g.videoLocal) pontuarTreinador('videoReal', `gesto:${g.id}`, `Colocou vídeo real em "${g.nome.trim()}"`)
     voltar()
   }
 

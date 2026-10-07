@@ -9,6 +9,7 @@ import { EditorDrill } from '../features/reacao/EditorDrill'
 import { formatarMs } from '../features/reacao/finalizar'
 import { Historico } from '../features/reacao/Historico'
 import { useReacaoStore, type SessaoReacao } from '../stores/reacaoStore'
+import { pontuarTreinador } from '../stores/treinadorStore'
 
 type Aba = 'drills' | 'historico'
 
@@ -36,6 +37,7 @@ export function Reacao() {
           inicial={editando.drill}
           aoSalvar={(d) => {
             salvarDrill(d)
+            if (!editando.criado) pontuarTreinador('criarDrill', d.id, `Criou o drill "${d.nome}"`)
             setEditando(null)
           }}
           aoCancelar={() => setEditando(null)}

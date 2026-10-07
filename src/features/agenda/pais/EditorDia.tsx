@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { TREINOS_CALENDARIO, treinoDeExtra, treinoDeFundamentos, treinoDeSerie, treinoPorId, type ItemDia } from '../../../data/calendarioGoleiros'
 import { useTreinosFundamentosStore } from '../../../stores/treinosFundamentosStore'
+import { pontuarTreinador } from '../../../stores/treinadorStore'
 import { useTreinosStore } from '../../../stores/treinosStore'
 import { useProgramaStore } from '../../../stores/programaStore'
 import { diaDaSemana, formatarData } from '../../../utils/data'
@@ -38,6 +39,7 @@ export function EditorDia({ data, aoFechar }: Props) {
       if (i.video && !linkSeguro(i.video)) return setErro('Algum link de vídeo não começa com http:// ou https://')
     }
     programa.alterarDia(data, { itens: lista.map((i) => ({ treino: i.treino, ...(i.video ? { video: linkSeguro(i.video)! } : {}) })) })
+    pontuarTreinador('planejarDia', data, `Planejou o dia ${formatarData(data)}`)
     aoFechar()
   }
 

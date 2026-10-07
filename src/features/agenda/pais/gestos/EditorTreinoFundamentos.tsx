@@ -6,6 +6,8 @@ import { CampoNumero } from '../../../../components/ui/CampoNumero'
 import { Modal } from '../../../../components/ui/Modal'
 import { ICONES_TREINO, idDeFundamentos } from '../../../../data/calendarioGoleiros'
 import { useProgramaStore } from '../../../../stores/programaStore'
+import { pontuarTreinador } from '../../../../stores/treinadorStore'
+import { hojeISO } from '../../../../utils/data'
 import { useTreinosFundamentosStore, type ItemTreinoFundamentos, type TreinoFundamentos } from '../../../../stores/treinosFundamentosStore'
 import { CATEGORIAS_GESTO } from '../../../saidaGol/gestos'
 import { DesenhoGesto } from '../../../saidaGol/DesenhoGesto'
@@ -58,6 +60,8 @@ export function EditorTreinoFundamentos({ id, aoVoltar }: Props) {
       descricao: t.descricao.trim(),
       itens: t.itens.map((i) => ({ gesto: i.gesto, tipo: i.tipo, quantidade: i.quantidade, ...(i.observacao?.trim() ? { observacao: i.observacao.trim() } : {}) })),
     })
+    if (id) pontuarTreinador('editarFundamentos', `${t.id}:${hojeISO()}`, `Ajustou o treino "${t.nome.trim()}"`)
+    else pontuarTreinador('criarFundamentos', t.id, `Criou o treino "${t.nome.trim()}"`)
     aoVoltar()
   }
 

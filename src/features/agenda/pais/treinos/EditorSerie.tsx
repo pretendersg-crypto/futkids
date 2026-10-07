@@ -5,6 +5,8 @@ import { Modal } from '../../../../components/ui/Modal'
 import { exerciciosDoModulo, type Exercicio } from '../../../../data/catalogo'
 import { ICONES_TREINO } from '../../../../data/calendarioGoleiros'
 import { useTreinosStore } from '../../../../stores/treinosStore'
+import { pontuarTreinador } from '../../../../stores/treinadorStore'
+import { hojeISO } from '../../../../utils/data'
 import { limparMidiaSolta } from '../../../../utils/limparMidia'
 import { descreverMeta } from '../../../treino/recompensa'
 import { seriePorModulo, SERIES } from '../../../treino/series'
@@ -66,6 +68,13 @@ export function EditorSerie({ modulo: moduloInicial, aoVoltar }: Props) {
     const mesmosExercicios = JSON.stringify(exercicios) === JSON.stringify(loja.exercicios[modulo] ?? exerciciosDoModulo(modulo))
     if (!original || !mesmosExercicios) {
       loja.salvarSerie(modulo, exercicios, original ? undefined : { modulo, titulo: titulo.trim(), emoji, descricao: descricao.trim() || 'Treino criado pelos pais', categoria })
+    }
+    // Pontos do treinador: criar treino novo ou mudar um (1 vez por dia) e cada vídeo real colocado
+    const nome = original ? (serie?.titulo ?? modulo) : titulo.trim()
+    if (moduloInicial) pontuarTreinador('editarTreino', `${modulo}:${hojeISO()}`, `Ajustou o treino "${nome}"`)
+    else pontuarTreinador('criarTreino', modulo, `Criou o treino "${nome}"`)
+    for (const e of exercicios) {
+      if (e.video || e.videoLocal) pontuarTreinador('videoReal', `exercicio:${modulo}:${e.id}`, `Colocou vídeo real em "${e.nome}"`)
     }
     // Treino do app: guarda a categoria só se for diferente da original
     if (original && !SERIES_SEMPRE_LIBERADAS.includes(modulo)) loja.mudarCategoria(modulo, categoria === serie?.categoria ? null : categoria)

@@ -1,7 +1,7 @@
 // Área dos pais (ou treinador): escolher o programa de treinos, ver o mês com o que a criança
 // fez, mudar qualquer dia, editar os links dos vídeos, os treinos do "Treinar", os fundamentos e
 // gestos do goleiro, e ver os treinos de academia do calendário.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Modal } from '../../../components/ui/Modal'
 import { ACADEMIA, OBSERVACOES_CALENDARIO, PROGRAMA_GOLEIROS, tipoPorId, TREINOS_CALENDARIO, treinoPorId, type TreinoExtra } from '../../../data/calendarioGoleiros'
 import { useProgramaStore } from '../../../stores/programaStore'
@@ -20,6 +20,10 @@ import { EditorGesto } from './gestos/EditorGesto'
 import { GestosDoGoleiro } from './gestos/GestosDoGoleiro'
 import { EditorTreinoFundamentos } from './gestos/EditorTreinoFundamentos'
 import { TreinosDeFundamentos } from './gestos/TreinosDeFundamentos'
+import { PainelTreinador } from '../../treinador/PainelTreinador'
+import { PerfilTreinador } from '../../treinador/PerfilTreinador'
+import { ProgressoAluno } from '../../treinador/ProgressoAluno'
+import { pontuarTreinador, registrarVisitaDosPais } from '../../../stores/treinadorStore'
 import { CATEGORIAS, type CategoriaId } from '../../../data/categorias'
 import { categoriaDaSerie, categoriaDoVideo } from '../../categoria/categoria'
 import { CategoriaDoJogador } from '../../categoria/CategoriaDoJogador'
@@ -47,12 +51,20 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
   const [editandoGesto, setEditandoGesto] = useState<string | null>(null)
   // Editor de um treino de fundamentos: id, 'novo' ou null
   const [editandoFund, setEditandoFund] = useState<string | null>(null)
+  // Perfil do Pai/Mãe Treinador (avatar, estudo, medalhas, pontos)
+  const [perfilAberto, setPerfilAberto] = useState(false)
+
+  // Abrir a área dos pais é "acompanhar de perto": pontua o treinador (1 vez por dia)
+  useEffect(() => {
+    registrarVisitaDosPais()
+  }, [])
   // Assina os treinos dos pais: o calendário mostra nomes/ícones atualizados
   useTreinosStore((s) => s.seriesExtras)
 
   if (editandoSerie) {
     return <EditorSerie modulo={editandoSerie === 'novo' ? null : editandoSerie} aoVoltar={() => setEditandoSerie(null)} />
   }
+  if (perfilAberto) return <PerfilTreinador aoVoltar={() => setPerfilAberto(false)} />
   if (editandoFund) {
     return <EditorTreinoFundamentos id={editandoFund === 'novo' ? null : editandoFund} aoVoltar={() => setEditandoFund(null)} />
   }
@@ -64,6 +76,8 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <PainelTreinador aoAbrir={() => setPerfilAberto(true)} />
+      <ProgressoAluno />
       <CategoriaDoJogador />
 
       {/* Programa */}
@@ -364,8 +378,11 @@ function VideosDosTreinos() {
             key={formulario === 'novo' ? 'novo' : formulario.id}
             inicial={formulario === 'novo' ? undefined : formulario}
             aoSalvar={(dados) => {
-              if (formulario === 'novo') programa.adicionarExtra(dados)
-              else programa.alterarExtra(formulario.id, dados)
+              if (formulario === 'novo') {
+                programa.adicionarExtra(dados)
+                pontuarTreinador('videoCalendario', dados.videoUrl, `Adicionou o vídeo "${dados.nome}"`)
+              }
+              if (formulario !== 'novo') programa.alterarExtra(formulario.id, dados)
               setFormulario(null)
             }}
           />

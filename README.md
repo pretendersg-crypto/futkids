@@ -25,6 +25,13 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
   vezes ou quantos segundos cada um (e um recado), dar um nome e salvar. Aparecem na tela do Goleiro e podem
   entrar em qualquer dia da agenda (toque no dia → "Incluir treino"); fazer o treino marca o dia. Vêm 3
   prontos (Fundamentos básicos, Defesa no 1 contra 1, Quedas e desvios), que dá para mudar ou apagar
+- **Pai/Mãe Treinador** (topo da aba Pais): avatar desenhado de Pai ou Mãe (pele, cabelo, barba, óculos,
+  brincos, agasalho) e gamificação do adulto. Ganha XP ao **planejar** (criar treinos de fundamentos, planejar
+  dias, colocar vídeos, criar gestos e drills), **estudar** (8 lições curtas com quiz: como ensinar, segurança,
+  posicionamento, encaixes, saída e 1 contra 1, reposição, regras, plano da semana) e **acompanhar de perto**
+  (abrir a área dos pais, ver o progresso do aluno, "Treinamos juntos hoje", semanas acompanhadas). 7 níveis
+  (de Estreante a Mestre dos Goleiros), cada um libera um item do avatar, e 10 medalhas. Cada ação pontua uma
+  vez por referência (ex.: por dia, por treino), para não dar para ganhar repetindo
 - **Gestão dos gestos do goleiro** (aba Pais → 🧤 Fundamentos e gestos): mudar os do app (textos, desenho,
   vídeo) e criar novos, com desenho pronto ou imagem/GIF própria. Os Fundamentos do goleiro também entram
   no editor do "Treinar", como o Aquecimento
@@ -298,14 +305,15 @@ Funciona sem servidor:
 src/
 ├── components/   ui (Modal, ProgressBar, PortaoDosPais…), stickers (figurinhas, álbum),
 │                 video (VideoPlayerModal), mascote (Bolinha)
-├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, saidaGol (circuitos com
+├── features/     aquecimento, treino (série guiada + bonequinho), goleiro, treinador (avatar, lições,
+│                 pontos e medalhas do Pai/Mãe Treinador), saidaGol (circuitos com
 │                 cones e gestos desenhados), rali, tatica (puzzles,
 │                 quadra SVG, validador, rating), reacao (drills,
 │                 motor dos sinais, histórico), categoria (Baby…Lenda, cadeados), agenda,
 │                 conquistas, avatar
 ├── stores/       zustand + localStorage: userStore, progressStore, achievementsStore,
 │                 agendaStore, configStore, treinosStore, reacaoStore, taticaStore, gestosStore,
-│                 treinosFundamentosStore
+│                 treinosFundamentosStore, treinadorStore
 ├── data/         conteúdos (exercícios, vídeos, conquistas, agenda, apelidos, mascote)
 ├── hooks/        useTimer, useSensor, useLoopJogo, useWakeLock
 ├── pages/        uma tela por rota (as maiores carregam sob demanda)

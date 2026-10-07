@@ -4,6 +4,7 @@ import { Navigate, Outlet, useLocation } from 'react-router'
 import { AvisoLembrete } from '../features/agenda/AvisoLembrete'
 import { useLembreteDiario } from '../features/agenda/useLembrete'
 import { Celebracao } from '../features/conquistas/Celebracao'
+import { AvisoTreinador } from '../features/treinador/AvisoTreinador'
 import { useUserStore } from '../stores/userStore'
 import { BottomNav } from './ui/BottomNav'
 
@@ -36,6 +37,8 @@ export function AppLayout() {
       <Celebracao />
       {/* Faixa "Hora de treinar!" do lembrete diário */}
       <AvisoLembrete />
+      {/* "+30 XP de treinador" quando o adulto planeja, estuda ou acompanha */}
+      <AvisoTreinador />
     </>
   )
 }
