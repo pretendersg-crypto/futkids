@@ -26,7 +26,8 @@ do celular e pode ser instalado como app (PWA), inclusive sem internet.
   cima. Toque no jogador que pisca e na seta da jogada (passe, correr, chutar, driblar, marcar). Explicação
   de cada escolha, dica, revelar, puzzles de **sequência** (tabela, pivô, 2 contra 1, bloqueio...), rating
   (Elo), acertos seguidos, rodada de 5 em modo treino ou **contra o relógio**, filtros por dificuldade e tipo,
-  lista de puzzles e gráfico do progresso. 19 puzzles: ataque, defesa (com goleiro), transição e bola parada.
+  lista de puzzles e gráfico do progresso. 25 puzzles: ataque, defesa (com goleiro), transição, bola parada e
+  saída de bola do goleiro (depois da defesa e no tiro de meta, com as regras dos 4 segundos e do 2º toque).
 - **Alimentação do Craque**: lições com o mascote, jogo das turmas dos alimentos, monte o prato,
   verdade ou mentira e garrafinha de água do treino (sem dieta, calorias ou suplementos)
 - **Agenda**: calendário de pré-temporada de goleiros (61 dias, com os vídeos do treinador) ou plano
@@ -188,7 +189,8 @@ Os conteúdos ficam em arquivos JSON/TS dentro de `src/data/`.
 
 ### Puzzles do Futsal Tático: `src/features/tatica/puzzles/`
 
-Um arquivo por tipo (`ataque.ts`, `defesa.ts`, `transicao.ts`, `bolaParada.ts`). Para criar um puzzle,
+Um arquivo por tipo (`ataque.ts`, `defesa.ts`, `transicao.ts`, `bolaParada.ts`) e um só da saída de bola do
+goleiro (`saidaGoleiro.ts`). Para criar um puzzle,
 copie um parecido e mude:
 
 - `jogadores`: `azul(numero, x, y)` é o seu time, `verm(numero, x, y)` o adversário; `x` e `y` vão de 0 a 1
