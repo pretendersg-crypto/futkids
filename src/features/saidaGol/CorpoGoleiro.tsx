@@ -1,5 +1,7 @@
 // O goleiro uniformizado dos desenhos dos gestos (inspirado no uniforme do aluno: camisa verde-limão
-// com o peito preto, manga longa preta, calção verde-limão, meião e chuteira pretos, cabelo castanho).
+// com o peito preto, manga longa preta, luvas e joelheiras pretas, calção verde-limão, meião e
+// chuteira pretos, cabelo castanho com risca de lado). Proporção de criança: cabeça, mãos e pés um
+// pouco maiores.
 // Desenha o corpo em cima dos mesmos pontos das poses (cabeça, pescoço, quadril, cotovelos, mãos,
 // joelhos e pés no quadro de 140 x 150), então toda pose pronta já sai com o uniforme. Não usa a foto
 // do aluno nem escudo/patrocínio: é um desenho genérico com as cores do uniforme.
@@ -13,6 +15,9 @@ const CORES_UNIFORME = {
   pele: '#f2c9a0',
   peleEscura: '#c98f62',
   cabelo: '#4a2b17',
+  cabeloClaro: '#6e4527',
+  luva: '#23272e',
+  palmaLuva: '#4b5563',
   contorno: '#14281a',
   sola: '#e5e7eb',
 }
@@ -54,8 +59,10 @@ function Perna({ quadril, joelho, pe, lado, vista }: { quadril: P; joelho: P; pe
       <Traco pontos={[fimCalcao, joelho, inicioMeiao]} largura={9} cor={C.pele} />
       {vista === 'lado' && <Traco pontos={[quadril, fimCalcao]} largura={15} cor={C.limao} />}
       <Traco pontos={[inicioMeiao, pe]} largura={9.5} cor={C.preto} />
-      <ellipse cx={centro.x} cy={centro.y + 2} rx={vista === 'lado' ? 10 : 8.5} ry={2.2} fill={C.sola} stroke={C.contorno} strokeWidth={1.5} />
-      <ellipse cx={centro.x} cy={centro.y} rx={vista === 'lado' ? 9.5 : 8} ry={4.6} fill={C.preto} stroke={C.contorno} strokeWidth={1.5} />
+      {/* Joelheira preta */}
+      <Traco pontos={[entre(fimCalcao, joelho, 0.6), entre(joelho, pe, 0.14)]} largura={12} cor={C.luva} />
+      <ellipse cx={centro.x} cy={centro.y + 2.4} rx={vista === 'lado' ? 11.5 : 9.5} ry={2.4} fill={C.sola} stroke={C.contorno} strokeWidth={1.5} />
+      <ellipse cx={centro.x} cy={centro.y} rx={vista === 'lado' ? 11 : 9} ry={5.2} fill={C.preto} stroke={C.contorno} strokeWidth={1.5} />
     </g>
   )
 }
@@ -67,14 +74,22 @@ function Braco({ ombro, cotovelo, mao }: { ombro: P; cotovelo: P; mao: P }) {
   return (
     <g>
       <Traco pontos={[ombro, cotovelo, mao]} largura={9} cor={C.preto} />
-      {/* Mão aberta: palma e os dedos em leque */}
+      {/* Punho da luva verde-limão (separa a manga preta da luva preta) */}
+      <Traco pontos={[soma(mao, vezes(direcao, -3)), soma(mao, vezes(direcao, -0.5))]} largura={10.5} cor={C.limao} />
+      {/* Luva de goleiro aberta: dedos grandes em leque e a palma mais clara */}
       <g>
-        {[-0.55, -0.2, 0.15, 0.5].map((a) => {
+        {[-0.6, -0.2, 0.2, 0.6].map((a) => {
           const ang = Math.atan2(direcao.y, direcao.x) + a
-          const ponta = soma(palma, { x: Math.cos(ang) * 7.5, y: Math.sin(ang) * 7.5 })
-          return <line key={a} x1={palma.x} y1={palma.y} x2={ponta.x} y2={ponta.y} stroke={C.peleEscura} strokeWidth={3.6} strokeLinecap="round" />
+          const ponta = soma(palma, { x: Math.cos(ang) * 8.5, y: Math.sin(ang) * 8.5 })
+          return (
+            <g key={a}>
+              <line x1={palma.x} y1={palma.y} x2={ponta.x} y2={ponta.y} stroke={C.contorno} strokeWidth={6} strokeLinecap="round" />
+              <line x1={palma.x} y1={palma.y} x2={ponta.x} y2={ponta.y} stroke={C.luva} strokeWidth={4.2} strokeLinecap="round" />
+            </g>
+          )
         })}
-        <circle cx={palma.x} cy={palma.y} r={5.2} fill={C.pele} stroke={C.peleEscura} strokeWidth={1.5} />
+        <circle cx={palma.x} cy={palma.y} r={6.4} fill={C.luva} stroke={C.contorno} strokeWidth={1.5} />
+        <circle cx={palma.x} cy={palma.y} r={3.4} fill={C.palmaLuva} />
       </g>
     </g>
   )
@@ -86,17 +101,21 @@ function Cabeca({ centro, pescoco, vista }: { centro: P; pescoco: P; vista: Pose
   const angulo = (Math.atan2(cima.x, -cima.y) * 180) / Math.PI
   const { x, y } = centro
   return (
-    <g transform={`rotate(${angulo.toFixed(1)} ${x} ${y})`}>
+    <g transform={`rotate(${angulo.toFixed(1)} ${x} ${y}) translate(${x} ${y}) scale(1.15) translate(${-x} ${-y})`}>
       <circle cx={x} cy={y} r={12} fill={C.pele} stroke={C.contorno} strokeWidth={2} />
       {vista === 'frente' ? (
         <>
-          {/* Cabelo castanho com franja */}
+          {/* Cabelo castanho curto, com risca de lado e a franja caindo para a esquerda */}
           <path
-            d={`M${x - 12.6} ${y + 1} A12.6 12.6 0 0 1 ${x + 12.6} ${y + 1} Q${x + 9} ${y - 6} ${x + 2} ${y - 4} Q${x - 4} ${y - 2} ${x - 8} ${y - 5} Q${x - 11} ${y - 2} ${x - 12.6} ${y + 1} Z`}
+            d={`M${x - 12.6} ${y + 1} A12.6 12.6 0 0 1 ${x + 12.6} ${y + 1} Q${x + 11.5} ${y - 4.5} ${x + 6} ${y - 6.5} Q${x - 2} ${y - 7.5} ${x - 9} ${y - 1.5} Q${x - 11.5} ${y - 0.5} ${x - 12.6} ${y + 1} Z`}
             fill={C.cabelo}
           />
-          <circle cx={x - 4.3} cy={y + 2.5} r={1.7} fill={C.contorno} />
-          <circle cx={x + 4.3} cy={y + 2.5} r={1.7} fill={C.contorno} />
+          <path d={`M${x + 4} ${y - 12} Q${x + 5.5} ${y - 9} ${x + 6} ${y - 6.5}`} fill="none" stroke={C.cabeloClaro} strokeWidth={1.2} strokeLinecap="round" />
+          {/* Olhos escuros com brilho */}
+          <circle cx={x - 4.3} cy={y + 2.5} r={2} fill={C.contorno} />
+          <circle cx={x + 4.3} cy={y + 2.5} r={2} fill={C.contorno} />
+          <circle cx={x - 3.7} cy={y + 1.8} r={0.7} fill="#fff" />
+          <circle cx={x + 4.9} cy={y + 1.8} r={0.7} fill="#fff" />
           <path d={`M${x - 3} ${y + 7.5} Q${x} ${y + 9} ${x + 3} ${y + 7.5}`} fill="none" stroke={C.contorno} strokeWidth={1.4} strokeLinecap="round" />
         </>
       ) : (
@@ -104,7 +123,8 @@ function Cabeca({ centro, pescoco, vista }: { centro: P; pescoco: P; vista: Pose
           {/* De perfil, olhando para a direita: cabelo atrás e em cima, orelha, olho na frente */}
           <path d={`M${x - 10} ${y + 7.6} A12.6 12.6 0 0 1 ${x + 9.2} ${y - 8.6} Q${x + 4} ${y - 3} ${x - 2} ${y - 3.5} Q${x - 4} ${y + 3} ${x - 10} ${y + 7.6} Z`} fill={C.cabelo} />
           <ellipse cx={x - 3} cy={y + 3.5} rx={2} ry={2.8} fill={C.pele} stroke={C.peleEscura} strokeWidth={1.2} />
-          <circle cx={x + 6.5} cy={y + 2} r={1.7} fill={C.contorno} />
+          <circle cx={x + 6.5} cy={y + 2} r={2} fill={C.contorno} />
+          <circle cx={x + 7.1} cy={y + 1.3} r={0.7} fill="#fff" />
           <path d={`M${x + 5} ${y + 8} Q${x + 7.5} ${y + 8.8} ${x + 9} ${y + 7}`} fill="none" stroke={C.contorno} strokeWidth={1.4} strokeLinecap="round" />
         </>
       )}
