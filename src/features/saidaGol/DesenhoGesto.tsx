@@ -1,11 +1,13 @@
 // Desenho de um gesto técnico do goleiro: o goleiro uniformizado (CorpoGoleiro) na pose do gesto,
 // com a bola e setas mostrando o movimento. Poses com animação (animacoes.ts) se mexem: os pontos do
 // corpo vão e voltam entre os quadros. Se os pais trocaram o desenho por uma imagem/GIF própria,
-// mostra a imagem.
+// mostra a imagem. Rodando localmente, a arte do aluno (src/local/goleiro3d, fora do GitHub) entra no
+// lugar do goleiro desenhado.
 import { useEffect, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { useImagemLocal } from '../../hooks/useImagemLocal'
 import { ANIMACOES, poseNoTempo } from './animacoes'
+import { arteLocalDaPose } from './arteLocal'
 import { CorpoGoleiro } from './CorpoGoleiro'
 import { POSES, type Desenho, type Pose, type PoseId } from './gestos'
 
@@ -18,12 +20,21 @@ interface Props {
   comNome?: boolean
   /** Anima a pose (quando ela tem animação). Padrão: sim, a partir de 90 px */
   animado?: boolean
+  /** Mostra a arte local do aluno no lugar do desenho, quando existe (padrão: sim) */
+  comArte?: boolean
 }
 
-export function DesenhoGesto({ desenho, nome, tamanho = 160, comNome = false, animado = tamanho >= 90 }: Props) {
+export function DesenhoGesto({ desenho, nome, tamanho = 160, comNome = false, animado = tamanho >= 90, comArte = true }: Props) {
+  const arte = desenho.tipo === 'pose' && comArte ? arteLocalDaPose(desenho.pose) : undefined
   return (
     <figure className="flex flex-col items-center gap-1">
-      {desenho.tipo === 'imagem' ? <ImagemPropria id={desenho.id} nome={nome} tamanho={tamanho} /> : <Boneco pose={desenho.pose} nome={nome} tamanho={tamanho} animado={animado} />}
+      {desenho.tipo === 'imagem' ? (
+        <ImagemPropria id={desenho.id} nome={nome} tamanho={tamanho} />
+      ) : arte ? (
+        <img src={arte} alt={`Como fazer: ${nome}`} style={{ width: tamanho, height: (tamanho * 150) / 140 }} className="object-contain" />
+      ) : (
+        <Boneco pose={desenho.pose} nome={nome} tamanho={tamanho} animado={animado} />
+      )}
       {comNome && <figcaption className="text-center text-base leading-tight font-extrabold">{nome}</figcaption>}
     </figure>
   )

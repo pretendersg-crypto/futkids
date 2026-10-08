@@ -25,3 +25,6 @@ dist-ssr
 
 # Service worker gerado pelo vite-plugin-pwa no modo dev
 dev-dist
+
+# Arte local do aluno (avatares feitos a partir da foto): fica só neste computador, nunca vai para o GitHub/site
+src/local/
