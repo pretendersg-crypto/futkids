@@ -1,12 +1,13 @@
-// Desenho de um gesto técnico do goleiro: o bonequinho (mesmo traço do bonequinho dos treinos)
-// com luvas, na pose do gesto, e setas mostrando o movimento. Se os pais trocaram o desenho por
-// uma imagem/GIF própria, mostra a imagem.
+// Desenho de um gesto técnico do goleiro: o goleiro uniformizado (CorpoGoleiro) na pose do gesto,
+// com a bola e setas mostrando o movimento. Poses com animação (animacoes.ts) se mexem: os pontos do
+// corpo vão e voltam entre os quadros. Se os pais trocaram o desenho por uma imagem/GIF própria,
+// mostra a imagem.
+import { useEffect, useState } from 'react'
+import { useReducedMotion } from 'framer-motion'
 import { useImagemLocal } from '../../hooks/useImagemLocal'
-import { POSES, type Desenho, type P, type PoseId } from './gestos'
-
-const TRACO = { stroke: '#14532D', strokeWidth: 8, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none' } as const
-
-const linha = (...pontos: P[]) => pontos.map((q) => `${q.x},${q.y}`).join(' ')
+import { ANIMACOES, poseNoTempo } from './animacoes'
+import { CorpoGoleiro } from './CorpoGoleiro'
+import { POSES, type Desenho, type Pose, type PoseId } from './gestos'
 
 interface Props {
   desenho: Desenho
@@ -15,12 +16,14 @@ interface Props {
   tamanho?: number
   /** Mostra o nome embaixo */
   comNome?: boolean
+  /** Anima a pose (quando ela tem animação). Padrão: sim, a partir de 90 px */
+  animado?: boolean
 }
 
-export function DesenhoGesto({ desenho, nome, tamanho = 160, comNome = false }: Props) {
+export function DesenhoGesto({ desenho, nome, tamanho = 160, comNome = false, animado = tamanho >= 90 }: Props) {
   return (
     <figure className="flex flex-col items-center gap-1">
-      {desenho.tipo === 'imagem' ? <ImagemPropria id={desenho.id} nome={nome} tamanho={tamanho} /> : <Boneco pose={desenho.pose} nome={nome} tamanho={tamanho} />}
+      {desenho.tipo === 'imagem' ? <ImagemPropria id={desenho.id} nome={nome} tamanho={tamanho} /> : <Boneco pose={desenho.pose} nome={nome} tamanho={tamanho} animado={animado} />}
       {comNome && <figcaption className="text-center text-base leading-tight font-extrabold">{nome}</figcaption>}
     </figure>
   )
@@ -39,12 +42,30 @@ function ImagemPropria({ id, nome, tamanho }: { id: string; nome: string; tamanh
   return <img src={url} alt={`Como fazer: ${nome}`} style={{ width: tamanho, height: altura }} className="rounded-2xl bg-white object-contain" />
 }
 
-function Boneco({ pose: id, nome, tamanho }: { pose: PoseId; nome: string; tamanho: number }) {
-  const pose = POSES[id]
+/** A pose no instante atual da animação (ou parada, sem animação ou com "reduzir movimento") */
+function usePose(id: PoseId, animado: boolean): Pose {
+  const anim = ANIMACOES[id]
+  const reduzir = useReducedMotion()
+  const ligado = Boolean(anim) && animado && !reduzir
+  const [ms, setMs] = useState(0)
+  useEffect(() => {
+    if (!ligado) return
+    let quadro = 0
+    const inicio = performance.now()
+    const passo = (agora: number) => {
+      setMs(agora - inicio)
+      quadro = requestAnimationFrame(passo)
+    }
+    quadro = requestAnimationFrame(passo)
+    return () => cancelAnimationFrame(quadro)
+  }, [ligado])
+  return ligado && anim ? poseNoTempo(anim, ms) : POSES[id]
+}
+
+function Boneco({ pose: id, nome, tamanho, animado }: { pose: PoseId; nome: string; tamanho: number; animado: boolean }) {
+  const pose = usePose(id, animado)
   const chao = pose.chao ?? 136
   const { bola, setas } = pose
-  // Na vista de lado, o braço/perna de trás fica mais claro (dá noção de profundidade)
-  const trasDoLado = pose.vista === 'lado' ? 0.45 : 1
   const marcador = `seta-gesto-${id}`
 
   return (
@@ -55,21 +76,9 @@ function Boneco({ pose: id, nome, tamanho }: { pose: PoseId; nome: string; taman
         </marker>
       </defs>
       {/* Chão */}
-      <line x1={4} y1={chao} x2={136} y2={chao} stroke="#86efac" strokeWidth={4} strokeLinecap="round" />
+      <line x1={4} y1={chao + 4} x2={136} y2={chao + 4} stroke="#86efac" strokeWidth={4} strokeLinecap="round" />
 
-      {/* Membros de trás (vista de lado) ou esquerdos (vista de frente) */}
-      <g opacity={trasDoLado}>
-        <polyline points={linha(pose.quadril, pose.joelhos[0], pose.pes[0])} {...TRACO} />
-        <polyline points={linha(pose.pescoco, pose.cotovelos[0], pose.maos[0])} {...TRACO} />
-        <circle cx={pose.maos[0].x} cy={pose.maos[0].y} r={6.5} fill="#f59e0b" stroke="#14532D" strokeWidth={2.5} />
-      </g>
-      {/* Tronco (camisa de goleiro) e cabeça */}
-      <line x1={pose.pescoco.x} y1={pose.pescoco.y} x2={pose.quadril.x} y2={pose.quadril.y} stroke="#15803d" strokeWidth={14} strokeLinecap="round" />
-      <circle cx={pose.cabeca.x} cy={pose.cabeca.y} r={11} fill="#fde68a" stroke="#14532D" strokeWidth={3} />
-      {/* Membros da frente / direitos */}
-      <polyline points={linha(pose.quadril, pose.joelhos[1], pose.pes[1])} {...TRACO} />
-      <polyline points={linha(pose.pescoco, pose.cotovelos[1], pose.maos[1])} {...TRACO} />
-      <circle cx={pose.maos[1].x} cy={pose.maos[1].y} r={6.5} fill="#f59e0b" stroke="#14532D" strokeWidth={2.5} />
+      <CorpoGoleiro pose={pose} />
 
       {bola && (
         <g>

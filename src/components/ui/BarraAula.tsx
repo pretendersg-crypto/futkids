@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function BarraAula({ aoAnterior, aoLista, concluida, aoConcluir, podeConcluir = true, aoProximo, rotuloProximo }: Props) {
-  const botao = 'flex min-h-16 flex-col items-center justify-center rounded-2xl text-sm font-extrabold disabled:opacity-35'
+  const botao = 'flex min-h-16 min-w-0 flex-col items-center justify-center rounded-2xl text-xs leading-tight font-extrabold disabled:opacity-35'
   return (
     <nav
       aria-label="Navegação dos fundamentos"
