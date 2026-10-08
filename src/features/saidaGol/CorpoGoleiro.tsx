@@ -1,25 +1,25 @@
-// O goleiro uniformizado dos desenhos dos gestos (inspirado no uniforme do aluno: camisa verde-limão
-// com o peito preto, manga longa preta, luvas e joelheiras pretas, calção verde-limão, meião e
-// chuteira pretos, cabelo castanho com risca de lado). Proporção de criança: cabeça, mãos e pés um
-// pouco maiores.
+// O goleiro dos desenhos dos gestos, no uniforme laranja do personagem do app: camisa laranja de gola
+// em V preta, manga curta laranja sobre a manga longa preta, luvas laranja com detalhe preto, calção
+// preto, joelheiras pretas, meião preto com faixa laranja e chuteira preta de sola amarela. Cabelo
+// castanho com topete e olhos grandes castanhos (proporção de criança: cabeça, mãos e pés maiores).
 // Desenha o corpo em cima dos mesmos pontos das poses (cabeça, pescoço, quadril, cotovelos, mãos,
-// joelhos e pés no quadro de 140 x 150), então toda pose pronta já sai com o uniforme. Não usa a foto
-// do aluno nem escudo/patrocínio: é um desenho genérico com as cores do uniforme.
+// joelhos e pés no quadro de 140 x 150), então toda pose pronta já sai com o uniforme. É um desenho
+// genérico, sem marca, texto ou número na camisa.
 import { useId } from 'react'
 import type { P, Pose } from './gestos'
 
 const CORES_UNIFORME = {
-  limao: '#b5e61d',
-  limaoEscuro: '#7fb800',
+  laranja: '#f28a1b',
+  laranjaEscuro: '#d06d0c',
   preto: '#1c1f24',
-  pele: '#f2c9a0',
-  peleEscura: '#c98f62',
-  cabelo: '#4a2b17',
-  cabeloClaro: '#6e4527',
-  luva: '#23272e',
-  palmaLuva: '#4b5563',
-  contorno: '#14281a',
-  sola: '#e5e7eb',
+  joelheira: '#2b2f36',
+  pele: '#f6cba5',
+  peleEscura: '#d39a72',
+  cabelo: '#7a4a24',
+  cabeloClaro: '#a3672f',
+  olho: '#7b4a1e',
+  contorno: '#2b1a0e',
+  sola: '#facc15',
 }
 
 const C = CORES_UNIFORME
@@ -28,6 +28,7 @@ const soma = (a: P, b: P): P => ({ x: a.x + b.x, y: a.y + b.y })
 const menos = (a: P, b: P): P => ({ x: a.x - b.x, y: a.y - b.y })
 const vezes = (a: P, k: number): P => ({ x: a.x * k, y: a.y * k })
 const entre = (a: P, b: P, t: number): P => soma(a, vezes(menos(b, a), t))
+const pontosSvg = (pts: P[]) => pts.map((q) => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join(' ')
 function unitario(a: P): P {
   const n = Math.hypot(a.x, a.y) || 1
   return { x: a.x / n, y: a.y / n }
@@ -35,7 +36,7 @@ function unitario(a: P): P {
 
 /** Traço grosso com contorno escuro (desenha o contorno por baixo, um pouco mais largo) */
 function Traco({ pontos, largura, cor, contorno = C.contorno, url }: { pontos: P[]; largura: number; cor: string; contorno?: string; url?: string }) {
-  const pts = pontos.map((q) => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join(' ')
+  const pts = pontosSvg(pontos)
   return (
     <>
       <polyline points={pts} fill="none" stroke={contorno} strokeWidth={largura + 3} strokeLinecap="round" strokeLinejoin="round" />
@@ -47,22 +48,27 @@ function Traco({ pontos, largura, cor, contorno = C.contorno, url }: { pontos: P
 /** Até onde o calção cobre a coxa (do quadril ao joelho) */
 const CALCAO = 0.62
 
-/** Perna: coxa e joelho de fora do calção, meião e chuteira. Na vista de lado, cada perna leva o seu pedaço de calção */
+/** Perna: joelho de fora do calção, joelheira, meião com faixa e chuteira. Na vista de lado, cada perna leva o seu pedaço de calção */
 function Perna({ quadril, joelho, pe, lado, vista }: { quadril: P; joelho: P; pe: P; lado: number; vista: Pose['vista'] }) {
   const fimCalcao = entre(quadril, joelho, CALCAO)
   const inicioMeiao = entre(joelho, pe, 0.2)
   // Chuteira: na vista de lado aponta para a frente (direita); de frente, um pouco para fora
   const bico = vista === 'lado' ? { x: 6, y: 0 } : { x: lado * 2, y: 0 }
   const centro = soma(pe, { x: bico.x, y: 1.5 })
+  const rx = vista === 'lado' ? 11 : 9
   return (
     <g>
       <Traco pontos={[fimCalcao, joelho, inicioMeiao]} largura={9} cor={C.pele} />
-      {vista === 'lado' && <Traco pontos={[quadril, fimCalcao]} largura={15} cor={C.limao} />}
+      {vista === 'lado' && <Traco pontos={[quadril, fimCalcao]} largura={15} cor={C.preto} />}
       <Traco pontos={[inicioMeiao, pe]} largura={9.5} cor={C.preto} />
+      {/* Faixa laranja no alto do meião */}
+      <Traco pontos={[entre(inicioMeiao, pe, 0.12), entre(inicioMeiao, pe, 0.24)]} largura={9.5} cor={C.laranja} />
       {/* Joelheira preta */}
-      <Traco pontos={[entre(fimCalcao, joelho, 0.6), entre(joelho, pe, 0.14)]} largura={12} cor={C.luva} />
-      <ellipse cx={centro.x} cy={centro.y + 2.4} rx={vista === 'lado' ? 11.5 : 9.5} ry={2.4} fill={C.sola} stroke={C.contorno} strokeWidth={1.5} />
-      <ellipse cx={centro.x} cy={centro.y} rx={vista === 'lado' ? 11 : 9} ry={5.2} fill={C.preto} stroke={C.contorno} strokeWidth={1.5} />
+      <Traco pontos={[entre(fimCalcao, joelho, 0.6), entre(joelho, pe, 0.14)]} largura={12} cor={C.joelheira} />
+      {/* Chuteira preta de sola amarela, com cadarço amarelo */}
+      <ellipse cx={centro.x} cy={centro.y + 2.4} rx={rx + 0.5} ry={2.4} fill={C.sola} stroke={C.contorno} strokeWidth={1.5} />
+      <ellipse cx={centro.x} cy={centro.y} rx={rx} ry={5.2} fill={C.preto} stroke={C.contorno} strokeWidth={1.5} />
+      <line x1={centro.x - 3} y1={centro.y - 2.2} x2={centro.x + 3} y2={centro.y - 2.2} stroke={C.sola} strokeWidth={1.4} strokeLinecap="round" />
     </g>
   )
 }
@@ -74,9 +80,11 @@ function Braco({ ombro, cotovelo, mao }: { ombro: P; cotovelo: P; mao: P }) {
   return (
     <g>
       <Traco pontos={[ombro, cotovelo, mao]} largura={9} cor={C.preto} />
-      {/* Punho da luva verde-limão (separa a manga preta da luva preta) */}
-      <Traco pontos={[soma(mao, vezes(direcao, -3)), soma(mao, vezes(direcao, -0.5))]} largura={10.5} cor={C.limao} />
-      {/* Luva de goleiro aberta: dedos grandes em leque e a palma mais clara */}
+      {/* Manga curta laranja da camisa, por cima da manga longa preta */}
+      <Traco pontos={[ombro, entre(ombro, cotovelo, 0.3)]} largura={10.5} cor={C.laranja} />
+      {/* Punho preto da luva */}
+      <Traco pontos={[soma(mao, vezes(direcao, -3)), soma(mao, vezes(direcao, -0.5))]} largura={10.5} cor={C.preto} />
+      {/* Luva laranja aberta: dedos grandes em leque e a palma mais escura */}
       <g>
         {[-0.6, -0.2, 0.2, 0.6].map((a) => {
           const ang = Math.atan2(direcao.y, direcao.x) + a
@@ -84,13 +92,25 @@ function Braco({ ombro, cotovelo, mao }: { ombro: P; cotovelo: P; mao: P }) {
           return (
             <g key={a}>
               <line x1={palma.x} y1={palma.y} x2={ponta.x} y2={ponta.y} stroke={C.contorno} strokeWidth={6} strokeLinecap="round" />
-              <line x1={palma.x} y1={palma.y} x2={ponta.x} y2={ponta.y} stroke={C.luva} strokeWidth={4.2} strokeLinecap="round" />
+              <line x1={palma.x} y1={palma.y} x2={ponta.x} y2={ponta.y} stroke={C.laranja} strokeWidth={4.2} strokeLinecap="round" />
             </g>
           )
         })}
-        <circle cx={palma.x} cy={palma.y} r={6.4} fill={C.luva} stroke={C.contorno} strokeWidth={1.5} />
-        <circle cx={palma.x} cy={palma.y} r={3.4} fill={C.palmaLuva} />
+        <circle cx={palma.x} cy={palma.y} r={6.4} fill={C.laranja} stroke={C.contorno} strokeWidth={1.5} />
+        <ellipse cx={palma.x} cy={palma.y} rx={3.4} ry={2.2} fill={C.laranjaEscuro} transform={`rotate(${((Math.atan2(direcao.y, direcao.x) * 180) / Math.PI).toFixed(0)} ${palma.x} ${palma.y})`} />
       </g>
+    </g>
+  )
+}
+
+/** Olho grande de desenho animado: branco, íris castanha, pupila e brilho */
+function Olho({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <ellipse cx={x} cy={y} rx={2.9} ry={3.2} fill="#fff" stroke={C.contorno} strokeWidth={0.8} />
+      <circle cx={x + 0.2} cy={y + 0.3} r={2.1} fill={C.olho} />
+      <circle cx={x + 0.2} cy={y + 0.3} r={1.1} fill={C.contorno} />
+      <circle cx={x + 0.9} cy={y - 0.6} r={0.7} fill="#fff" />
     </g>
   )
 }
@@ -101,31 +121,39 @@ function Cabeca({ centro, pescoco, vista }: { centro: P; pescoco: P; vista: Pose
   const angulo = (Math.atan2(cima.x, -cima.y) * 180) / Math.PI
   const { x, y } = centro
   return (
-    <g transform={`rotate(${angulo.toFixed(1)} ${x} ${y}) translate(${x} ${y}) scale(1.15) translate(${-x} ${-y})`}>
-      <circle cx={x} cy={y} r={12} fill={C.pele} stroke={C.contorno} strokeWidth={2} />
+    <g transform={`rotate(${angulo.toFixed(1)} ${x} ${y}) translate(${x} ${y}) scale(1.3) translate(${-x} ${-y})`}>
       {vista === 'frente' ? (
         <>
-          {/* Cabelo castanho curto, com risca de lado e a franja caindo para a esquerda */}
+          {/* Orelhas */}
+          <circle cx={x - 12} cy={y + 2.5} r={2.8} fill={C.pele} stroke={C.contorno} strokeWidth={1.2} />
+          <circle cx={x + 12} cy={y + 2.5} r={2.8} fill={C.pele} stroke={C.contorno} strokeWidth={1.2} />
+          <circle cx={x} cy={y} r={12} fill={C.pele} stroke={C.contorno} strokeWidth={1.6} />
+          {/* Cabelo castanho com topete para cima e a franja caindo para a esquerda */}
           <path
-            d={`M${x - 12.6} ${y + 1} A12.6 12.6 0 0 1 ${x + 12.6} ${y + 1} Q${x + 11.5} ${y - 4.5} ${x + 6} ${y - 6.5} Q${x - 2} ${y - 7.5} ${x - 9} ${y - 1.5} Q${x - 11.5} ${y - 0.5} ${x - 12.6} ${y + 1} Z`}
+            d={`M${x - 12.4} ${y + 1} A12.4 12.4 0 0 1 ${x + 12.4} ${y + 1} Q${x + 11.5} ${y - 4} ${x + 6} ${y - 6} Q${x - 2} ${y - 7} ${x - 9} ${y - 1.5} Q${x - 11.5} ${y - 0.5} ${x - 12.4} ${y + 1} Z`}
             fill={C.cabelo}
           />
-          <path d={`M${x + 4} ${y - 12} Q${x + 5.5} ${y - 9} ${x + 6} ${y - 6.5}`} fill="none" stroke={C.cabeloClaro} strokeWidth={1.2} strokeLinecap="round" />
-          {/* Olhos escuros com brilho */}
-          <circle cx={x - 4.3} cy={y + 2.5} r={2} fill={C.contorno} />
-          <circle cx={x + 4.3} cy={y + 2.5} r={2} fill={C.contorno} />
-          <circle cx={x - 3.7} cy={y + 1.8} r={0.7} fill="#fff" />
-          <circle cx={x + 4.9} cy={y + 1.8} r={0.7} fill="#fff" />
-          <path d={`M${x - 3} ${y + 7.5} Q${x} ${y + 9} ${x + 3} ${y + 7.5}`} fill="none" stroke={C.contorno} strokeWidth={1.4} strokeLinecap="round" />
+          <path d={`M${x - 3} ${y - 11} Q${x + 2} ${y - 17} ${x + 8} ${y - 15} Q${x + 5} ${y - 13} ${x + 7} ${y - 10} Z`} fill={C.cabelo} />
+          <path d={`M${x - 4} ${y - 8} Q${x + 1} ${y - 11} ${x + 6} ${y - 9}`} fill="none" stroke={C.cabeloClaro} strokeWidth={1} strokeLinecap="round" />
+          {/* Sobrancelhas, olhos grandes, bochechas e sorriso */}
+          <path d={`M${x - 7} ${y - 1.6} Q${x - 4.5} ${y - 3} ${x - 2} ${y - 1.8}`} fill="none" stroke={C.cabelo} strokeWidth={1.3} strokeLinecap="round" />
+          <path d={`M${x + 2} ${y - 1.8} Q${x + 4.5} ${y - 3} ${x + 7} ${y - 1.6}`} fill="none" stroke={C.cabelo} strokeWidth={1.3} strokeLinecap="round" />
+          <Olho x={x - 4.4} y={y + 2.6} />
+          <Olho x={x + 4.4} y={y + 2.6} />
+          <circle cx={x - 7.5} cy={y + 7} r={1.8} fill="#f4a3a3" opacity={0.6} />
+          <circle cx={x + 7.5} cy={y + 7} r={1.8} fill="#f4a3a3" opacity={0.6} />
+          <path d={`M${x - 2.6} ${y + 8.2} Q${x} ${y + 9.8} ${x + 2.6} ${y + 8.2}`} fill="none" stroke={C.contorno} strokeWidth={1.2} strokeLinecap="round" />
         </>
       ) : (
         <>
-          {/* De perfil, olhando para a direita: cabelo atrás e em cima, orelha, olho na frente */}
-          <path d={`M${x - 10} ${y + 7.6} A12.6 12.6 0 0 1 ${x + 9.2} ${y - 8.6} Q${x + 4} ${y - 3} ${x - 2} ${y - 3.5} Q${x - 4} ${y + 3} ${x - 10} ${y + 7.6} Z`} fill={C.cabelo} />
-          <ellipse cx={x - 3} cy={y + 3.5} rx={2} ry={2.8} fill={C.pele} stroke={C.peleEscura} strokeWidth={1.2} />
-          <circle cx={x + 6.5} cy={y + 2} r={2} fill={C.contorno} />
-          <circle cx={x + 7.1} cy={y + 1.3} r={0.7} fill="#fff" />
-          <path d={`M${x + 5} ${y + 8} Q${x + 7.5} ${y + 8.8} ${x + 9} ${y + 7}`} fill="none" stroke={C.contorno} strokeWidth={1.4} strokeLinecap="round" />
+          {/* De perfil, olhando para a direita: cabelo atrás e em cima, topete, orelha, olho na frente */}
+          <circle cx={x} cy={y} r={12} fill={C.pele} stroke={C.contorno} strokeWidth={1.6} />
+          <path d={`M${x - 10} ${y + 7.6} A12.4 12.4 0 0 1 ${x + 9.2} ${y - 8.4} Q${x + 4} ${y - 3} ${x - 2} ${y - 3.5} Q${x - 4} ${y + 3} ${x - 10} ${y + 7.6} Z`} fill={C.cabelo} />
+          <path d={`M${x - 2} ${y - 11} Q${x + 4} ${y - 17} ${x + 11} ${y - 13} Q${x + 7} ${y - 12} ${x + 8} ${y - 9} Z`} fill={C.cabelo} />
+          <ellipse cx={x - 3} cy={y + 3.5} rx={2.2} ry={3} fill={C.pele} stroke={C.peleEscura} strokeWidth={1.2} />
+          <path d={`M${x + 4} ${y - 1.8} Q${x + 6.5} ${y - 3} ${x + 9} ${y - 1.6}`} fill="none" stroke={C.cabelo} strokeWidth={1.3} strokeLinecap="round" />
+          <Olho x={x + 6.4} y={y + 2.4} />
+          <path d={`M${x + 5} ${y + 8.2} Q${x + 7.5} ${y + 9} ${x + 9.4} ${y + 7.2}`} fill="none" stroke={C.contorno} strokeWidth={1.2} strokeLinecap="round" />
         </>
       )}
     </g>
@@ -134,7 +162,6 @@ function Cabeca({ centro, pescoco, vista }: { centro: P; pescoco: P; vista: Pose
 
 /** Calção de frente: uma peça só (cintura, gancho e as duas pernas), sem risco no meio */
 function CalcaoDeFrente({ quadril, quadris, joelhos, descer, largura }: { quadril: P; quadris: [P, P]; joelhos: [P, P]; descer: P; largura: P }) {
-  const pontos: P[] = []
   const cintura = (lado: number) => soma(soma(quadril, vezes(largura, 13 * lado)), vezes(descer, -6))
   const barra = (i: 0 | 1) => {
     const fim = entre(quadris[i], joelhos[i], CALCAO)
@@ -146,8 +173,8 @@ function CalcaoDeFrente({ quadril, quadris, joelhos, descer, largura }: { quadri
   }
   const esq = barra(0)
   const dir = barra(1)
-  pontos.push(cintura(1), esq.fora, esq.dentro, soma(quadril, vezes(descer, 8)), dir.dentro, dir.fora, cintura(-1))
-  return <polygon points={pontos.map((q) => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join(' ')} fill={C.limao} stroke={C.contorno} strokeWidth={1.6} strokeLinejoin="round" />
+  const pontos = [cintura(1), esq.fora, esq.dentro, soma(quadril, vezes(descer, 8)), dir.dentro, dir.fora, cintura(-1)]
+  return <polygon points={pontosSvg(pontos)} fill={C.preto} stroke={C.contorno} strokeWidth={1.6} strokeLinejoin="round" />
 }
 
 /** O goleiro inteiro numa pose (sem chão, bola e setas, que ficam com o DesenhoGesto) */
@@ -169,12 +196,11 @@ export function CorpoGoleiro({ pose }: { pose: Pose }) {
   return (
     <g>
       <defs>
-        {/* Camisa: peito preto que vira verde-limão na barriga, como no uniforme */}
+        {/* Camisa laranja, um pouco mais escura embaixo (dá volume) */}
         <linearGradient id={gradiente} gradientUnits="userSpaceOnUse" x1={pose.pescoco.x} y1={pose.pescoco.y} x2={pose.quadril.x} y2={pose.quadril.y}>
-          <stop offset="0" stopColor={C.preto} />
-          <stop offset="0.45" stopColor={C.preto} />
-          <stop offset="0.72" stopColor={C.limao} />
-          <stop offset="1" stopColor={C.limao} />
+          <stop offset="0" stopColor={C.laranja} />
+          <stop offset="0.7" stopColor={C.laranja} />
+          <stop offset="1" stopColor={C.laranjaEscuro} />
         </linearGradient>
       </defs>
 
@@ -191,16 +217,14 @@ export function CorpoGoleiro({ pose }: { pose: Pose }) {
         </>
       )}
 
-      {/* Pescoço, tronco (camisa, que cobre a cintura do calção) e golinha em V */}
+      {/* Pescoço, tronco (camisa, que cobre a cintura do calção) e gola em V preta */}
       <Traco pontos={[pose.pescoco, entre(pose.pescoco, pose.cabeca, 0.5)]} largura={7} cor={C.pele} />
-      {lado && <Traco pontos={[pose.quadril, pose.quadril]} largura={17} cor={C.limao} />}
-      <Traco pontos={[soma(pose.pescoco, vezes(descer, 3)), soma(pose.quadril, vezes(descer, lado ? -4 : -9))]} largura={lado ? 19 : 25} cor={C.preto} url={`url(#${gradiente})`} />
+      {lado && <Traco pontos={[pose.quadril, pose.quadril]} largura={17} cor={C.preto} />}
+      <Traco pontos={[soma(pose.pescoco, vezes(descer, 3)), soma(pose.quadril, vezes(descer, lado ? -4 : -9))]} largura={lado ? 19 : 25} cor={C.laranja} url={`url(#${gradiente})`} />
       <polyline
-        points={[soma(soma(pose.pescoco, vezes(largura, 4.5)), vezes(descer, 1.5)), soma(pose.pescoco, vezes(descer, 6)), soma(soma(pose.pescoco, vezes(largura, -4.5)), vezes(descer, 1.5))]
-          .map((q) => `${q.x.toFixed(1)},${q.y.toFixed(1)}`)
-          .join(' ')}
+        points={pontosSvg([soma(soma(pose.pescoco, vezes(largura, 4.5)), vezes(descer, 1.5)), soma(pose.pescoco, vezes(descer, 6)), soma(soma(pose.pescoco, vezes(largura, -4.5)), vezes(descer, 1.5))])}
         fill="none"
-        stroke={C.limao}
+        stroke={C.preto}
         strokeWidth={2.4}
         strokeLinecap="round"
         strokeLinejoin="round"

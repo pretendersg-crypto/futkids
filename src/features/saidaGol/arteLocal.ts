@@ -1,15 +1,18 @@
-// Arte local dos gestos: imagens do aluno (avatares feitos a partir da foto dele) que ficam SÓ no
-// computador da família, na pasta src/local/goleiro3d/ (está no .gitignore: nunca vai para o GitHub
-// nem para o site publicado). Nome do arquivo = id da pose (ex.: base.webp, alta.png).
-// Rodando o app localmente (npm run dev), o desenho do gesto mostra essa imagem; no site publicado a
-// pasta não existe e fica o goleiro desenhado de sempre.
-const ARQUIVOS = import.meta.glob<string>('../../local/goleiro3d/*.{webp,png,jpg,jpeg}', { eager: true, query: '?url', import: 'default' })
+// Arte 3D dos gestos (goleiro de uniforme laranja), em dois lugares:
+//  - src/assets/goleiro3d/<pose>.webp: arte do app, pública (vai para o site). Só personagem genérico,
+//    feito por texto (nunca a partir de foto de criança) e sem marcas reais;
+//  - src/local/goleiro3d/<pose>.(webp|png|jpg): arte da família, que fica SÓ no computador (a pasta
+//    está no .gitignore: nunca vai para o GitHub nem para o site). Quando existe, vale mais que a do app.
+// Nome do arquivo = id da pose (ex.: base.webp). Sem arte, fica o goleiro desenhado (que se mexe).
+const DO_APP = import.meta.glob<string>('../../assets/goleiro3d/*.{webp,png,jpg,jpeg}', { eager: true, query: '?url', import: 'default' })
+const DA_FAMILIA = import.meta.glob<string>('../../local/goleiro3d/*.{webp,png,jpg,jpeg}', { eager: true, query: '?url', import: 'default' })
 
-const POR_POSE: Record<string, string> = Object.fromEntries(
-  Object.entries(ARQUIVOS).map(([caminho, url]) => [caminho.split('/').pop()!.replace(/\.[^.]+$/, ''), url]),
-)
+const porPose = (arquivos: Record<string, string>) =>
+  Object.fromEntries(Object.entries(arquivos).map(([caminho, url]) => [caminho.split('/').pop()!.replace(/\.[^.]+$/, ''), url]))
 
-/** Imagem local da pose, se a família colocou uma */
+const POR_POSE: Record<string, string> = { ...porPose(DO_APP), ...porPose(DA_FAMILIA) }
+
+/** Arte 3D da pose (a da família primeiro, depois a do app), se existe */
 export function arteLocalDaPose(pose: string): string | undefined {
   return POR_POSE[pose]
 }
