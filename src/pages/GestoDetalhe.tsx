@@ -6,7 +6,7 @@ import { BarraAula } from '../components/ui/BarraAula'
 import { VideoReal } from '../components/video/VideoReal'
 import { CIRCUITOS } from '../features/saidaGol/circuitos'
 import { categoriaGestoPorId } from '../features/saidaGol/gestos'
-import { arteLocalDaPose } from '../features/saidaGol/arteLocal'
+import { arteDaPose } from '../features/saidaGol/arteLocal'
 import { DesenhoGesto } from '../features/saidaGol/DesenhoGesto'
 import { etapaDoGesto, filaDaTrilha } from '../features/saidaGol/trilha'
 import { useGestos } from '../features/saidaGol/useGestos'
@@ -54,8 +54,8 @@ export function GestoDetalhe() {
       <div className="self-center rounded-3xl bg-green-50 p-2">
         <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={220} />
       </div>
-      {/* Com a arte do aluno no lugar, o goleiro desenhado (que se mexe) aparece menor, ao lado */}
-      {gesto.desenho.tipo === 'pose' && arteLocalDaPose(gesto.desenho.pose) && (
+      {/* Com a arte 3D no lugar, o goleiro desenhado (com as setas do movimento) aparece menor, ao lado */}
+      {gesto.desenho.tipo === 'pose' && arteDaPose(gesto.desenho.pose) && (
         <div className="flex items-center gap-3 self-center rounded-2xl bg-white p-2">
           <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={90} comArte={false} />
           <p className="max-w-40 text-sm font-bold">🎞️ O movimento, no goleiro desenhado</p>

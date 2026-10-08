@@ -237,6 +237,13 @@ A ordem da trilha (etapas e gestos de cada uma) fica em `src/features/saidaGol/t
 concluídos, em `futkids-gestos-concluidos`. As aulas da Hotmart estão no campo `video` de cada gesto
 (`aulaFFutsal('<id da aula>')`, o id é o final do endereço `.../content/<id>`).
 
+**Arte 3D do goleiro (imagem e vídeo):** coloque em `src/assets/goleiro3d/` um arquivo com o nome da pose
+(`base.webp`, `cruz.mp4`...). A imagem entra no lugar do desenho; o vídeo curto (3 a 5 s, sem som) roda em
+loop nos desenhos grandes, com a imagem de capa enquanto carrega, e fica parado nas miniaturas. Os vídeos
+não entram no pacote inicial do app: são guardados na 1ª vez que o gesto é aberto e depois tocam sem
+internet. Só personagem feito por texto e sem marcas reais (essa pasta vai para o site). A pasta
+`src/local/goleiro3d/` (fora do git) faz o mesmo só no computador da família e vale mais que a do app.
+
 ### Puzzles do Futsal Tático: `src/features/tatica/puzzles/`
 
 Um arquivo por tipo (`ataque.ts`, `defesa.ts`, `transicao.ts`, `bolaParada.ts`) e um só da saída de bola do

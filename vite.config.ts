@@ -42,6 +42,21 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         // Cacheia o app inteiro para funcionar offline; vídeos ficam fora (são grandes)
         globPatterns: ['**/*.{js,css,html,svg,png,webp,json,mp3,ogg}'],
+        // Vídeos curtos dos gestos (src/assets/goleiro3d): ficam fora do pacote inicial e são guardados
+        // na 1ª vez que a criança abre o gesto; depois tocam sem internet. "rangeRequests" é o que
+        // deixa o vídeo guardado tocar no iPhone (ele pede o vídeo em pedaços).
+        runtimeCaching: [
+          {
+            urlPattern: /\.(?:mp4|webm)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'videos-gestos',
+              expiration: { maxEntries: 60 },
+              cacheableResponse: { statuses: [0, 200] },
+              rangeRequests: true,
+            },
+          },
+        ],
         // Lembrete de treino em segundo plano e clique na notificação (public/lembrete-sw.js)
         importScripts: ['lembrete-sw.js'],
       },

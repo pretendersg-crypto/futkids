@@ -1,13 +1,13 @@
 // Desenho de um gesto técnico do goleiro: o goleiro uniformizado (CorpoGoleiro) na pose do gesto,
 // com a bola e setas mostrando o movimento. Poses com animação (animacoes.ts) se mexem: os pontos do
 // corpo vão e voltam entre os quadros. Se os pais trocaram o desenho por uma imagem/GIF própria,
-// mostra a imagem. Rodando localmente, a arte do aluno (src/local/goleiro3d, fora do GitHub) entra no
-// lugar do goleiro desenhado.
+// mostra a imagem. Com arte 3D (arteLocal.ts: imagem e/ou vídeo curto), ela entra no lugar do goleiro
+// desenhado: o vídeo roda em loop, sem som, nos desenhos grandes; nas miniaturas fica parado.
 import { useEffect, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { useImagemLocal } from '../../hooks/useImagemLocal'
 import { ANIMACOES, poseNoTempo } from './animacoes'
-import { arteLocalDaPose } from './arteLocal'
+import { arteDaPose, type Arte } from './arteLocal'
 import { CorpoGoleiro } from './CorpoGoleiro'
 import { POSES, type Desenho, type Pose, type PoseId } from './gestos'
 
@@ -20,24 +20,53 @@ interface Props {
   comNome?: boolean
   /** Anima a pose (quando ela tem animação). Padrão: sim, a partir de 90 px */
   animado?: boolean
-  /** Mostra a arte local do aluno no lugar do desenho, quando existe (padrão: sim) */
+  /** Mostra a arte 3D (imagem ou vídeo) no lugar do desenho, quando existe (padrão: sim) */
   comArte?: boolean
 }
 
 export function DesenhoGesto({ desenho, nome, tamanho = 160, comNome = false, animado = tamanho >= 90, comArte = true }: Props) {
-  const arte = desenho.tipo === 'pose' && comArte ? arteLocalDaPose(desenho.pose) : undefined
+  const arte = desenho.tipo === 'pose' && comArte ? arteDaPose(desenho.pose) : undefined
   return (
     <figure className="flex flex-col items-center gap-1">
       {desenho.tipo === 'imagem' ? (
         <ImagemPropria id={desenho.id} nome={nome} tamanho={tamanho} />
       ) : arte ? (
-        <img src={arte} alt={`Como fazer: ${nome}`} style={{ width: tamanho, height: (tamanho * 150) / 140 }} className="object-contain" />
+        <ArteGesto arte={arte} nome={nome} tamanho={tamanho} animado={animado} />
       ) : (
         <Boneco pose={desenho.pose} nome={nome} tamanho={tamanho} animado={animado} />
       )}
       {comNome && <figcaption className="text-center text-base leading-tight font-extrabold">{nome}</figcaption>}
     </figure>
   )
+}
+
+/** Arte 3D: vídeo em loop (desenho grande) ou a imagem/primeiro quadro do vídeo (miniatura) */
+function ArteGesto({ arte, nome, tamanho, animado }: { arte: Arte; nome: string; tamanho: number; animado: boolean }) {
+  const reduzir = useReducedMotion()
+  const estilo = { width: tamanho, height: (tamanho * 150) / 140 }
+  const rodar = arte.video && animado && tamanho >= 150
+  if (rodar) {
+    return (
+      <video
+        key={arte.video}
+        src={arte.video}
+        poster={arte.imagem}
+        // Sem som e "playsInline": é o que deixa o celular tocar sozinho, dentro da página
+        muted
+        loop
+        playsInline
+        autoPlay={!reduzir}
+        controls={Boolean(reduzir)}
+        preload="auto"
+        aria-label={`Vídeo: como fazer ${nome}`}
+        style={estilo}
+        className="object-contain"
+      />
+    )
+  }
+  if (arte.imagem) return <img src={arte.imagem} alt={`Como fazer: ${nome}`} style={estilo} className="object-contain" />
+  // Só vídeo, em miniatura: mostra o primeiro quadro, parado
+  return <video src={`${arte.video}#t=0.1`} muted playsInline preload="metadata" aria-label={`Como fazer: ${nome}`} style={estilo} className="object-contain" />
 }
 
 function ImagemPropria({ id, nome, tamanho }: { id: string; nome: string; tamanho: number }) {
