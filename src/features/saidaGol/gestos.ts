@@ -299,13 +299,20 @@ export interface Gesto {
   /** O erro mais comum, para o adulto corrigir */
   atencao: string
   desenho: Desenho
-  /** Vídeo real no YouTube (link colocado pelos pais) */
+  /** Vídeo real: link do YouTube ou de uma aula da Hotmart */
   video?: string
   /** Vídeo gravado no aparelho (id no IndexedDB) */
   videoLocal?: string
 }
 
 const pose = (id: PoseId): Desenho => ({ tipo: 'pose', pose: id })
+
+/**
+ * Aula do curso FFutsal "Goleiro de futsal do 0" (Hotmart Club) com o mesmo gesto. É um curso pago:
+ * o link só abre para quem está logado na Hotmart e comprou o curso (o app não copia nada do vídeo).
+ * Links conferidos na área de membros em 07/10/2026; os pais podem trocar ou tirar no editor do gesto.
+ */
+const aulaFFutsal = (id: string) => `https://hotmart.com/pt-BR/club/ffutsal/products/1563064/content/${id}`
 
 export const GESTOS_PRONTOS: Gesto[] = [
   // ---------- Postura e posicionamento ----------
@@ -336,6 +343,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Ficar sempre no meio do gol, mesmo com a bola na lateral: um canto fica todo aberto.',
     desenho: pose('posicionamento'),
+    video: aulaFFutsal('2OME31QnO6'),
   },
   {
     id: 'lateral',
@@ -350,6 +358,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Cruzar as pernas: se a bola vier nessa hora, o goleiro cai.',
     desenho: pose('lateral'),
+    video: aulaFFutsal('M7qZErRmOx'),
   },
   {
     id: 'passo-cruzado',
@@ -459,6 +468,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Chutar a bola para o meio: a defesa com o pé só bloqueia, não chuta.',
     desenho: pose('defesa-pe'),
+    video: aulaFFutsal('x7WldKr2O2'),
   },
   // ---------- Quedas ----------
   {
@@ -474,6 +484,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Cair de barriga ou com o braço esticado no chão: dói e pode machucar. Treine na grama ou no colchonete.',
     desenho: pose('queda-lateral'),
+    video: aulaFFutsal('ROxYWzlK4D'),
   },
   {
     id: 'mergulho',
@@ -487,6 +498,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Mergulhar sem necessidade: se dá para chegar com um passo, não pule. Só com colchonete para os pequenos.',
     desenho: pose('mergulho'),
+    video: aulaFFutsal('Z722YPVL7N'),
   },
   // ---------- 1 contra 1 ----------
   {
@@ -502,6 +514,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Fazer a cruz cedo demais (longe do atacante): ele dribla ou chuta por cima.',
     desenho: pose('cruz'),
+    video: aulaFFutsal('64l9Xbobej'),
   },
   {
     id: 'abafa',
@@ -516,6 +529,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Ir de cabeça ou de frente para o pé do atacante: perigo de levar chute. Só com a orientação de um adulto.',
     desenho: pose('abafa'),
+    video: aulaFFutsal('YOm9XBvQOd'),
   },
   {
     id: 'estrela',
@@ -529,6 +543,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Abrir antes da hora: ele espera e chuta por baixo das pernas.',
     desenho: pose('estrela'),
+    video: aulaFFutsal('YOm9XBvQOd'),
   },
   // ---------- Reposição ----------
   {
@@ -543,6 +558,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Soltar a bola alta: ela quica e o companheiro tem dificuldade para dominar.',
     desenho: pose('rolar'),
+    video: aulaFFutsal('R4jX3XMy7a'),
   },
   {
     id: 'reposicao-alta',
@@ -557,6 +573,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Lançar alto demais: a bola demora e o adversário chega antes.',
     desenho: pose('reposicao-alta'),
+    video: aulaFFutsal('z7rmJzzNej'),
   },
   {
     id: 'reposicao-pe',
@@ -570,6 +587,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Chutão sem direção: quase sempre a bola volta para o adversário.',
     desenho: pose('reposicao-pe'),
+    video: aulaFFutsal('gOpRJdzVeJ'),
   },
   // ---------- Jogo com os pés ----------
   {
@@ -585,6 +603,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Ficar muito tempo com a bola longe do gol: se perder, o gol fica vazio.',
     desenho: pose('reposicao-pe'),
+    video: aulaFFutsal('r48nBV1v7R'),
   },
   // ---------- Comunicação ----------
   {
@@ -599,6 +618,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     ],
     atencao: 'Ficar calado: a defesa não sabe quem marca quem.',
     desenho: pose('comunicacao'),
+    video: aulaFFutsal('kOXgNXoX7W'),
   },
 ]
 

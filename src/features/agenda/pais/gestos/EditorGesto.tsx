@@ -1,14 +1,14 @@
 // Criar ou mudar um fundamento/gesto do goleiro (área dos pais): nome, categoria, resumo, como
-// fazer, cuidado, desenho (um dos prontos ou imagem/GIF própria) e vídeo real (YouTube e/ou
-// gravado). Só grava ao tocar em "Salvar gesto".
+// fazer, cuidado, desenho (um dos prontos ou imagem/GIF própria) e vídeo real (YouTube/Hotmart
+// e/ou gravado). Só grava ao tocar em "Salvar gesto".
 import { useState, type ChangeEvent } from 'react'
-import { CATEGORIAS_GESTO, POSE_IDS, type Gesto } from '../../../saidaGol/gestos'
+import { CATEGORIAS_GESTO, gestoProntoPorId, POSE_IDS, type Gesto } from '../../../saidaGol/gestos'
 import { DesenhoGesto } from '../../../saidaGol/DesenhoGesto'
 import { useGestos } from '../../../saidaGol/useGestos'
 import { ehGestoPronto, useGestosStore } from '../../../../stores/gestosStore'
 import { pontuarTreinador } from '../../../../stores/treinadorStore'
 import { limparMidiaSolta } from '../../../../utils/limparMidia'
-import { linkYoutube } from '../../../../utils/link'
+import { linkDeVideo } from '../../../../utils/link'
 import { salvarImagem } from '../../../../utils/midiaLocal'
 import { CampoVideoReal } from '../CampoVideoReal'
 
@@ -72,11 +72,13 @@ export function EditorGesto({ id, aoVoltar }: Props) {
     if (!g.nome.trim()) return setErro('Dê um nome ao gesto.')
     const comoFazer = g.comoFazer.map((t) => t.trim()).filter(Boolean)
     if (comoFazer.length === 0) return setErro('Escreva pelo menos um passo de "como fazer".')
-    const video = g.video?.trim() ? linkYoutube(g.video) : undefined
-    if (g.video?.trim() && !video) return setErro('O link do vídeo precisa ser do YouTube (youtube.com ou youtu.be).')
+    const video = g.video?.trim() ? linkDeVideo(g.video) : undefined
+    if (g.video?.trim() && !video) return setErro('O link do vídeo precisa ser do YouTube (youtube.com ou youtu.be) ou de uma aula da Hotmart.')
     loja.salvarGesto({ ...g, nome: g.nome.trim(), resumo: g.resumo.trim(), atencao: g.atencao.trim(), comoFazer, video: video ?? undefined })
     if (!id) pontuarTreinador('criarGesto', g.id, `Criou o gesto "${g.nome.trim()}"`)
-    if (video || g.videoLocal) pontuarTreinador('videoReal', `gesto:${g.id}`, `Colocou vídeo real em "${g.nome.trim()}"`)
+    // A aula que já vem no gesto do app não conta: só o vídeo que o adulto colocou
+    const videoNovo = video && video !== gestoProntoPorId(g.id)?.video
+    if (videoNovo || g.videoLocal) pontuarTreinador('videoReal', `gesto:${g.id}`, `Colocou vídeo real em "${g.nome.trim()}"`)
     voltar()
   }
 

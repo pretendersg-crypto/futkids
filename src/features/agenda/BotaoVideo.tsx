@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Modal } from '../../components/ui/Modal'
 import { PortaoDosPais } from '../../components/ui/PortaoDosPais'
-import { linkSeguro, siteDoLink } from '../../utils/link'
+import { linkSeguro, origemDoVideo, siteDoLink } from '../../utils/link'
 
 interface Props {
   url: string
@@ -48,7 +48,13 @@ export function BotaoVideo({ url, titulo, semPortao = false, className = '', rot
       <Modal aberto={janela !== 'fechada'} aoFechar={() => setJanela('fechada')} titulo="🎬 Vídeo do treinador">
         {janela === 'portao' && (
           <>
-            <p className="text-base">O vídeo abre fora do app (no YouTube). Assista junto com a criança.</p>
+            {origemDoVideo(url) === 'hotmart' ? (
+              <p className="text-base">
+                A aula abre fora do app, na <b>Hotmart</b>. Só funciona para quem está logado e tem o curso. Assista junto com a criança.
+              </p>
+            ) : (
+              <p className="text-base">O vídeo abre fora do app (no {siteDoLink(url) || 'site do vídeo'}). Assista junto com a criança.</p>
+            )}
             <PortaoDosPais aoLiberar={() => setJanela('liberado')} />
           </>
         )}

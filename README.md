@@ -23,16 +23,23 @@ Treinos, Futsal Tático e os itens da Agenda):
   + **Saída do gol com cones**: 7 circuitos (sai e volta, saída em V, arco do gol, encaixe e reposição,
   1 contra 1 com a cruz, bola alta, circuito completo) com o desenho da quadra, os cones e as setas de cada
   passo (o goleiro anda pelo desenho), e o **gesto técnico desenhado** em cada passo
-  + **📖 Fundamentos e gestos**: catálogo com 21 gestos desenhados em 9 categorias (postura e
-  posicionamento, saída do gol, encaixe, desvios, quedas, 1 contra 1, reposição, jogo com os pés,
-  comunicação), cada um com como fazer, o erro comum e os **vídeos reais** colocados pelos pais
+  + **📖 Fundamentos e gestos**: 21 gestos desenhados numa **trilha de curso** em 4 etapas, na ordem de
+  um curso de goleiro de futsal: 1 Defesas e quedas (começa pela posição base) → 2 Posicionamento →
+  3 Reposição → 4 No jogo. Gestos numerados, ✅ nos concluídos, progresso "X de 21 · %" e botão
+  Começar/Continuar. Cada gesto tem como fazer, o erro comum, os **vídeos reais** e, embaixo, a barra
+  **⏮ Anterior · 📋 Lista · ✅ Concluída · ⏭ Próximo**. Gestos criados pelos pais entram na etapa da categoria
+  + **🎓 Aulas do curso FFutsal**: 13 dos 21 gestos já vêm com o link da aula equivalente do curso pago
+  "Goleiro de futsal do 0" (Hotmart Club). O link só abre para quem está logado na Hotmart e tem o curso;
+  o app não copia nada do vídeo
 - **Vídeos reais** (aba Pais): em cada gesto do goleiro e em cada exercício do "Treinar" dá para colocar
-  um link do YouTube (abre fora do app, com o portão dos pais) e/ou um vídeo gravado no celular (até 60 MB,
+  um link do YouTube ou de uma aula da Hotmart (abre fora do app, com o portão dos pais) e/ou um vídeo gravado no celular (até 60 MB,
   toca no app, fica só no aparelho, no IndexedDB `futkids-midia`)
 - **Treinos de fundamentos** (aba Pais → 📋 Treinos de fundamentos): escolher gestos do catálogo, quantas
   vezes ou quantos segundos cada um (e um recado), dar um nome e salvar. Aparecem na tela do Goleiro e podem
   entrar em qualquer dia da agenda (toque no dia → "Incluir treino"); fazer o treino marca o dia. Vêm 3
-  prontos (Fundamentos básicos, Defesa no 1 contra 1, Quedas e desvios), que dá para mudar ou apagar
+  prontos (Fundamentos básicos, Defesa no 1 contra 1, Quedas e desvios), que dá para mudar ou apagar. Cada
+  passo do treino tem a mesma barra Anterior · Lista · Concluída · Próximo (por tempo, só conclui depois do
+  cronômetro); concluir no treino também marca o gesto na trilha
 - **Pai/Mãe Treinador** (topo da aba Pais): avatar desenhado de Pai ou Mãe (pele, cabelo, barba, óculos,
   brincos, agasalho) e gamificação do adulto. Ganha XP ao **planejar** (criar treinos de fundamentos, planejar
   dias, colocar vídeos, criar gestos e drills), **estudar** (8 lições curtas com quiz: como ensinar, segurança,
@@ -226,6 +233,9 @@ qual, o `movimento` (`parado`, `saida`, `recuo`, `lateral` ou `bola`), o `gesto`
 Os gestos (categoria, "como fazer", cuidado e desenho) ficam em `src/features/saidaGol/gestos.ts`
 (`GESTOS_PRONTOS`); os desenhos são poses do bonequinho em `POSES` (cabeça, pescoço, quadril, cotovelos,
 mãos, joelhos e pés num quadro de 140 x 150). O que os pais mudam ou criam fica em `futkids-gestos`.
+A ordem da trilha (etapas e gestos de cada uma) fica em `src/features/saidaGol/trilha.ts`; os gestos
+concluídos, em `futkids-gestos-concluidos`. As aulas da Hotmart estão no campo `video` de cada gesto
+(`aulaFFutsal('<id da aula>')`, o id é o final do endereço `.../content/<id>`).
 
 ### Puzzles do Futsal Tático: `src/features/tatica/puzzles/`
 
@@ -323,7 +333,7 @@ src/
 │                 conquistas, avatar
 ├── stores/       zustand + localStorage: userStore, progressStore, achievementsStore,
 │                 agendaStore, configStore, treinosStore, reacaoStore, taticaStore, gestosStore,
-│                 treinosFundamentosStore, treinadorStore
+│                 treinosFundamentosStore, treinadorStore, gestosConcluidosStore
 ├── data/         conteúdos (exercícios, vídeos, conquistas, agenda, apelidos, mascote)
 ├── hooks/        useTimer, useSensor, useLoopJogo, useWakeLock
 ├── pages/        uma tela por rota (as maiores carregam sob demanda)

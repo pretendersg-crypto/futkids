@@ -1,16 +1,33 @@
 // Um fundamento/gesto do goleiro (/goleiro/gestos/:gesto): desenho grande, como fazer, o erro
-// mais comum, os vídeos reais (gravado e/ou YouTube) e os circuitos com cones que usam o gesto.
-import { Link, Navigate, useParams } from 'react-router'
+// mais comum, os vídeos reais (gravado, YouTube ou aula da Hotmart) e os circuitos com cones que usam
+// o gesto. Embaixo, a barra de curso: Anterior / Lista / Concluída / Próximo, na ordem da trilha.
+import { Link, Navigate, useNavigate, useParams } from 'react-router'
+import { BarraAula } from '../components/ui/BarraAula'
 import { VideoReal } from '../components/video/VideoReal'
 import { CIRCUITOS } from '../features/saidaGol/circuitos'
 import { categoriaGestoPorId } from '../features/saidaGol/gestos'
 import { DesenhoGesto } from '../features/saidaGol/DesenhoGesto'
-import { useGesto } from '../features/saidaGol/useGestos'
+import { etapaDoGesto, filaDaTrilha } from '../features/saidaGol/trilha'
+import { useGestos } from '../features/saidaGol/useGestos'
+import { useGestosConcluidosStore } from '../stores/gestosConcluidosStore'
+import { sons } from '../utils/som'
 
 export function GestoDetalhe() {
-  const gesto = useGesto(useParams().gesto)
+  const id = useParams().gesto
+  const navegar = useNavigate()
+  const fila = filaDaTrilha(useGestos())
+  const concluida = useGestosConcluidosStore((s) => Boolean(id && s.concluidos[id]))
+  const posicao = fila.findIndex((g) => g.id === id)
+  const gesto = fila[posicao]
   if (!gesto) return <Navigate to="/goleiro/gestos" replace />
   const categoria = categoriaGestoPorId(gesto.categoria)
+  const etapa = etapaDoGesto(gesto)
+  const anterior = fila[posicao - 1]
+  const proximo = fila[posicao + 1]
+  const irPara = (g: { id: string }) => {
+    navegar(`/goleiro/gestos/${g.id}`, { replace: true })
+    window.scrollTo({ top: 0 })
+  }
   const circuitos = CIRCUITOS.filter((c) => c.passos.some((p) => p.gesto === gesto.id))
 
   return (
@@ -22,8 +39,16 @@ export function GestoDetalhe() {
         <h1 className="flex-1 text-2xl font-extrabold">{gesto.nome}</h1>
       </header>
 
-      <p className="self-start rounded-full bg-sky-100 px-3 py-1 text-sm font-extrabold">
-        {categoria.emoji} {categoria.nome}
+      <p className="flex flex-wrap gap-2 text-sm font-extrabold">
+        <span className="rounded-full bg-sky-600 px-3 py-1 text-white">
+          Etapa {etapa.numero} · {etapa.emoji} {etapa.nome}
+        </span>
+        <span className="rounded-full bg-white px-3 py-1">
+          Gesto {posicao + 1} de {fila.length}
+        </span>
+        <span className="rounded-full bg-sky-100 px-3 py-1">
+          {categoria.emoji} {categoria.nome}
+        </span>
       </p>
       <div className="self-center rounded-3xl bg-green-50 p-2">
         <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={220} />
@@ -49,7 +74,7 @@ export function GestoDetalhe() {
           <VideoReal titulo={gesto.nome} video={gesto.video} videoLocal={gesto.videoLocal} />
         ) : (
           <p className="rounded-2xl bg-white p-3 text-sm">
-            Ainda sem vídeo. Um adulto pode colocar um link do YouTube ou gravar o gesto em <b>Agenda → 👨‍👩‍👧 Pais → 🧤 Fundamentos e gestos</b>.
+            Ainda sem vídeo. Um adulto pode colocar um link do YouTube ou de uma aula da Hotmart, ou gravar o gesto em <b>Agenda → 👨‍👩‍👧 Pais → 🧤 Fundamentos e gestos</b>.
           </p>
         )}
       </div>
@@ -64,6 +89,19 @@ export function GestoDetalhe() {
           ))}
         </div>
       )}
+
+      <BarraAula
+        aoAnterior={anterior ? () => irPara(anterior) : undefined}
+        aoLista={() => navegar('/goleiro/gestos')}
+        concluida={concluida}
+        aoConcluir={() => {
+          const loja = useGestosConcluidosStore.getState()
+          if (concluida) return loja.desmarcar(gesto.id)
+          loja.marcar(gesto.id)
+          sons.concluido()
+        }}
+        aoProximo={proximo ? () => irPara(proximo) : undefined}
+      />
     </section>
   )
 }

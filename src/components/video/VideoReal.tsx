@@ -1,8 +1,11 @@
 // Vídeos reais colocados pelos pais/treinador num exercício ou gesto:
 //  - gravado no aparelho: toca aqui mesmo, sem internet;
-//  - link do YouTube: abre fora do app, depois do portão dos pais (BotaoVideo).
+//  - link do YouTube ou de uma aula da Hotmart: abre fora do app, depois do portão dos pais (BotaoVideo).
 import { BotaoVideo } from '../../features/agenda/BotaoVideo'
 import { useImagemLocal } from '../../hooks/useImagemLocal'
+import { origemDoVideo } from '../../utils/link'
+
+const ROTULOS = { youtube: '🎬 Ver vídeo real (YouTube)', hotmart: '🎓 Ver a aula (Hotmart)', outro: '🎬 Ver vídeo real' }
 
 interface Props {
   titulo: string
@@ -21,7 +24,7 @@ export function VideoReal({ titulo, video, videoLocal }: Props) {
           <figcaption className="text-center text-sm font-bold">📹 Vídeo gravado pelo treinador</figcaption>
         </figure>
       )}
-      {video && <BotaoVideo url={video} titulo={titulo} className="w-full" rotulo="🎬 Ver vídeo real (YouTube)" />}
+      {video && <BotaoVideo url={video} titulo={titulo} className="w-full" rotulo={ROTULOS[origemDoVideo(video)]} />}
     </div>
   )
 }

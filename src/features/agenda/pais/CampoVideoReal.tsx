@@ -1,5 +1,5 @@
 // Campo "Vídeo real" dos editores dos pais (exercícios e gestos do goleiro):
-//  - link do YouTube (validado ao salvar, com linkYoutube);
+//  - link do YouTube ou de uma aula da Hotmart (validado ao salvar, com linkDeVideo);
 //  - vídeo gravado ou escolhido no celular (fica só no aparelho, no IndexedDB).
 import { useState, type ChangeEvent } from 'react'
 import { useImagemLocal } from '../../../hooks/useImagemLocal'
@@ -36,7 +36,7 @@ export function CampoVideoReal({ video, videoLocal, aoMudar }: Props) {
       <legend className="px-1 text-base font-bold">🎬 Vídeo real (opcional)</legend>
 
       <label className="flex flex-col gap-1 text-sm font-bold">
-        Link do YouTube
+        Link do YouTube ou da aula na Hotmart
         <input
           type="url"
           inputMode="url"
@@ -45,7 +45,7 @@ export function CampoVideoReal({ video, videoLocal, aoMudar }: Props) {
           onChange={(e) => aoMudar({ video: e.target.value || undefined })}
           className="min-h-12 rounded-xl border-2 border-violet-200 px-3 text-base font-normal"
         />
-        <span className="font-normal">Abre fora do app, só depois da conta dos pais.</span>
+        <span className="font-normal">Abre fora do app, só depois da conta dos pais. Aula da Hotmart só abre para quem está logado e tem o curso.</span>
       </label>
 
       <div className="flex flex-col gap-1 text-sm">

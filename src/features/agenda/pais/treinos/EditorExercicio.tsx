@@ -8,7 +8,7 @@ import { ANIMACOES } from '../../../treino/animacoes'
 import { BonecoAnimado } from '../../../treino/BonecoAnimado'
 import { Demonstracao } from '../../../treino/Demonstracao'
 import { descreverMeta, duracaoDoExercicio } from '../../../treino/recompensa'
-import { linkYoutube } from '../../../../utils/link'
+import { linkDeVideo } from '../../../../utils/link'
 import { salvarImagem } from '../../../../utils/midiaLocal'
 import { CampoVideoReal } from '../CampoVideoReal'
 
@@ -49,8 +49,8 @@ export function EditorExercicio({ inicial, aoSalvar }: Props) {
 
   function salvar() {
     if (!ex.nome.trim()) return setErro('Dê um nome ao exercício.')
-    const video = ex.video?.trim() ? linkYoutube(ex.video) : undefined
-    if (ex.video?.trim() && !video) return setErro('O link do vídeo precisa ser do YouTube (youtube.com ou youtu.be).')
+    const video = ex.video?.trim() ? linkDeVideo(ex.video) : undefined
+    if (ex.video?.trim() && !video) return setErro('O link do vídeo precisa ser do YouTube (youtube.com ou youtu.be) ou de uma aula da Hotmart.')
     aoSalvar({
       ...ex,
       video: video ?? undefined,
