@@ -1,8 +1,11 @@
 // Aba "Reação" (/reacao): drills de reação para goleiro (cores, setas e números na tela, ideia
-// do app SwitchedOn) e o histórico. Criar/mudar drills passa pelo portão dos pais.
+// do app SwitchedOn) e o histórico. Os drills ficam em dois blocos: 🎮 na tela (toque) e 🏃 com o
+// corpo (celular no chão); ?tipo=corpo mostra o do corpo primeiro. Criar/mudar drills passa pelo
+// portão dos pais.
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Modal } from '../components/ui/Modal'
+import { BlocoTipo } from '../components/ui/TipoAtividade'
 import { PortaoDosPais } from '../components/ui/PortaoDosPais'
 import { DRILLS_PRONTOS, minutosDoDrill, novoDrill, type Drill } from '../features/reacao/drills'
 import { EditorDrill } from '../features/reacao/EditorDrill'
@@ -87,16 +90,31 @@ export function Reacao() {
         <>
           <p className="text-center text-lg">Cores, setas e números aparecem na tela: reaja rápido como um goleiro!</p>
 
-          <ListaDrills titulo="👆 Na tela" drills={DRILLS_PRONTOS.filter((d) => d.modo === 'toque')} ultimo={ultimo} />
-          <ListaDrills titulo="📱 Celular no chão, corpo em ação" drills={DRILLS_PRONTOS.filter((d) => d.modo === 'auto')} ultimo={ultimo} />
-          {criados.length > 0 && (
-            <ListaDrills
-              titulo="⭐ Drills criados"
-              drills={criados}
-              ultimo={ultimo}
-              aoEditar={(d) => comAdulto(() => setEditando({ drill: d, criado: true }))}
-            />
-          )}
+          {(params.get('tipo') === 'corpo' ? (['auto', 'toque'] as const) : (['toque', 'auto'] as const)).map((modo) => {
+            const criadosDoModo = criados.filter((d) => d.modo === modo)
+            return (
+              <BlocoTipo
+                key={modo}
+                tipo={modo === 'auto' ? 'corpo' : 'tela'}
+                titulo={modo === 'auto' ? 'Reação com o corpo' : 'Reação na tela'}
+                explicacao={
+                  modo === 'auto'
+                    ? 'Apoie o celular no chão: os sinais aparecem e você reage com o corpo (cones, quedas, passos).'
+                    : 'Segure o celular e toque na resposta certa o mais rápido que puder.'
+                }
+              >
+                <ListaDrills titulo="Drills" drills={DRILLS_PRONTOS.filter((d) => d.modo === modo)} ultimo={ultimo} />
+                {criadosDoModo.length > 0 && (
+                  <ListaDrills
+                    titulo="⭐ Criados pelo treinador"
+                    drills={criadosDoModo}
+                    ultimo={ultimo}
+                    aoEditar={(d) => comAdulto(() => setEditando({ drill: d, criado: true }))}
+                  />
+                )}
+              </BlocoTipo>
+            )
+          })}
 
           <section className="flex flex-col gap-2 rounded-3xl border-4 border-dashed border-teal-400 bg-teal-50 p-3">
             <h2 className="text-xl font-extrabold">👨‍👩‍👧 Para pais e treinador</h2>

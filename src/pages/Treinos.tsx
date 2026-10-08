@@ -2,6 +2,7 @@
 // séries de velocidade, rápido e devagar, força, prevenção e alongamento, além dos treinos dos pais.
 // O que é de uma categoria acima fica com cadeado (a não ser que esteja na agenda de hoje).
 import { Link } from 'react-router'
+import { SeloTipo } from '../components/ui/TipoAtividade'
 import { CATEGORIAS, categoriaLiberada } from '../data/categorias'
 import { categoriaDaSerie, useAgendaDeHoje, useCategoria } from '../features/categoria/categoria'
 import { AvisoAquecer } from '../features/treino/AvisoAquecer'
@@ -22,6 +23,7 @@ export function Treinos() {
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-center text-3xl font-extrabold">💪 Treinos</h1>
+      <SeloTipo tipo="corpo" className="-mt-2 self-center px-3 py-1 text-sm" />
       <p className={`self-center rounded-full border-4 px-4 py-1 text-lg font-extrabold ${atual.cor}`}>
         {atual.emoji} Você é {atual.nome} · nível {nivel}
       </p>

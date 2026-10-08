@@ -1,4 +1,5 @@
-// Lista única dos módulos do jogo: usada pela barra de navegação inferior e pelos botões da Home.
+// Lista única dos módulos do jogo: usada pela barra de navegação inferior (os atalhos
+// da Home ficam em src/pages/Home.tsx, separados em 🏃 corpo / 🎮 tela).
 // Para adicionar um módulo novo, inclua aqui e crie a rota correspondente em src/rotas.tsx.
 
 export interface Modulo {

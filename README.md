@@ -3,6 +3,14 @@
 Jogo de treino de futebol para crianças de 6 a 12 anos, com foco em goleiro. Funciona no navegador
 do celular e pode ser instalado como app (PWA), inclusive sem internet.
 
+**Dois tipos de atividade, sempre com o mesmo ícone e a mesma cor** (Home, Goleiro, Reação, Rali,
+Treinos, Futsal Tático e os itens da Agenda):
+
+- 🏃 **Treino com o corpo** (laranja): largar o celular ou apoiar no chão e se mexer de verdade
+  (treinos, fundamentos e cones do goleiro, reação com o celular no chão, rali com bola/celular no corpo)
+- 🎮 **Jogo na tela** (azul): jogar com os dedos olhando o celular/tablet (jogos de goleiro, Futsal
+  Tático, reação e rali na tela, alimentação)
+
 - **Treinos**: aquecimento (sempre antes) e séries de velocidade, rápido e devagar (intervalado),
   força com o peso do corpo, prevenção de lesões e alongamento, com bonequinho animado, timer e contador,
   e os **vídeos do treinador** por categoria
@@ -250,7 +258,9 @@ coordenadas dentro da quadra, quem passa está com a bola...).
 | Desafios do rali | `src/features/rali/desafios.ts` |
 | Drills de reação prontos (sinais, séries, tempos e instruções) | `src/features/reacao/drills.ts` |
 | Cores e setas dos sinais de reação | `src/features/reacao/sinais.ts` |
-| Módulos da Home e da barra inferior | `src/data/modulos.ts` |
+| Módulos da barra inferior | `src/data/modulos.ts` |
+| Atalhos da Home (blocos 🏃 corpo / 🎮 tela / 📋 organizar) | `src/pages/Home.tsx` (`ATALHOS_*`) |
+| Cor, ícone e nome dos tipos 🏃 corpo / 🎮 tela, e o tipo de cada endereço | `src/data/tiposAtividade.ts` |
 | Categorias (nomes, ícones e nível de cada uma) | `src/data/categorias.ts` |
 | Categoria padrão de cada treino do app | `src/features/treino/series.ts` (campo `categoria`) |
 | Categoria padrão de cada vídeo do calendário | `src/data/calendarioGoleiros.ts` (campo `categoria`) |

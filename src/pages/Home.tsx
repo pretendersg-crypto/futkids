@@ -1,12 +1,13 @@
-// Tela inicial: cartão do jogador (avatar, apelido, nível, XP, moedas, sino da agenda),
-// o mascote com uma dica do dia e botões grandes para cada módulo.
+// Tela inicial: cartão do jogador (avatar, apelido, nível, XP, moedas, sino da agenda), o mascote
+// com uma dica do dia e os atalhos em dois blocos bem separados: 🏃 treinar com o corpo (largar o
+// celular e se mexer) e 🎮 jogar na tela (com os dedos). Agenda e Perfil ficam em "Organizar".
 import { motion } from 'framer-motion'
 import { Link } from 'react-router'
 import { Mascote, type Humor } from '../components/mascote/Mascote'
 import { InstalarApp } from '../components/ui/InstalarApp'
+import { BlocoTipo } from '../components/ui/TipoAtividade'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { saudacao } from '../data/mascote'
-import { MODULOS } from '../data/modulos'
 import { planoDoDia, treinosPendentesHoje } from '../features/agenda/semana'
 import { useCategoria } from '../features/categoria/categoria'
 import { Avatar } from '../features/avatar/Avatar'
@@ -16,6 +17,54 @@ import { useUserStore } from '../stores/userStore'
 import { hojeISO } from '../utils/data'
 import { nivelPorXP } from '../utils/nivel'
 import { sequenciaAtual } from '../utils/sequencia'
+
+interface Atalho {
+  para: string
+  emoji: string
+  titulo: string
+  texto: string
+}
+
+const ATALHOS_CORPO: Atalho[] = [
+  { para: '/treinos', emoji: '💪', titulo: 'Treinos', texto: 'Aquecer, correr, força e alongar' },
+  { para: '/goleiro', emoji: '🧤', titulo: 'Treinos de goleiro', texto: 'Fundamentos e cones' },
+  { para: '/reacao?tipo=corpo', emoji: '🚦', titulo: 'Reação no chão', texto: 'Cores e setas: o corpo reage' },
+  { para: '/rali?tipo=corpo', emoji: '⚽', titulo: 'Rali com bola', texto: 'Embaixadinhas e saltos de verdade' },
+]
+
+const ATALHOS_TELA: Atalho[] = [
+  { para: '/goleiro?tipo=tela', emoji: '🧤', titulo: 'Jogos de goleiro', texto: 'Defesa, reflexo e posição' },
+  { para: '/tatica', emoji: '🧠', titulo: 'Futsal Tático', texto: 'Qual é a melhor jogada?' },
+  { para: '/reacao?tipo=tela', emoji: '🚦', titulo: 'Reação na tela', texto: 'Toque rápido na cor certa' },
+  { para: '/rali?tipo=tela', emoji: '⚽', titulo: 'Rali na tela', texto: 'Embaixadinha, passe e chute' },
+  { para: '/alimentacao', emoji: '🍎', titulo: 'Alimentação', texto: 'Jogos e quiz do craque' },
+]
+
+const ATALHOS_ORGANIZAR: Atalho[] = [
+  { para: '/agenda', emoji: '📅', titulo: 'Agenda', texto: 'O treino de cada dia' },
+  { para: '/perfil', emoji: '🏆', titulo: 'Perfil', texto: 'Figurinhas e conquistas' },
+]
+
+/** Grade de atalhos (2 por linha; o último ocupa a linha toda quando sobra um) */
+function Atalhos({ itens }: { itens: Atalho[] }) {
+  return (
+    <ul className="grid grid-cols-2 gap-3">
+      {itens.map((a, i) => (
+        <li key={a.para} className={i === itens.length - 1 && itens.length % 2 ? 'col-span-2' : ''}>
+          <motion.div whileTap={{ scale: 0.94 }}>
+            <Link to={a.para} className="flex min-h-28 flex-col items-center justify-center gap-1 rounded-3xl border-4 border-white bg-white p-2 text-center shadow-md">
+              <span aria-hidden className="text-4xl">
+                {a.emoji}
+              </span>
+              <span className="text-lg leading-tight font-extrabold">{a.titulo}</span>
+              <span className="text-sm leading-tight">{a.texto}</span>
+            </Link>
+          </motion.div>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 export function Home() {
   const apelido = useUserStore((s) => s.apelido)
@@ -80,25 +129,18 @@ export function Home() {
 
       <Mascote humor={dica.humor} fala={`${saudacao()}, ${apelido}! ${dica.texto}`} tamanho={84} />
 
-      <ul className="grid grid-cols-2 gap-4">
-        {MODULOS.map((modulo, i) => (
-          // O último botão ocupa a linha inteira quando a quantidade é ímpar
-          <li key={modulo.caminho} className={i === MODULOS.length - 1 && MODULOS.length % 2 ? 'col-span-2' : ''}>
-            <motion.div whileTap={{ scale: 0.94 }}>
-              <Link
-                to={modulo.caminho}
-                className={`flex min-h-36 flex-col items-center justify-center gap-1 rounded-3xl border-4 p-3 text-center shadow-md ${modulo.cor}`}
-              >
-                <span aria-hidden className="text-5xl">
-                  {modulo.emoji}
-                </span>
-                <span className="text-lg leading-tight font-extrabold">{modulo.titulo}</span>
-                <span className="text-sm leading-tight">{modulo.convite}</span>
-              </Link>
-            </motion.div>
-          </li>
-        ))}
-      </ul>
+      {/* Dois blocos bem diferentes: treinar com o corpo x jogar na tela */}
+      <BlocoTipo tipo="corpo">
+        <Atalhos itens={ATALHOS_CORPO} />
+      </BlocoTipo>
+      <BlocoTipo tipo="tela">
+        <Atalhos itens={ATALHOS_TELA} />
+      </BlocoTipo>
+
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-extrabold">📋 Organizar</h2>
+        <Atalhos itens={ATALHOS_ORGANIZAR} />
+      </div>
     </section>
   )
 }

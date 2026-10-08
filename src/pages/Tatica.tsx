@@ -4,6 +4,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Modal } from '../components/ui/Modal'
+import { SeloTipo } from '../components/ui/TipoAtividade'
 import { PortaoDosPais } from '../components/ui/PortaoDosPais'
 import { puzzlesDoFiltro } from '../features/tatica/escolher'
 import { PUZZLES, puzzlePorId } from '../features/tatica/puzzles'
@@ -35,6 +36,7 @@ export function Tatica() {
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-center text-3xl font-extrabold">🧠 Futsal Tático</h1>
+      <SeloTipo tipo="tela" className="-mt-2 self-center px-3 py-1 text-sm" />
       <div className="grid grid-cols-3 gap-2 text-center">
         <Numero emoji="⭐" valor={rating} rotulo="seu rating" />
         <Numero emoji="🔥" valor={sequencia} rotulo="acertos seguidos" />

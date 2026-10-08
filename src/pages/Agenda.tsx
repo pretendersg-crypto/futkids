@@ -4,6 +4,8 @@
 //  - "Pais" (com PIN): programa de treinos, mês inteiro com o que foi feito, mudar dias e vídeos
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { SeloTipo } from '../components/ui/TipoAtividade'
+import { tipoDaRota } from '../data/tiposAtividade'
 import { BotaoVideo } from '../features/agenda/BotaoVideo'
 import { ConfigLembrete } from '../features/agenda/ConfigLembrete'
 import { Missoes } from '../features/agenda/Missoes'
@@ -140,6 +142,7 @@ function MinhaAgenda() {
         <ul className="flex flex-col gap-2">
           {treinosHoje.map((t) => {
             const catItem = categoriaPorId(categoriaDoItemDaAgenda(t))
+            const tipo = tipoDaRota(t.rota)
             return (
               <li
                 key={t.id}
@@ -149,7 +152,8 @@ function MinhaAgenda() {
                   <span aria-hidden className="text-3xl">
                     {t.emoji}
                   </span>
-                  <span className="flex flex-1 flex-col leading-tight">
+                  <span className="flex flex-1 flex-col items-start leading-tight">
+                    {tipo && <SeloTipo tipo={tipo} className="mb-1" />}
                     {t.titulo}
                     {t.detalhe && <span className="text-sm font-medium">{t.detalhe}</span>}
                     {/* Acima da categoria da criança: a agenda (montada pelos pais) libera hoje */}
@@ -164,7 +168,7 @@ function MinhaAgenda() {
                 <div className="flex flex-wrap gap-2">
                   {t.rota && (
                     <Link to={t.rota} className="grid min-h-12 flex-1 place-items-center rounded-2xl bg-sol px-3 text-base font-extrabold shadow">
-                      Treinar ▶️
+                      {tipo === 'tela' ? 'Jogar ▶️' : 'Treinar ▶️'}
                     </Link>
                   )}
                   {t.video && <BotaoVideo url={t.video} titulo={t.titulo} />}
