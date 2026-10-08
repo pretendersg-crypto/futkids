@@ -28,3 +28,6 @@ dev-dist
 
 # Arte local do aluno (avatares feitos a partir da foto): fica só neste computador, nunca vai para o GitHub/site
 src/local/
+
+# Materiais de referência do usuário (PDFs, docs, páginas salvas, desenhos exportados): ficam só no computador
+Arquivos/
