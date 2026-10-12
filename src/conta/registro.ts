@@ -18,6 +18,8 @@ import type { ChaveSincronizada } from './chaves'
 
 interface ComPersist {
   persist: { rehydrate: () => Promise<void> | void }
+  /** Avisa quando o store muda (a sincronia envia logo em seguida) */
+  subscribe: (ouvinte: () => void) => () => void
 }
 
 export const STORES: Record<ChaveSincronizada, ComPersist> = {

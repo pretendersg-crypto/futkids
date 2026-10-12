@@ -45,11 +45,12 @@ import {
 } from 'firebase/firestore'
 import { CHAVES_FAMILIA, CHAVES_FILHO, VERSAO_DADOS, type ChaveSincronizada } from './chaves'
 import { useContaStore, type Atleta } from './contaStore'
-import { decidir, gravadoPorAppMaisNovo, type MetaChave, type Remoto } from './decidir'
+import { aparelhoMaisRecente, decidir, gravadoPorAppMaisNovo, type MetaChave, type Remoto } from './decidir'
+import { mesclarJson } from './mesclar'
 import { APP_CHECK_CHAVE_SITE, FIREBASE_CONFIG } from './firebaseConfig'
 import { VERSAO_TERMOS } from '../data/legal'
 import { gerarCodigo } from './codigos'
-import { recarregarStore } from './registro'
+import { recarregarStore, STORES } from './registro'
 
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
@@ -375,8 +376,6 @@ export async function desligarAparelho(f: string, atleta: string, dev: string) {
 // ---------- sincronia ----------
 
 const CHAVE_META = 'futkids-sincronia'
-/** De quanto em quanto tempo olha se algo mudou no aparelho */
-const INTERVALO_MS = 4000
 const TODAS: ChaveSincronizada[] = [...CHAVES_FAMILIA, ...CHAVES_FILHO]
 
 function caminhoDe(familia: string, atleta: string, chave: ChaveSincronizada): string {
@@ -401,21 +400,33 @@ function gravarMetas(metas: Record<string, MetaChave>) {
 
 let paradas: Unsubscribe[] = []
 let relogio: ReturnType<typeof setInterval> | null = null
+let espera: ReturnType<typeof setTimeout> | null = null
 let ultimosVistos: Record<string, string | null> = {}
 let aoEsconder: () => void = () => {}
+/** Uma coisa de cada vez: avisos da nuvem e envios do aparelho não se atropelam */
+let fila: Promise<unknown> = Promise.resolve()
+const naFila = <T>(tarefa: () => Promise<T>) => (fila = fila.then(tarefa, tarefa)) as Promise<T>
+
+/** Envia logo depois de uma mudança (espera um pouco para juntar várias mudanças seguidas) */
+const ESPERA_ENVIO_MS = 800
+/** E ainda olha de tempos em tempos (caso alguma mudança escape) */
+const INTERVALO_MS = 10_000
 
 export function pararSincronia() {
   void import('./nuvemEscolinha').then((m) => m.pararTurmas())
   paradas.forEach((p) => p())
   paradas = []
   if (relogio) clearInterval(relogio)
+  if (espera) clearTimeout(espera)
   relogio = null
+  espera = null
   window.removeEventListener('visibilitychange', aoEsconder)
 }
 
 /**
  * Liga a sincronia da família e do atleta ativo: aplica o que mudou dos dois lados agora, fica
- * ouvindo a nuvem (o plano mudou no celular do pai → atualiza aqui na hora) e envia o que mudar.
+ * ouvindo a nuvem (o plano mudou no celular do pai → atualiza aqui na hora) e envia o que mudar no
+ * aparelho logo em seguida. Se os dois lados mudaram, junta campo a campo (mesclar.ts).
  */
 export async function iniciarSincronia(familia: string, atleta: string) {
   pararSincronia()
@@ -423,35 +434,58 @@ export async function iniciarSincronia(familia: string, atleta: string) {
   useContaStore.getState().definirEstado(navigator.onLine ? 'sincronizando' : 'sem-internet')
   ultimosVistos = {}
 
+  /** Grava no aparelho (e recarrega a tela) */
+  async function aplicarNoAparelho(chave: ChaveSincronizada, json: string) {
+    localStorage.setItem(chave, json)
+    ultimosVistos[chave] = json
+    await recarregarStore(chave)
+  }
+
+  async function enviar(caminho: string, json: string) {
+    const em = Date.now()
+    await setDoc(doc(db, caminho), { json, em, app: VERSAO_DADOS })
+    const metas = lerMetas()
+    metas[caminho] = { base: json, baseEm: em }
+    gravarMetas(metas)
+  }
+
   async function resolver(chave: ChaveSincronizada, remoto: Remoto | null) {
     const caminho = caminhoDe(familia, atleta, chave)
-    const metas = lerMetas()
     // Dado de um app mais novo: não aplica nem sobrescreve; pede para atualizar o app
     if (gravadoPorAppMaisNovo(remoto, VERSAO_DADOS)) return useContaStore.getState().definirEstado('atualizar')
+    const meta = lerMetas()[caminho] ?? {}
     const local = localStorage.getItem(chave)
-    const acao = decidir(local, metas[caminho] ?? {}, remoto)
+    const acao = decidir(local, meta, remoto)
     if (acao === 'baixar' && remoto) {
-      localStorage.setItem(chave, remoto.json)
-      ultimosVistos[chave] = remoto.json
+      await aplicarNoAparelho(chave, remoto.json)
+      const metas = lerMetas()
       metas[caminho] = { base: remoto.json, baseEm: remoto.em }
       gravarMetas(metas)
-      await recarregarStore(chave)
     } else if (acao === 'enviar' && local) {
-      const em = Date.now()
-      await setDoc(doc(db, caminho), { json: local, em, app: VERSAO_DADOS })
-      metas[caminho] = { base: local, baseEm: em }
-      gravarMetas(metas)
+      await enviar(caminho, local)
+    } else if (acao === 'juntar' && local && remoto) {
+      const maisRecente = aparelhoMaisRecente(meta, remoto)
+      const junto = mesclarJson(meta.base, local, remoto.json, maisRecente) ?? (maisRecente ? local : remoto.json)
+      if (junto !== local) await aplicarNoAparelho(chave, junto)
+      if (junto !== remoto.json) await enviar(caminho, junto)
+      else {
+        const metas = lerMetas()
+        metas[caminho] = { base: remoto.json, baseEm: remoto.em }
+        gravarMetas(metas)
+      }
     }
   }
 
+  // Olha o aparelho: o que mudou desde a última olhada ganha a hora da mudança e é enviado
   async function olharAparelho() {
     if (!navigator.onLine) return useContaStore.getState().definirEstado('sem-internet')
-    const metas = lerMetas()
     for (const chave of TODAS) {
       const local = localStorage.getItem(chave)
       if (local === ultimosVistos[chave]) continue
       ultimosVistos[chave] = local
       const caminho = caminhoDe(familia, atleta, chave)
+      // Sempre a cópia mais nova das metas (resolver de outra chave pode ter acabado de gravar)
+      const metas = lerMetas()
       if (local === (metas[caminho]?.base ?? null)) continue
       metas[caminho] = { ...metas[caminho], alteradoEm: Date.now() }
       gravarMetas(metas)
@@ -465,17 +499,20 @@ export async function iniciarSincronia(familia: string, atleta: string) {
     }
     if (useContaStore.getState().estado !== 'atualizar') useContaStore.getState().marcarSincronizado()
   }
+  const olharNaFila = () => naFila(olharAparelho)
 
-  try {
-    for (const chave of TODAS) {
-      const r = await getDoc(doc(db, caminhoDe(familia, atleta, chave)))
-      await resolver(chave, r.exists() ? (r.data() as Remoto) : null)
-      ultimosVistos[chave] = localStorage.getItem(chave)
+  await naFila(async () => {
+    try {
+      for (const chave of TODAS) {
+        const r = await getDoc(doc(db, caminhoDe(familia, atleta, chave)))
+        await resolver(chave, r.exists() ? (r.data() as Remoto) : null)
+        ultimosVistos[chave] = localStorage.getItem(chave)
+      }
+      if (useContaStore.getState().estado !== 'atualizar') useContaStore.getState().marcarSincronizado()
+    } catch (erro) {
+      useContaStore.getState().definirEstado(navigator.onLine ? 'erro' : 'sem-internet', (erro as Error).message)
     }
-    if (useContaStore.getState().estado !== 'atualizar') useContaStore.getState().marcarSincronizado()
-  } catch (erro) {
-    useContaStore.getState().definirEstado(navigator.onLine ? 'erro' : 'sem-internet', (erro as Error).message)
-  }
+  })
 
   for (const chave of TODAS) {
     paradas.push(
@@ -483,21 +520,30 @@ export async function iniciarSincronia(familia: string, atleta: string) {
         doc(db, caminhoDe(familia, atleta, chave)),
         (r) => {
           if (r.metadata.hasPendingWrites || !r.exists()) return
-          void resolver(chave, r.data() as Remoto).then(() => {
+          const remoto = r.data() as Remoto
+          void naFila(async () => {
+            await resolver(chave, remoto)
             ultimosVistos[chave] = localStorage.getItem(chave)
           })
         },
         (erro) => useContaStore.getState().definirEstado('erro', erro.message),
       ),
     )
+    // Mudou um store no aparelho → envia logo (sem esperar o relógio)
+    paradas.push(
+      STORES[chave].subscribe(() => {
+        if (espera) clearTimeout(espera)
+        espera = setTimeout(() => void olharNaFila(), ESPERA_ENVIO_MS)
+      }),
+    )
   }
 
   // Plano das turmas da escolinha (se o atleta estiver em alguma)
   void import('./nuvemEscolinha').then((m) => m.ouvirTurmas(atleta))
 
-  relogio = setInterval(() => void olharAparelho(), INTERVALO_MS)
+  relogio = setInterval(() => void olharNaFila(), INTERVALO_MS)
   aoEsconder = () => {
-    if (document.visibilityState === 'hidden') void olharAparelho()
+    if (document.visibilityState === 'hidden') void olharNaFila()
   }
   window.addEventListener('visibilitychange', aoEsconder)
 }
@@ -512,9 +558,17 @@ export async function baixarPerfil(familia: string, atleta: string) {
     if (!r.exists()) continue
     const remoto = r.data() as Remoto
     if (gravadoPorAppMaisNovo(remoto, VERSAO_DADOS)) continue
-    if (decidir(localStorage.getItem(chave), metas[caminho] ?? {}, remoto) !== 'baixar') continue
-    localStorage.setItem(chave, remoto.json)
-    metas[caminho] = { base: remoto.json, baseEm: remoto.em }
+    const local = localStorage.getItem(chave)
+    const meta = metas[caminho] ?? {}
+    const acao = decidir(local, meta, remoto)
+    if (acao === 'baixar') {
+      localStorage.setItem(chave, remoto.json)
+      metas[caminho] = { base: remoto.json, baseEm: remoto.em }
+    } else if (acao === 'juntar' && local) {
+      // Junta aqui; a sincronia, ao abrir, envia a junção para a nuvem
+      const junto = mesclarJson(meta.base, local, remoto.json, aparelhoMaisRecente(meta, remoto)) ?? remoto.json
+      localStorage.setItem(chave, junto)
+    }
   }
   gravarMetas(metas)
 }

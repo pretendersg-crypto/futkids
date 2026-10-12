@@ -22,7 +22,8 @@ export interface MetaChave {
   alteradoEm?: number
 }
 
-export type Acao = 'nada' | 'enviar' | 'baixar'
+/** juntar = os dois lados mudaram: junta campo a campo (mesclar.ts); o que der conflito, vale o mais recente */
+export type Acao = 'nada' | 'enviar' | 'baixar' | 'juntar'
 
 export function decidir(local: string | null, meta: MetaChave, remoto: Remoto | null): Acao {
   if (!remoto) return local ? 'enviar' : 'nada'
@@ -32,7 +33,10 @@ export function decidir(local: string | null, meta: MetaChave, remoto: Remoto | 
   const remotoMudou = remoto.em !== meta.baseEm
   if (!remotoMudou) return localMudou ? 'enviar' : 'nada'
   if (!localMudou) return local === remoto.json ? 'nada' : 'baixar'
-  // Os dois mudaram: o mais recente ganha (sem saber quando o local mudou, a nuvem ganha)
+  // Os dois mudaram: junta o que cada um mudou
   if (local === remoto.json) return 'nada'
-  return meta.alteradoEm !== undefined && meta.alteradoEm > remoto.em ? 'enviar' : 'baixar'
+  return 'juntar'
 }
+
+/** Nos campos mudados pelos dois lados, o aparelho é o mais recente? (sem saber quando mudou, não) */
+export const aparelhoMaisRecente = (meta: MetaChave, remoto: Remoto) => meta.alteradoEm !== undefined && meta.alteradoEm > remoto.em

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CHAVES_APARELHO, CHAVES_FAMILIA, CHAVES_FILHO, VERSAO_DADOS } from './chaves'
-import { decidir, gravadoPorAppMaisNovo } from './decidir'
+import { aparelhoMaisRecente, decidir, gravadoPorAppMaisNovo } from './decidir'
 
 describe('chaves da conta da família', () => {
   it('todo store salvo está em família, filho ou aparelho (e em uma só)', () => {
@@ -65,8 +65,8 @@ describe('decidir a sincronia', () => {
     expect(decidir(null, { base: '{"a":1}', baseEm: 10 }, { json: '{"a":1}', em: 10 })).toBe('baixar')
   })
 
-  it('aparelho novo com dado padrão e nuvem com dado: a nuvem ganha', () => {
-    expect(decidir('{"padrao":true}', {}, { json: '{"a":1}', em: 10 })).toBe('baixar')
+  it('aparelho novo com dado padrão e nuvem com dado: junta (nos campos em comum, a nuvem ganha)', () => {
+    expect(decidir('{"padrao":true}', {}, { json: '{"a":1}', em: 10 })).toBe('juntar')
   })
 
   it('só um lado mudou: esse lado ganha', () => {
@@ -76,10 +76,12 @@ describe('decidir a sincronia', () => {
     expect(decidir('{"a":1}', meta, { json: '{"a":1}', em: 10 })).toBe('nada')
   })
 
-  it('os dois mudaram: ganha o mais recente', () => {
+  it('os dois mudaram: junta (e no conflito vale o mais recente)', () => {
     const remoto = { json: '{"a":3}', em: 20 }
-    expect(decidir('{"a":2}', { base: '{"a":1}', baseEm: 10, alteradoEm: 30 }, remoto)).toBe('enviar')
-    expect(decidir('{"a":2}', { base: '{"a":1}', baseEm: 10, alteradoEm: 15 }, remoto)).toBe('baixar')
+    expect(decidir('{"a":2}', { base: '{"a":1}', baseEm: 10, alteradoEm: 30 }, remoto)).toBe('juntar')
     expect(decidir('{"a":3}', { base: '{"a":1}', baseEm: 10, alteradoEm: 15 }, remoto)).toBe('nada')
+    expect(aparelhoMaisRecente({ alteradoEm: 30 }, remoto)).toBe(true)
+    expect(aparelhoMaisRecente({ alteradoEm: 15 }, remoto)).toBe(false)
+    expect(aparelhoMaisRecente({}, remoto)).toBe(false)
   })
 })
