@@ -11,6 +11,11 @@ const base = process.env.BASE_PATH ?? '/'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   base,
+  // No "npm run dev", as partes do Firebase precisam ser pré-empacotadas juntas; separadas, cada uma
+  // tem a sua cópia do núcleo e dá "Component auth has not been registered yet"
+  optimizeDeps: {
+    include: ['firebase/app', 'firebase/app-check', 'firebase/auth', 'firebase/firestore', 'firebase/functions'],
+  },
   plugins: [
     react(),
     tailwindcss(),

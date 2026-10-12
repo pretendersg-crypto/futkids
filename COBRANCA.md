@@ -56,7 +56,7 @@ uso costuma ficar dentro da cota gratuita.
 2. Em **Credenciais de produção**, copie o **Access Token** (começa com `APP_USR-`). Ele é um
    **segredo**: não mande por chat nem coloque no código.
 3. Em **Webhooks** → **Configurar notificações**:
-   - **URL de produção:** `https://southamerica-east1-SEU-PROJETO.cloudfunctions.net/avisoMercadoPago`
+   - **URL de produção:** `https://southamerica-east1-futkids-30a76.cloudfunctions.net/avisoMercadoPago`
      (troque `SEU-PROJETO` pelo id do projeto Firebase).
    - **Eventos:** marque **Pagamentos**, **Planos e assinaturas** (assinaturas) e **Pagamentos de
      assinaturas** (faturas).

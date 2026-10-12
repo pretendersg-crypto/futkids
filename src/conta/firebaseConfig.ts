@@ -5,7 +5,14 @@
 // null = conta da família ainda não configurada (o app funciona como antes, só no aparelho).
 import type { FirebaseOptions } from 'firebase/app'
 
-export const FIREBASE_CONFIG: FirebaseOptions | null = null
+export const FIREBASE_CONFIG: FirebaseOptions | null = {
+  apiKey: 'AIzaSyDNui_8KsYsH3sOI0zdX8gHD18RYnpXJoY',
+  authDomain: 'futkids-30a76.firebaseapp.com',
+  projectId: 'futkids-30a76',
+  storageBucket: 'futkids-30a76.firebasestorage.app',
+  messagingSenderId: '1098027601454',
+  appId: '1:1098027601454:web:09ee5669b7cf1e6d2359bf',
+}
 
 /**
  * Chave do site do reCAPTCHA v3 para o App Check (prova que o acesso ao banco vem do app, não de um
