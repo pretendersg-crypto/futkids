@@ -1,9 +1,9 @@
 // PIN da área dos pais. Guardado só como resumo (hash SHA-256 com sal), nunca o PIN em si.
 // É uma trava para a criança não mexer na agenda; não é segurança contra um adulto com o aparelho.
-// Também guarda a categoria do jogador escolhida pelos pais (null = automática, pelo XP).
+// É da família (com a conta Google, o mesmo PIN vale em todos os aparelhos). A categoria escolhida
+// pelos pais é de cada filho e fica no userStore.
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import type { CategoriaId } from '../data/categorias'
 
 interface PaisState {
   /** "sal:hash" do PIN; null = ainda não criado */
@@ -11,9 +11,6 @@ interface PaisState {
   criarPin: (pin: string) => Promise<void>
   conferirPin: (pin: string) => Promise<boolean>
   apagarPin: () => void
-  /** Categoria escolhida pelos pais; null = sobe sozinha pelo XP */
-  categoriaFixa: CategoriaId | null
-  fixarCategoria: (categoria: CategoriaId | null) => void
 }
 
 async function resumo(sal: string, pin: string): Promise<string> {
@@ -36,14 +33,25 @@ export const usePaisStore = create<PaisState>()(
         return (await resumo(sal, pin)) === hash
       },
       apagarPin: () => set({ pin: null }),
-      categoriaFixa: null,
-      fixarCategoria: (categoriaFixa) => set({ categoriaFixa }),
     }),
     {
       name: 'futkids-pais',
-      version: 1,
+      // v2: a categoria fixa saiu daqui (foi para o userStore, que lê o valor antigo ao migrar)
+      version: 2,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ pin: s.pin, categoriaFixa: s.categoriaFixa }),
+      partialize: (s) => ({ pin: s.pin }),
+      migrate: (salvo) => {
+        // Guarda a categoria antiga para o userStore achar, seja qual for a ordem de carregar
+        const antiga = (salvo as { categoriaFixa?: string | null }).categoriaFixa
+        if (antiga) {
+          try {
+            localStorage.setItem('futkids-categoria-antiga', antiga)
+          } catch {
+            // sem espaço: fica a categoria pelo XP
+          }
+        }
+        return { pin: (salvo as { pin?: string | null }).pin ?? null }
+      },
     },
   ),
 )

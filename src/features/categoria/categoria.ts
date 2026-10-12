@@ -2,7 +2,7 @@
 import { treinoPorId, type TreinoCalendario } from '../../data/calendarioGoleiros'
 import { categoriaPorId, categoriaPorNivel, posicaoCategoria, type Categoria, type CategoriaId } from '../../data/categorias'
 import { useProgramaStore } from '../../stores/programaStore'
-import { usePaisStore } from '../../stores/paisStore'
+import { useUserStore } from '../../stores/userStore'
 import { useProgressStore } from '../../stores/progressStore'
 import { useTreinosFundamentosStore } from '../../stores/treinosFundamentosStore'
 import { useTreinosStore } from '../../stores/treinosStore'
@@ -23,7 +23,7 @@ export interface InfoCategoria {
 
 export function useCategoria(): InfoCategoria {
   const xp = useProgressStore((s) => s.xp)
-  const fixa = usePaisStore((s) => s.categoriaFixa)
+  const fixa = useUserStore((s) => s.categoriaFixa)
   const nivel = nivelPorXP(xp).nivel
   const pelaXP = categoriaPorNivel(nivel)
   return { atual: fixa ? categoriaPorId(fixa) : pelaXP, pelaXP, fixa: !!fixa, nivel }

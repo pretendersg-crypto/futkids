@@ -1,13 +1,13 @@
 // Área dos pais: categoria do jogador. Automática (pelo XP) ou escolhida por um adulto
 // (ex.: criança que já treina há tempo e pode começar em Iniciante, ou voltar uma categoria).
 import { CATEGORIAS } from '../../data/categorias'
-import { usePaisStore } from '../../stores/paisStore'
+import { useUserStore } from '../../stores/userStore'
 import { useCategoria } from './categoria'
 import { SeletorCategoria } from './SeletorCategoria'
 
 export function CategoriaDoJogador() {
   const { atual, pelaXP, fixa, nivel } = useCategoria()
-  const fixarCategoria = usePaisStore((s) => s.fixarCategoria)
+  const fixarCategoria = useUserStore((s) => s.fixarCategoria)
 
   return (
     <section className="flex flex-col gap-3 rounded-3xl border-4 border-violet-200 bg-white p-3">

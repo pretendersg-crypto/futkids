@@ -1,0 +1,42 @@
+rules_version = '2';
+
+// Regras do Firestore da conta da família FutKids.
+// Cada família (uid do Google do responsável) só lê e grava o que está em familias/{uid}.
+// Ninguém mais lê nada (nem outras famílias, nem quem não está logado).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function eDaFamilia(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /familias/{uid} {
+      allow read, write: if eDaFamilia(uid);
+
+      // dados da família: { json: string, em: number }
+      match /dados/{chave} {
+        allow read, delete: if eDaFamilia(uid);
+        allow create, update: if eDaFamilia(uid)
+          && request.resource.data.json is string
+          && request.resource.data.json.size() < 900000
+          && request.resource.data.em is number;
+      }
+
+      // filhos: só o apelido (nada de nome verdadeiro, foto ou data de nascimento)
+      match /filhos/{filho} {
+        allow read, delete: if eDaFamilia(uid);
+        allow create, update: if eDaFamilia(uid)
+          && request.resource.data.apelido is string
+          && request.resource.data.apelido.size() <= 40;
+
+        match /dados/{chave} {
+          allow read, delete: if eDaFamilia(uid);
+          allow create, update: if eDaFamilia(uid)
+            && request.resource.data.json is string
+            && request.resource.data.json.size() < 900000
+            && request.resource.data.em is number;
+        }
+      }
+    }
+  }
+}

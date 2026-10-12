@@ -2,6 +2,7 @@
 // "Esqueci o PIN": a conta do portão dos pais apaga o PIN (a agenda continua igual).
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { PortaoDosPais } from '../../../components/ui/PortaoDosPais'
+import { liberadoNaSessao } from '../../../conta/sessaoPais'
 import { usePaisStore } from '../../../stores/paisStore'
 
 const CAMPO = 'min-h-14 w-full rounded-2xl border-4 border-violet-200 px-4 text-center text-3xl tracking-[0.5em]'
@@ -9,7 +10,7 @@ const soDigitos = (v: string) => v.replace(/\D/g, '').slice(0, 6)
 
 export function TrancaPais({ children }: { children: ReactNode }) {
   const temPin = usePaisStore((s) => s.pin !== null)
-  const [liberado, setLiberado] = useState(false)
+  const [liberado, setLiberado] = useState(liberadoNaSessao)
   const [pin, setPin] = useState('')
   const [confirmacao, setConfirmacao] = useState('')
   const [erro, setErro] = useState('')

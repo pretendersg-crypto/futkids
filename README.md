@@ -47,6 +47,11 @@ Treinos, Futsal Tático e os itens da Agenda):
   (abrir a área dos pais, ver o progresso do aluno, "Treinamos juntos hoje", semanas acompanhadas). 7 níveis
   (de Estreante a Mestre dos Goleiros), cada um libera um item do avatar, e 10 medalhas. Cada ação pontua uma
   vez por referência (ex.: por dia, por treino), para não dar para ganhar repetindo
+- **Conta da família** (aba Pais → ☁️ Conta da família, opcional): login com o Google do responsável
+  (Firebase), filhos pelo apelido, **"📋 Plano de: …"** para escolher de qual filho é o plano que está
+  sendo montado, e o aparelho da criança ligado ao filho dela. Planos e progresso sincronizam entre os
+  aparelhos; fotos e vídeos ficam só no aparelho. Aviso de privacidade e "apagar tudo" na própria tela.
+  Como ligar: [FIREBASE.md](FIREBASE.md) (sem configurar, o app funciona como antes, só no aparelho)
 - **Gestão dos gestos do goleiro** (aba Pais → 🧤 Fundamentos e gestos): mudar os do app (textos, desenho,
   vídeo) e criar novos, com desenho pronto ou imagem/GIF própria. Os Fundamentos do goleiro também entram
   no editor do "Treinar", como o Aquecimento

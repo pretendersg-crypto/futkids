@@ -2,7 +2,7 @@
 // XP e moedas ganhos, bônus de dias seguidos (se o treino disparou), "Subiu de nível!" e a
 // categoria nova (Novato, Iniciante...), quando a categoria sobe sozinha pelo XP.
 import { categoriaPorNivel } from '../../data/categorias'
-import { usePaisStore } from '../../stores/paisStore'
+import { useUserStore } from '../../stores/userStore'
 import type { BonusSequencia, ResultadoXP } from '../../stores/progressStore'
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 
 export function PainelRecompensa({ xp, moedas, resultadoXP, bonusSequencia }: Props) {
   // Categoria escolhida pelos pais não muda com o XP: aí não há o que comemorar
-  const categoriaFixa = usePaisStore((s) => s.categoriaFixa)
+  const categoriaFixa = useUserStore((s) => s.categoriaFixa)
   const nova = categoriaPorNivel(resultadoXP.nivel)
   const mudouCategoria = !categoriaFixa && nova.id !== categoriaPorNivel(resultadoXP.nivelAntes).id
   return (
