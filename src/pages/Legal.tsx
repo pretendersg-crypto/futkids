@@ -79,13 +79,15 @@ export function Privacidade() {
               pontos, nível, conquistas e resultados dos jogos do app).
             </>,
             <>
-              <b>Da escolinha:</b> nome da escolinha e das turmas, e o plano de treino da turma.
+              <b>Da escolinha:</b> nome da escolinha e das turmas, o plano de treino da turma e os <b>vídeos enviados pelo treinador</b> (para a turma
+              ou só para um atleta).
             </>,
           ]}
         />
         <p>
           <b>Nunca pedimos</b> nome verdadeiro, foto, data de nascimento, documento, escola, endereço, telefone ou localização da criança. Fotos e
-          vídeos gravados no app <b>não vão</b> para a nuvem.
+          vídeos gravados pela família no app <b>não vão</b> para a nuvem. Os vídeos que o <b>treinador</b> envia ficam guardados no Google Firebase
+          (Cloud Storage), visíveis só para a turma ou o atleta para quem foram enviados.
         </p>
       </Secao>
 
@@ -208,6 +210,7 @@ export function Termos() {
           itens={[
             'O treinador só vê os treinos dos atletas cuja família autorizou, e usa essas informações apenas para acompanhar o treino na escolinha.',
             'É proibido copiar, divulgar ou usar os dados dos atletas para outro fim, ou cadastrar o nome verdadeiro de uma criança no lugar do apelido.',
+            'Vídeos: o treinador só envia vídeos em que as crianças que aparecem tenham autorização dos responsáveis (ele declara isso a cada envio). Os vídeos ficam visíveis só para a turma ou o atleta escolhido, dentro do app, e não podem ser publicados fora dele. O treinador apaga quando quiser; apagar a turma ou a escolinha apaga os vídeos.',
             'A escolinha é responsável pelo uso que seus treinadores fazem do app e deve tirar o acesso de quem sair da equipe.',
             'O plano grátis tem limites (treinadores, turmas e atletas). Os planos pagos aumentam esses limites; preço e condições aparecem na tela "Planos" antes de pagar.',
           ]}

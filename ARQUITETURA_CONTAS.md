@@ -164,6 +164,25 @@ nessa fase, com alerta de gasto.
   arrependimento de 7 dias (CDC, art. 49).
 - Como ligar: **COBRANCA.md**.
 
+## 5.4 Vídeos do treinador (12/10/2026)
+
+- **Onde ficam:** Cloud Storage, privados. A escolinha tem uma cota por plano: Grátis 1 GB, Básico
+  10 GB, Pro 50 GB. O servidor conta o espaço e apaga o vídeo que passar do limite.
+- **Turma toda** (ex.: táticos): `escolinhas/{e}/turmas/{t}/videos/{v}`.
+  - Quem vê: os treinadores e os "leitores" da turma.
+  - Leitor = um aparelho ou responsável registrado por um atleta que **ainda está** na turma. Tirou o
+    atleta da turma, o acesso acaba sozinho.
+- **Só um atleta** (ex.: correção): `.../individuais/{a}/videos/{v}`. Quem vê: a família e o aparelho
+  dele.
+- **No plano:** o treinador pendura um vídeo enviado num treino do dia (`fkvideo:<caminho>`). Na
+  agenda da criança ele toca dentro do app.
+- **Agenda:** seção "🎬 Vídeos do treinador".
+- **Imagem de criança:**
+  - a cada envio, o treinador declara que as crianças que aparecem têm autorização dos responsáveis;
+  - ao autorizar a turma, a família aceita que os vídeos da turma mostrem o filho só para os colegas;
+  - sem botão de baixar no app;
+  - Termos e Privacidade atualizados.
+
 ## 6. O que o dono do app precisa fazer
 
 - Criar o projeto Firebase (FIREBASE.md) e, além do Google, ligar em Authentication:

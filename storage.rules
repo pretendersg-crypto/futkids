@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// Regras do Cloud Storage (vídeos do treinador). Espelham as do Firestore:
+//  escolinhas/{e}/turmas/{t}/videos/{v}/{arquivo}                     → turma toda (treinadores e leitores)
+//  escolinhas/{e}/turmas/{t}/individuais/{a}/videos/{v}/{arquivo}    → só o atleta a (família e aparelho dele)
+// Só treinador sobe; só vídeo; até 200 MB por arquivo; e dentro do espaço do plano da escolinha.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function logado() {
+      return request.auth != null;
+    }
+    function treinadorDe(e) {
+      return logado() && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && request.auth.uid in firestore.get(/databases/(default)/documents/escolinhas/$(e)).data.treinadores;
+    }
+    function cabeNoPlano(e) {
+      let esc = firestore.get(/databases/(default)/documents/escolinhas/$(e)).data;
+      let usado = esc.get('contagem', {}).get('videosBytes', 0);
+      let limite = esc.get('limites', {}).get('videosMB', 1024) * 1024 * 1024;
+      return usado + request.resource.size <= limite;
+    }
+    function videoValido(e) {
+      return request.resource.size < 200 * 1024 * 1024
+        && request.resource.contentType.matches('video/.*')
+        && cabeNoPlano(e);
+    }
+    function leitorDaTurma(e, t) {
+      let l = /databases/(default)/documents/escolinhas/$(e)/turmas/$(t)/leitores/$(request.auth.uid);
+      return logado() && firestore.exists(l)
+        && firestore.exists(/databases/(default)/documents/escolinhas/$(e)/turmas/$(t)/membros/$(firestore.get(l).data.atleta));
+    }
+    function podeAtleta(a) {
+      let at = firestore.get(/databases/(default)/documents/atletas/$(a)).data;
+      return logado() && (
+        firestore.exists(/databases/(default)/documents/atletas/$(a)/aparelhos/$(request.auth.uid))
+        || (request.auth.token.firebase.sign_in_provider != 'anonymous'
+            && request.auth.uid in firestore.get(/databases/(default)/documents/familias/$(at.familia)).data.responsaveis));
+    }
+
+    match /escolinhas/{e}/turmas/{t}/videos/{v}/{arquivo} {
+      allow read: if treinadorDe(e) || leitorDaTurma(e, t);
+      allow create: if treinadorDe(e) && videoValido(e);
+      allow delete: if treinadorDe(e);
+    }
+
+    match /escolinhas/{e}/turmas/{t}/individuais/{a}/videos/{v}/{arquivo} {
+      allow read: if treinadorDe(e) || podeAtleta(a);
+      allow create: if treinadorDe(e) && videoValido(e);
+      allow delete: if treinadorDe(e);
+    }
+  }
+}

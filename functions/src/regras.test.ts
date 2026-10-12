@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { createHmac } from 'node:crypto'
 import {
   aplicarEvento,
+  cabeNoEspaco,
+  videoDoArquivo,
   direitoGratis,
   FOLGA_MS,
   lerCabecalhoAssinatura,
@@ -73,6 +75,23 @@ describe('direito depois de cada pagamento', () => {
   it('vence depois da data e volta ao grátis', () => {
     expect(venceu({ ...direitoGratis('escolinha'), plano: 'basico', validoAte: agora - 1 }, agora)).toBe(true)
     expect(venceu(direitoGratis('escolinha'), agora)).toBe(false)
+  })
+})
+
+describe('vídeos do treinador', () => {
+  it('acha a escolinha e o documento a partir do arquivo', () => {
+    expect(videoDoArquivo('escolinhas/esc1/turmas/tur2/videos/vid3/jogo.mp4')).toEqual({ escolinha: 'esc1', documento: 'escolinhas/esc1/turmas/tur2/videos/vid3' })
+    expect(videoDoArquivo('escolinhas/esc1/turmas/tur2/individuais/atl9/videos/vid3/x.mov')).toEqual({
+      escolinha: 'esc1',
+      documento: 'escolinhas/esc1/turmas/tur2/individuais/atl9/videos/vid3',
+    })
+    expect(videoDoArquivo('outra/coisa.mp4')).toBeNull()
+    expect(videoDoArquivo('escolinhas/esc1/turmas/tur2/videos/vid3/sub/x.mp4')).toBeNull()
+  })
+
+  it('espaço do plano', () => {
+    expect(cabeNoEspaco(900 * 1024 * 1024, 100 * 1024 * 1024, 1024)).toBe(true)
+    expect(cabeNoEspaco(1000 * 1024 * 1024, 100 * 1024 * 1024, 1024)).toBe(false)
   })
 })
 

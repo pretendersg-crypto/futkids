@@ -10,6 +10,7 @@ import { BOTAO, useAcao } from '../conta/acao'
 import { CodigoGrande, MensagemErro } from '../conta/comum'
 import { mostrarCodigo } from '../../conta/codigos'
 import { PlanoTurma } from './PlanoTurma'
+import { VideosDoTreinador } from './VideosDoTreinador'
 
 const nuvem = () => import('../../conta/nuvemEscolinha')
 
@@ -184,6 +185,12 @@ export function TurmaTela({ uid, escolinha, turma, aoVoltar, aoMudar }: Props) {
         </div>
         <MensagemErro erro={erro} />
       </div>
+
+      <details className="rounded-3xl border-4 border-red-200 bg-red-50 p-3">
+        <summary className="cursor-pointer text-xl font-extrabold">🎬 Vídeos (turma e atletas)</summary>
+        <p className="my-2 text-sm">Táticos para toda a turma, ou correção só para um atleta. Pais e atletas assistem dentro do app.</p>
+        <VideosDoTreinador uid={uid} escolinha={escolinha} turma={turma} atletas={(membros ?? []).filter((m) => m.autorizado && m.atleta)} />
+      </details>
 
       <details className="rounded-3xl border-4 border-orange-300 bg-orange-50 p-3">
         <summary className="cursor-pointer text-xl font-extrabold">📅 Plano da turma (próximos 14 dias)</summary>

@@ -6,6 +6,7 @@ import { useMemo, useState, type DragEvent } from 'react'
 import type { ItemDia, TreinoCalendario } from '../../data/calendarioGoleiros'
 import { diaDaSemana, formatarData, hojeISO, somarDias } from '../../utils/data'
 import { linkSeguro } from '../../utils/link'
+import { caminhoDoVideo, ehVideoDoApp, referenciaDoVideo } from '../../conta/videoDoApp'
 import { NOMES_DIAS } from '../agenda/semana'
 
 export interface GrupoDeTreinos {
@@ -35,12 +36,14 @@ interface Props {
   nomeDe: (id: string) => { emoji: string; nome: string }
   /** Texto no dia sem treino */
   vazio?: string
+  /** Vídeos enviados pelo treinador, para pendurar num treino do dia */
+  videos?: { caminho: string; titulo: string }[]
 }
 
 const TIPO_DRAG = 'application/x-futkids'
 type Arrasto = { tipo: 'novo'; treino: string } | { tipo: 'mover'; de: string; indice: number }
 
-export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, estado, outros, nomeDe, vazio = 'Descanso' }: Props) {
+export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, estado, outros, nomeDe, vazio = 'Descanso', videos = [] }: Props) {
   const hoje = hojeISO()
   const [inicio, setInicio] = useState(() => somarDias(hoje, -diaDaSemana(hoje)))
   const [semanas, setSemanas] = useState(4)
@@ -257,10 +260,29 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
             <p className="font-extrabold">
               🎬 Vídeo só deste dia · {nomeDe(editando.treino).nome} · {NOMES_DIAS[diaDaSemana(videoDe.data)]} {formatarData(videoDe.data)}
             </p>
+            {videos.length > 0 && (
+              <select
+                defaultValue={ehVideoDoApp(editando.video) ? caminhoDoVideo(editando.video) : ''}
+                onChange={(e) => {
+                  const caminho = e.target.value
+                  const itens = itensDo(videoDe.data).map((x, i) => (i === videoDe.indice ? { treino: x.treino, ...(caminho ? { video: referenciaDoVideo(caminho) } : {}) } : x))
+                  definir(videoDe.data, itens)
+                  setVideoDe(null)
+                }}
+                className="rounded-xl border-2 border-red-200 bg-white px-3 py-2"
+              >
+                <option value="">🎬 Escolher um vídeo enviado…</option>
+                {videos.map((v) => (
+                  <option key={v.caminho} value={v.caminho}>
+                    {v.titulo}
+                  </option>
+                ))}
+              </select>
+            )}
             <input
               autoFocus
               type="url"
-              defaultValue={editando.video ?? ''}
+              defaultValue={ehVideoDoApp(editando.video) ? '' : (editando.video ?? '')}
               placeholder="https://… (vazio = o vídeo de sempre)"
               onKeyDown={(e) => {
                 if (e.key === 'Escape') return setVideoDe(null)
@@ -273,7 +295,7 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
               }}
               className="rounded-xl border-2 border-violet-200 px-3 py-2"
             />
-            <p className="text-xs">Enter para salvar. Esc ou clique fora para cancelar.</p>
+            <p className="text-xs">{videos.length > 0 ? 'Escolha um vídeo enviado, ou cole um link e aperte Enter. ' : 'Cole um link e aperte Enter. '}Esc ou clique fora para cancelar.</p>
           </div>
         </div>
       )}

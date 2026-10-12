@@ -8,7 +8,7 @@
 //      m = id do atleta (família autorizou) ou o código do convite (cadastrado pelo treinador)
 //   codigosTurma/{c}                     { escolinha, turma, nomes, ativo }  (vários usos)
 //   atletas/{a}                          + { escolinha, escolinhaNome, turmas[], turmasNomes{}, autorizacao }
-import type { User } from 'firebase/auth'
+import { getAuth, type User } from 'firebase/auth'
 import { arrayRemove, arrayUnion, deleteDoc, deleteField, doc, getDoc, getDocs, onSnapshot, setDoc, Timestamp, updateDoc, collection, type Unsubscribe } from 'firebase/firestore'
 import { VERSAO_TERMOS } from '../data/legal'
 import { gerarCodigo } from './codigos'
@@ -16,7 +16,7 @@ import { apagarColecao, gravarUsuario, iniciar, novoId } from './nuvem'
 import type { ItemDia } from '../data/calendarioGoleiros'
 import { useTurmasStore, type PlanoDaTurma } from './turmasStore'
 
-export const LIMITES_GRATIS = { treinadores: 1, turmas: 1, atletas: 20 } as const
+export const LIMITES_GRATIS = { treinadores: 1, turmas: 1, atletas: 20, videosMB: 1024 } as const
 
 const DIA = 24 * 60 * 60 * 1000
 
@@ -32,12 +32,14 @@ export interface DadosEscolinha {
   treinadores: string[]
   turmas: Turma[]
   plano: string
-  limites: { treinadores: number; turmas: number; atletas: number }
+  limites: { treinadores: number; turmas: number; atletas: number; videosMB?: number }
   /** Até quando o plano pago vale (ms); null = grátis */
   validoAte: number | null
   renovacaoAutomatica: boolean
   /** Atletas contados pelo servidor (todas as turmas) */
   atletas: number | null
+  /** Espaço usado pelos vídeos (contado pelo servidor) */
+  videosBytes: number
 }
 
 // ---------- escolinha (treinador) ----------
@@ -75,6 +77,7 @@ export async function lerEscolinha(e: string): Promise<DadosEscolinha> {
     validoAte: typeof d.validoAte === 'number' ? d.validoAte : null,
     renovacaoAutomatica: d.renovacaoAutomatica === true,
     atletas: typeof d.contagem?.atletas === 'number' ? d.contagem.atletas : null,
+    videosBytes: typeof d.contagem?.videosBytes === 'number' ? d.contagem.videosBytes : 0,
   }
 }
 
@@ -141,6 +144,14 @@ export async function apagarTurma(e: string, t: string) {
   const turma = await getDoc(doc(db, 'escolinhas', e, 'turmas', t))
   const codigo = turma.data()?.codigo as string | undefined
   if (codigo) await deleteDoc(doc(db, 'codigosTurma', codigo)).catch(() => undefined)
+  // Vídeos (arquivos e registros) da turma e dos atletas
+  const v = await import('./nuvemVideos')
+  for (const video of await v.listarVideos(e, t, null).catch(() => [])) await v.apagarVideo(e, video)
+  for (const ind of (await getDocs(collection(db, 'escolinhas', e, 'turmas', t, 'individuais'))).docs) {
+    for (const video of await v.listarVideos(e, t, ind.id).catch(() => [])) await v.apagarVideo(e, video)
+    await deleteDoc(ind.ref)
+  }
+  await apagarColecao('escolinhas', e, 'turmas', t, 'leitores')
   await apagarColecao('escolinhas', e, 'turmas', t, 'membros')
   await apagarColecao('escolinhas', e, 'turmas', t, 'plano')
   await deleteDoc(doc(db, 'escolinhas', e, 'turmas', t))
@@ -393,9 +404,20 @@ export function ouvirTurmas(a: string) {
       const nomes = (d.turmasNomes as Record<string, string> | undefined) ?? {}
       const turmas = e ? ((d.turmas as string[] | undefined) ?? []) : []
       const loja = useTurmasStore.getState()
-      if (!e || turmas.length === 0) return loja.definir(a, [])
+      if (!e || turmas.length === 0) {
+        loja.definirVideos(a, [])
+        return loja.definir(a, [])
+      }
       const planos: Record<string, PlanoDaTurma> = {}
       const publicar = () => useTurmasStore.getState().definir(a, Object.values(planos))
+      // Vídeos do treinador (da turma e só deste atleta)
+      const uid = getAuth().currentUser?.uid
+      if (uid) {
+        void import('./nuvemVideos').then((v) => {
+          const guardar = v.guardarVideos(a)
+          for (const t of turmas) dasTurmas.push(v.ouvirVideos(uid, e, t, a, guardar))
+        })
+      }
       for (const t of turmas) {
         // Plano da turma (vale para todos) e o plano individual deste atleta, se houver
         dasTurmas.push(

@@ -14,9 +14,23 @@ export interface PlanoDaTurma {
   individual?: boolean
 }
 
+/** Vídeo do treinador que este atleta pode ver (da turma ou só dele) */
+export interface VideoGuardado {
+  id: string
+  titulo: string
+  tipo: 'tatico' | 'exercicio' | 'outro'
+  caminho: string
+  em: number
+  /** null = turma toda */
+  atleta: string | null
+  turma: string
+}
+
 interface TurmasState {
   porAtleta: Record<string, PlanoDaTurma[]>
+  videosPorAtleta: Record<string, VideoGuardado[]>
   definir: (atleta: string, planos: PlanoDaTurma[]) => void
+  definirVideos: (atleta: string, videos: VideoGuardado[]) => void
   esquecer: () => void
 }
 
@@ -24,8 +38,11 @@ export const useTurmasStore = create<TurmasState>()(
   persist(
     (set) => ({
       porAtleta: {},
+      videosPorAtleta: {},
       definir: (atleta, planos) => set((s) => ({ porAtleta: { ...s.porAtleta, [atleta]: planos } })),
-      esquecer: () => set({ porAtleta: {} }),
+      definirVideos: (atleta, videos) =>
+        set((s) => ({ videosPorAtleta: { ...s.videosPorAtleta, [atleta]: videos.map(({ id, titulo, tipo, caminho, em, atleta: a, turma }) => ({ id, titulo, tipo, caminho, em, atleta: a, turma })) } })),
+      esquecer: () => set({ porAtleta: {}, videosPorAtleta: {} }),
     }),
     { name: 'futkids-turmas', version: 1, storage: createJSONStorage(() => localStorage) },
   ),

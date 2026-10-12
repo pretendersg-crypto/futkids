@@ -12,6 +12,8 @@ export interface Limites {
   treinadores?: number
   turmas?: number
   atletas?: number
+  /** Espaço para os vídeos do treinador */
+  videosMB?: number
 }
 
 interface PlanoDoCatalogo {
@@ -111,6 +113,21 @@ export function aplicarEvento(atual: Direito, ev: EventoPagamento): Direito | nu
 
 /** O direito já venceu? (volta ao grátis) */
 export const venceu = (d: Direito, agora: number) => d.validoAte !== null && d.validoAte < agora
+
+// ---------- vídeos do treinador (Cloud Storage) ----------
+
+/**
+ * De um arquivo de vídeo no Storage, a escolinha e o documento do vídeo no Firestore:
+ *  escolinhas/{e}/turmas/{t}/videos/{v}/{arquivo}                  → escolinhas/{e}/turmas/{t}/videos/{v}
+ *  escolinhas/{e}/turmas/{t}/individuais/{a}/videos/{v}/{arquivo}  → escolinhas/{e}/turmas/{t}/individuais/{a}/videos/{v}
+ */
+export function videoDoArquivo(caminho: string): { escolinha: string; documento: string } | null {
+  const m = /^(escolinhas\/([A-Za-z0-9]+)\/turmas\/[A-Za-z0-9]+(?:\/individuais\/[A-Za-z0-9]+)?\/videos\/[A-Za-z0-9]+)\/[^/]+$/.exec(caminho)
+  return m ? { escolinha: m[2], documento: m[1] } : null
+}
+
+/** O vídeo novo cabe no espaço do plano? */
+export const cabeNoEspaco = (usadoBytes: number, novoBytes: number, limiteMB: number) => usadoBytes + novoBytes <= limiteMB * 1024 * 1024
 
 // ---------- conferência do aviso do Mercado Pago ----------
 

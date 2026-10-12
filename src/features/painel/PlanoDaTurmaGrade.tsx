@@ -10,6 +10,9 @@ import { TREINOS_FUNDAMENTOS_INICIAIS } from '../../stores/treinosFundamentosSto
 import { BOTAO, useAcao } from '../conta/acao'
 import { MensagemErro } from '../conta/comum'
 import { GradePlano, type GrupoDeTreinos } from './GradePlano'
+import { VideosDoTreinador } from '../escolinha/VideosDoTreinador'
+import type { VideoDoTreinador as Video } from '../../conta/nuvemVideos'
+import { useContaStore } from '../../conta/contaStore'
 
 const nuvem = () => import('../../conta/nuvemEscolinha')
 
@@ -36,6 +39,8 @@ export function PlanoDaTurmaGrade({ escolinha }: { escolinha: string }) {
   const [copiando, setCopiando] = useState(false)
   const [destinos, setDestinos] = useState<string[]>([])
   const [aviso, setAviso] = useState('')
+  const [videos, setVideos] = useState<Video[]>([])
+  const uid = useContaStore((s) => s.uid)
   const { ocupado, erro, rodar } = useAcao()
 
   useEffect(() => {
@@ -185,10 +190,27 @@ export function PlanoDaTurmaGrade({ escolinha }: { escolinha: string }) {
       {aviso && <p className="rounded-2xl bg-green-50 p-3 font-bold">✅ {aviso}</p>}
       <MensagemErro erro={erro} />
 
+      {uid && turma && (
+        <details className="rounded-3xl border-2 border-red-200 bg-white p-3">
+          <summary className="cursor-pointer text-lg font-extrabold">🎬 Vídeos de {para === 'turma' ? 'toda a turma' : apelidoDe(para)} (enviar e ver)</summary>
+          <div className="mt-2 max-w-xl">
+            <VideosDoTreinador
+              uid={uid}
+              escolinha={esc}
+              turma={esc.turmas.find((t) => t.id === turma)!}
+              atletas={atletas}
+              para={para === 'turma' ? null : para}
+              aoListar={setVideos}
+            />
+          </div>
+        </details>
+      )}
+
       {!dias ? (
         <p>Carregando o plano…</p>
       ) : (
         <GradePlano
+          videos={videos}
           grupos={GRUPOS}
           itensDo={itensDo}
           definir={(data, itens) => {

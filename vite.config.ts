@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
   // No "npm run dev", as partes do Firebase precisam ser pré-empacotadas juntas; separadas, cada uma
   // tem a sua cópia do núcleo e dá "Component auth has not been registered yet"
   optimizeDeps: {
-    include: ['firebase/app', 'firebase/app-check', 'firebase/auth', 'firebase/firestore', 'firebase/functions'],
+    include: ['firebase/app', 'firebase/app-check', 'firebase/auth', 'firebase/firestore', 'firebase/functions', 'firebase/storage'],
   },
   plugins: [
     react(),

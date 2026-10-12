@@ -15,11 +15,15 @@ import { setGlobalOptions } from 'firebase-functions/v2'
 import { onDocumentWritten } from 'firebase-functions/v2/firestore'
 import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
+import { onObjectDeleted, onObjectFinalized } from 'firebase-functions/v2/storage'
+import { getStorage } from 'firebase-admin/storage'
 import { defineSecret, defineString } from 'firebase-functions/params'
 import { logger } from 'firebase-functions'
 import * as mp from './mercadoPago.js'
 import {
   aplicarEvento,
+  cabeNoEspaco,
+  videoDoArquivo,
   direitoGratis,
   lerCabecalhoAssinatura,
   lerReferencia,
@@ -201,6 +205,44 @@ export const vencerPlanos = onSchedule({ schedule: 'every day 03:00', timeZone: 
       }
     }
   }
+})
+
+// ---------- espaço dos vídeos do treinador ----------
+
+/** Vídeo novo: soma o espaço usado; se passou do plano, apaga o arquivo e o registro dele */
+export const contarVideoNovo = onObjectFinalized(async (evento) => {
+  const arquivo = evento.data
+  const video = videoDoArquivo(arquivo.name)
+  if (!video) return
+  const escolinha = db.collection('escolinhas').doc(video.escolinha)
+  const tamanho = Number(arquivo.size ?? 0)
+  const passou = await db.runTransaction(async (tx) => {
+    const d = (await tx.get(escolinha)).data()
+    if (!d) return true
+    const usado = Number(d.contagem?.videosBytes ?? 0)
+    const limite = Number(d.limites?.videosMB ?? limitesDe('escolinha', 'gratis').videosMB)
+    if (!cabeNoEspaco(usado, tamanho, limite)) return true
+    tx.update(escolinha, { 'contagem.videosBytes': usado + tamanho })
+    return false
+  })
+  if (passou) {
+    logger.info('Vídeo acima do espaço do plano foi apagado', { arquivo: arquivo.name })
+    await getStorage().bucket(arquivo.bucket).file(arquivo.name).delete({ ignoreNotFound: true })
+    await db.doc(video.documento).delete()
+  }
+})
+
+/** Vídeo apagado: devolve o espaço */
+export const contarVideoApagado = onObjectDeleted(async (evento) => {
+  const arquivo = evento.data
+  const video = videoDoArquivo(arquivo.name)
+  if (!video) return
+  const tamanho = Number(arquivo.size ?? 0)
+  await db
+    .collection('escolinhas')
+    .doc(video.escolinha)
+    .update({ 'contagem.videosBytes': FieldValue.increment(-tamanho) })
+    .catch(() => undefined)
 })
 
 // ---------- limite de atletas da escolinha ----------

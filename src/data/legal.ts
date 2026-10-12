@@ -16,4 +16,4 @@ export const CONTROLADOR = {
 }
 
 /** Versão da Política de Privacidade e dos Termos (mude quando o texto mudar: o aceite guarda esta versão) */
-export const VERSAO_TERMOS = '2026-10-12b'
+export const VERSAO_TERMOS = '2026-10-12c'

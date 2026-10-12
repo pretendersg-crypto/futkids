@@ -7,6 +7,9 @@ import { Link, useSearchParams } from 'react-router'
 import { SeloTipo } from '../components/ui/TipoAtividade'
 import { tipoDaRota } from '../data/tiposAtividade'
 import { BotaoVideo } from '../features/agenda/BotaoVideo'
+import { VideosDoTreinadorNaAgenda } from '../features/agenda/VideosDoTreinadorNaAgenda'
+import { VideoDoTreinador } from '../components/video/VideoDoTreinador'
+import { caminhoDoVideo, ehVideoDoApp } from '../conta/videoDoApp'
 import { ConfigLembrete } from '../features/agenda/ConfigLembrete'
 import { Missoes } from '../features/agenda/Missoes'
 import { AreaPais } from '../features/agenda/pais/AreaPais'
@@ -174,7 +177,7 @@ function MinhaAgenda() {
                       {tipo === 'tela' ? 'Jogar ▶️' : 'Treinar ▶️'}
                     </Link>
                   )}
-                  {t.video && <BotaoVideo url={t.video} titulo={t.titulo} />}
+                  {t.video && !ehVideoDoApp(t.video) && <BotaoVideo url={t.video} titulo={t.titulo} />}
                   {!t.feito && (
                     <button
                       type="button"
@@ -185,6 +188,8 @@ function MinhaAgenda() {
                     </button>
                   )}
                 </div>
+                {/* Vídeo que o treinador pendurou neste treino (toca aqui mesmo) */}
+                {ehVideoDoApp(t.video) && <VideoDoTreinador caminho={caminhoDoVideo(t.video)} titulo={t.titulo} compacto />}
               </li>
             )
           })}
@@ -205,6 +210,7 @@ function MinhaAgenda() {
         )}
       </section>
 
+      <VideosDoTreinadorNaAgenda />
       <Missoes />
       <ConfigLembrete />
     </>

@@ -56,8 +56,9 @@ export function EscolinhaDoAtleta({ atleta }: { atleta: Atleta }) {
           <label className="flex items-start gap-3 rounded-2xl bg-white p-3 text-base">
             <input type="checkbox" checked={autorizo} onChange={(e) => setAutorizo(e.target.checked)} className="mt-1 size-6 shrink-0 accent-sky-600" />
             <span>
-              Autorizo os treinadores da escolinha a <b>ver</b> os treinos de {atleta.apelido}: nível, pontos, dias e treinos feitos e conquistas.
-              Eles não mudam nada e não veem nada da família. Posso tirar quando quiser.
+              Autorizo os treinadores da escolinha a <b>ver</b> os treinos de {atleta.apelido}: nível, pontos, dias e treinos feitos e conquistas
+              (eles não mudam nada e não veem nada da família), e que <b>vídeos da turma</b> enviados pelo treinador em que {atleta.apelido}{' '}
+              apareça sejam vistos <b>só pelos colegas da turma</b>, dentro do app. Posso tirar quando quiser.
             </span>
           </label>
           <MensagemErro erro={erro} />

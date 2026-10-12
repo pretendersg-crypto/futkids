@@ -4,6 +4,8 @@
 import { BotaoVideo } from '../../features/agenda/BotaoVideo'
 import { useImagemLocal } from '../../hooks/useImagemLocal'
 import { origemDoVideo } from '../../utils/link'
+import { caminhoDoVideo, ehVideoDoApp } from '../../conta/videoDoApp'
+import { VideoDoTreinador } from './VideoDoTreinador'
 
 const ROTULOS = { youtube: '🎬 Ver vídeo real (YouTube)', hotmart: '🎓 Ver a aula (Hotmart)', outro: '🎬 Ver vídeo real' }
 
@@ -24,7 +26,8 @@ export function VideoReal({ titulo, video, videoLocal }: Props) {
           <figcaption className="text-center text-sm font-bold">📹 Vídeo gravado pelo treinador</figcaption>
         </figure>
       )}
-      {video && <BotaoVideo url={video} titulo={titulo} className="w-full" rotulo={ROTULOS[origemDoVideo(video)]} />}
+      {video && ehVideoDoApp(video) && <VideoDoTreinador caminho={caminhoDoVideo(video)} titulo={titulo} />}
+      {video && !ehVideoDoApp(video) && <BotaoVideo url={video} titulo={titulo} className="w-full" rotulo={ROTULOS[origemDoVideo(video)]} />}
     </div>
   )
 }

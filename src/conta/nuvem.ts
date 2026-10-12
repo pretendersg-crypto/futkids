@@ -12,6 +12,7 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app'
 import { getToken, initializeAppCheck, ReCaptchaEnterpriseProvider, type AppCheck } from 'firebase/app-check'
 import { getFunctions, httpsCallable } from 'firebase/functions'
+import { getStorage, type FirebaseStorage } from 'firebase/storage'
 import {
   deleteUser,
   getAuth,
@@ -81,6 +82,14 @@ export async function testarAppCheck(): Promise<string> {
   if (!appCheck) return 'App Check desligado'
   const r = await getToken(appCheck, true)
   return r.token ? 'ok' : 'sem passe'
+}
+
+let storage: FirebaseStorage | null = null
+/** Cloud Storage (vídeos do treinador) */
+export function armazenamento(): FirebaseStorage {
+  iniciar()
+  storage ??= getStorage(app!)
+  return storage
 }
 
 /** Funções do servidor (região São Paulo), ex.: criarPagamento */

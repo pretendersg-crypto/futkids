@@ -57,6 +57,20 @@ service cloud.firestore {
         && convite(c).expiraEm > request.time
         && (convite(c).usadoPor == null || convite(c).usadoPor == request.auth.uid);
     }
+    // Quem vê os vídeos da turma: o aparelho/responsável que se registrou como "leitor" por um atleta
+    // que AINDA está na turma (tirou o atleta da turma → o acesso acaba sozinho)
+    function leitorDaTurma(e, t) {
+      let l = /databases/$(database)/documents/escolinhas/$(e)/turmas/$(t)/leitores/$(request.auth.uid);
+      return logado() && exists(l)
+        && exists(/databases/$(database)/documents/escolinhas/$(e)/turmas/$(t)/membros/$(get(l).data.atleta));
+    }
+    function videoValido() {
+      let v = request.resource.data;
+      return v.titulo is string && v.titulo.size() <= 80
+        && v.tipo in ['tatico', 'exercicio', 'outro']
+        && v.caminho is string && v.bytes is int
+        && v.declaracaoImagem.por == request.auth.uid;
+    }
     // Código da turma (para a família entrar), ainda ativo
     function codigoTurmaValido(c, e, t) {
       let ct = get(/databases/$(database)/documents/codigosTurma/$(c)).data;
@@ -161,7 +175,7 @@ service cloud.firestore {
         && request.resource.data.treinadores == [request.auth.uid]
         && request.resource.data.turmas == {}
         && request.resource.data.plano == 'gratis'
-        && request.resource.data.limites == { 'treinadores': 1, 'turmas': 1, 'atletas': 20 }
+        && request.resource.data.limites == { 'treinadores': 1, 'turmas': 1, 'atletas': 20, 'videosMB': 1024 }
         && semCamposDoServidorNaCriacao();
       // Treinador muda a escolinha (nome, turmas dentro do limite) e pode sair dela
       allow update: if treinadorDe(e) && semPlanoNovo()
@@ -201,6 +215,28 @@ service cloud.firestore {
             && exists(/databases/$(database)/documents/escolinhas/$(e)/turmas/$(t)/membros/$(a))
             && request.resource.data.dias is map
             && request.resource.data.em is number;
+
+          // Vídeos só deste atleta (ex.: correção do exercício dele)
+          match /videos/{v} {
+            allow read: if treinadorDe(e) || podeAtleta(a);
+            allow delete: if treinadorDe(e);
+            allow create: if treinadorDe(e) && videoValido();
+          }
+        }
+
+        // Vídeos da turma toda (ex.: táticos): os treinadores e os leitores da turma
+        match /videos/{v} {
+          allow read: if treinadorDe(e) || leitorDaTurma(e, t);
+          allow delete: if treinadorDe(e);
+          allow create: if treinadorDe(e) && videoValido();
+        }
+
+        // Leitores da turma: cada aparelho/responsável se registra por um atleta autorizado da turma
+        match /leitores/{uid} {
+          allow get, delete: if treinadorDe(e) || (logado() && request.auth.uid == uid);
+          allow create, update: if logado() && request.auth.uid == uid
+            && podeAtleta(request.resource.data.atleta)
+            && exists(/databases/$(database)/documents/escolinhas/$(e)/turmas/$(t)/membros/$(request.resource.data.atleta));
         }
 
         // Atletas da turma. Id = id do atleta (já autorizado pela família) ou o código do convite

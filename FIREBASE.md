@@ -76,6 +76,26 @@ antes de tentar de novo. Para testar na hora, apague os dados do site (ou o banc
 Apps → ⋮ → TTL (ex.: 12 horas). Se o Google Cloud pedir uma conta de faturamento para ativar a API,
 ela será a mesma do plano Blaze da fase de cobrança.
 
+## 7. Vídeos do treinador (Cloud Storage)
+
+Os vídeos que o treinador envia ficam no **Cloud Storage** do Firebase. Isso **exige o plano Blaze**
+(veja a seção 6 e o COBRANCA.md, passo 2).
+
+1. Console do Firebase → **Criação → Storage → Vamos começar**.
+2. Local: **southamerica-east1 (São Paulo)**. Use o mesmo do Firestore; o servidor espera essa região.
+3. Comece no **modo de produção**.
+4. Aba **Regras**: apague tudo, cole o arquivo `storage.rules` deste projeto e clique em **Publicar**.
+   - O Firebase vai pedir permissão para as regras do Storage lerem o Firestore. **Aceite**: é assim
+     que ele sabe quem é da turma.
+5. Publique também o servidor (COBRANCA.md, passo 4). As funções `contarVideoNovo` e
+   `contarVideoApagado` contam o espaço usado por escolinha e apagam o vídeo que passar do plano.
+   Sem o servidor, só vale o limite de 200 MB por vídeo.
+
+**Espaço por plano:** Grátis 1 GB · Básico 10 GB · Pro 50 GB (em `functions/src/planos.json`).
+
+**Custo aproximado (Blaze, região São Paulo):** ~R$ 0,15 por GB guardado por mês e ~R$ 0,60 por GB
+assistido. Exemplo: um vídeo de 30 MB visto por 20 atletas custa cerca de R$ 0,40.
+
 ## 6. Custos e alerta de gasto
 
 - No plano **Spark** (gratuito) não há cobrança: se a cota do dia acabar, o banco para até o dia
