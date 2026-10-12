@@ -9,7 +9,8 @@ rules_version = '2';
 //  - escolinhas/{e}: os treinadores dela. Plano da turma: qualquer logado lê (não tem dado pessoal;
 //    os ids são longos e aleatórios). Membros da turma: os treinadores e a família de cada um.
 //  - convites/{código} e codigosTurma/{código}: quem sabe o código lê aquele documento.
-//  - "plano" e "limites" (gratuito/pago) só o servidor muda (fase de cobrança).
+//  - "plano", "limites", validade e assinatura (gratuito/pago) só o servidor muda (Cloud Functions);
+//    pagamentos/ e pagamentosAplicados/ são só do servidor (nenhuma regra libera o app).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -69,8 +70,15 @@ service cloud.firestore {
         && request.resource.data.em is number
         && (!('app' in request.resource.data) || request.resource.data.app is int);
     }
+    // Campos da cobrança: só o servidor (Cloud Functions) grava
+    function camposDoServidor() {
+      return ['plano', 'limites', 'validoAte', 'renovacaoAutomatica', 'assinatura', 'contagem'];
+    }
     function semPlanoNovo() {
-      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['plano', 'limites']);
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(camposDoServidor());
+    }
+    function semCamposDoServidorNaCriacao() {
+      return !request.resource.data.keys().hasAny(['validoAte', 'renovacaoAutomatica', 'assinatura', 'contagem']);
     }
 
     // ---------- usuários ----------
@@ -84,7 +92,8 @@ service cloud.firestore {
       // Nova família: eu como único responsável e no plano grátis
       allow create: if adulto()
         && request.resource.data.responsaveis == [request.auth.uid]
-        && request.resource.data.plano == 'gratis';
+        && request.resource.data.plano == 'gratis'
+        && semCamposDoServidorNaCriacao();
       // Responsável muda a família (lista de atletas etc.), sem mexer no plano, e pode sair dela
       allow update: if responsavelDe(f) && semPlanoNovo()
         && (request.resource.data.responsaveis == resource.data.responsaveis
@@ -152,7 +161,8 @@ service cloud.firestore {
         && request.resource.data.treinadores == [request.auth.uid]
         && request.resource.data.turmas == {}
         && request.resource.data.plano == 'gratis'
-        && request.resource.data.limites == { 'treinadores': 1, 'turmas': 1, 'atletas': 20 };
+        && request.resource.data.limites == { 'treinadores': 1, 'turmas': 1, 'atletas': 20 }
+        && semCamposDoServidorNaCriacao();
       // Treinador muda a escolinha (nome, turmas dentro do limite) e pode sair dela
       allow update: if treinadorDe(e) && semPlanoNovo()
         && request.resource.data.donos == resource.data.donos

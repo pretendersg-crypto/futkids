@@ -1,0 +1,38 @@
+{
+  "_comentario": "Catálogo dos planos. Fonte única: o servidor (functions) cobra por estes preços e o app mostra os mesmos. Preços PROVISÓRIOS: confirme antes de ligar a cobrança.",
+  "escolinha": {
+    "gratis": {
+      "nome": "Grátis",
+      "limites": { "treinadores": 1, "turmas": 1, "atletas": 20 },
+      "precos": null,
+      "recursos": ["1 treinador", "1 turma", "Até 20 atletas", "Plano da turma", "Treino de cada atleta autorizado"]
+    },
+    "basico": {
+      "nome": "Básico",
+      "limites": { "treinadores": 3, "turmas": 10, "atletas": 60 },
+      "precos": { "mensal": 49.9, "anual": 499 },
+      "recursos": ["Até 3 treinadores", "Até 10 turmas", "Até 60 atletas", "Tudo do Grátis"]
+    },
+    "pro": {
+      "nome": "Pro",
+      "limites": { "treinadores": 20, "turmas": 50, "atletas": 500 },
+      "precos": { "mensal": 99.9, "anual": 999 },
+      "recursos": ["Até 20 treinadores", "Até 50 turmas", "Até 500 atletas", "Tudo do Básico"]
+    }
+  },
+  "familia": {
+    "gratis": {
+      "nome": "Grátis",
+      "limites": {},
+      "precos": null,
+      "recursos": ["Tudo do app", "Filhos sem limite", "Plano de casa e da escolinha"]
+    },
+    "premium": {
+      "nome": "Premium",
+      "limites": {},
+      "precos": { "mensal": 9.9, "anual": 99 },
+      "disponivel": false,
+      "recursos": ["Fotos e vídeos sincronizados entre os aparelhos", "Relatório de evolução"]
+    }
+  }
+}

@@ -11,6 +11,7 @@
 //   convites/{código}                 { tipo, familia, atleta?, expiraEm, usadoPor }
 import { initializeApp, type FirebaseApp } from 'firebase/app'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 import {
   deleteUser,
   getAuth,
@@ -69,6 +70,12 @@ export function iniciar() {
     db = getFirestore(app)
   }
   return { auth: auth!, db: db! }
+}
+
+/** Funções do servidor (região São Paulo), ex.: criarPagamento */
+export function funcaoDoServidor<E, S>(nome: string) {
+  iniciar()
+  return httpsCallable<E, S>(getFunctions(app!, 'southamerica-east1'), nome)
 }
 
 // ---------- login ----------

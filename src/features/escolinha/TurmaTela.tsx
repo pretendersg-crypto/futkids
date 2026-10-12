@@ -58,7 +58,8 @@ export function TurmaTela({ uid, escolinha, turma, aoVoltar, aoMudar }: Props) {
     await (await nuvem()).salvarPlanoTurma(escolinha.id, turma.id, dias)
   }, [escolinha.id, turma.id])
 
-  const cheio = (membros?.length ?? 0) >= escolinha.limites.atletas
+  // Total da escolinha contado pelo servidor; sem ele, os desta turma
+  const cheio = Math.max(escolinha.atletas ?? 0, membros?.length ?? 0) >= escolinha.limites.atletas
 
   return (
     <section className="flex flex-col gap-4">
@@ -110,7 +111,7 @@ export function TurmaTela({ uid, escolinha, turma, aoVoltar, aoMudar }: Props) {
         <div className="flex flex-col gap-2 rounded-2xl bg-white p-3">
           <p className="font-bold">➕ Cadastrar atleta e convidar a família</p>
           <CampoApelido valor={novo} aoMudar={setNovo} />
-          {cheio && <p className="text-sm font-bold">O plano grátis vai até {escolinha.limites.atletas} atletas.</p>}
+          {cheio && <p className="text-sm font-bold">O plano da escolinha vai até {escolinha.limites.atletas} atletas (veja os planos na tela da escolinha).</p>}
           <button
             type="button"
             disabled={ocupado || !novo.trim() || cheio}

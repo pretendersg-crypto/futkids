@@ -33,6 +33,11 @@ export interface DadosEscolinha {
   turmas: Turma[]
   plano: string
   limites: { treinadores: number; turmas: number; atletas: number }
+  /** Até quando o plano pago vale (ms); null = grátis */
+  validoAte: number | null
+  renovacaoAutomatica: boolean
+  /** Atletas contados pelo servidor (todas as turmas) */
+  atletas: number | null
 }
 
 // ---------- escolinha (treinador) ----------
@@ -67,6 +72,9 @@ export async function lerEscolinha(e: string): Promise<DadosEscolinha> {
     turmas: Object.entries((d.turmas as Record<string, string> | undefined) ?? {}).map(([id, nome]) => ({ id, nome })),
     plano: String(d.plano ?? 'gratis'),
     limites: (d.limites as DadosEscolinha['limites'] | undefined) ?? { ...LIMITES_GRATIS },
+    validoAte: typeof d.validoAte === 'number' ? d.validoAte : null,
+    renovacaoAutomatica: d.renovacaoAutomatica === true,
+    atletas: typeof d.contagem?.atletas === 'number' ? d.contagem.atletas : null,
   }
 }
 

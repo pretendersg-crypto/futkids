@@ -10,6 +10,7 @@ import { Modal } from '../../components/ui/Modal'
 import { BOTAO, useAcao } from '../conta/acao'
 import { Cartao, CodigoGrande, MensagemErro } from '../conta/comum'
 import { EntrarAdulto } from '../conta/Entrar'
+import { PlanosEscolinha } from './PlanosEscolinha'
 import { TurmaTela } from './TurmaTela'
 
 const nuvem = () => import('../../conta/nuvemEscolinha')
@@ -88,6 +89,8 @@ function SemEscolinha() {
 function Escolinha({ id, uid }: { id: string; uid: string }) {
   const [esc, setEsc] = useState<DadosEscolinha | null>(null)
   const [turmaAberta, setTurmaAberta] = useState<Turma | null>(null)
+  // Volta do Mercado Pago (?pagamento=voltou): abre direto nos planos
+  const [planosAbertos, setPlanosAbertos] = useState(() => new URLSearchParams(location.search).get('pagamento') === 'voltou')
   const [novaTurma, setNovaTurma] = useState('')
   const [codigo, setCodigo] = useState<string | null>(null)
   const [sair, setSair] = useState(false)
@@ -106,6 +109,7 @@ function Escolinha({ id, uid }: { id: string; uid: string }) {
   }, [id])
 
   if (!esc) return <p>Carregando a escolinha…</p>
+  if (planosAbertos) return <PlanosEscolinha uid={uid} escolinha={esc} aoVoltar={() => setPlanosAbertos(false)} aoAtualizar={() => void recarregar()} />
   if (turmaAberta) {
     return (
       <TurmaTela
@@ -122,9 +126,10 @@ function Escolinha({ id, uid }: { id: string; uid: string }) {
   return (
     <div className="flex flex-col gap-4">
       <Cartao titulo={`⚽ ${esc.nome}`}>
-        <p className="self-start rounded-full bg-white px-3 py-1 text-sm font-bold">
-          {pago ? '⭐ Plano pago' : '🆓 Plano grátis'}: até {esc.limites.treinadores} treinador(es), {esc.limites.turmas} turma(s) e {esc.limites.atletas} atletas
-        </p>
+        <button type="button" onClick={() => setPlanosAbertos(true)} className="self-start rounded-full bg-white px-3 py-1 text-left text-sm font-bold shadow">
+          {pago ? '⭐ Plano pago' : '🆓 Plano grátis'}: até {esc.limites.treinadores} treinador(es), {esc.limites.turmas} turma(s) e {esc.limites.atletas} atletas ·{' '}
+          <u>ver planos</u>
+        </button>
 
         <h3 className="text-lg font-extrabold">Turmas</h3>
         <ul className="flex flex-col gap-2">
@@ -163,7 +168,12 @@ function Escolinha({ id, uid }: { id: string; uid: string }) {
             </button>
           </div>
         ) : (
-          <p className="text-sm">O plano grátis tem {esc.limites.turmas} turma. Para mais turmas, vai ter o plano pago.</p>
+          <p className="text-sm">
+            O seu plano tem {esc.limites.turmas} turma(s).{' '}
+            <button type="button" onClick={() => setPlanosAbertos(true)} className="font-bold underline">
+              Ver planos
+            </button>
+          </p>
         )}
 
         <h3 className="text-lg font-extrabold">Treinadores ({esc.treinadores.length})</h3>
@@ -172,7 +182,12 @@ function Escolinha({ id, uid }: { id: string; uid: string }) {
             👥 Convidar outro treinador
           </button>
         ) : (
-          <p className="text-sm">O plano grátis tem {esc.limites.treinadores} treinador. Para mais treinadores, vai ter o plano pago.</p>
+          <p className="text-sm">
+            O seu plano tem {esc.limites.treinadores} treinador(es).{' '}
+            <button type="button" onClick={() => setPlanosAbertos(true)} className="font-bold underline">
+              Ver planos
+            </button>
+          </p>
         )}
         <MensagemErro erro={erro} />
       </Cartao>

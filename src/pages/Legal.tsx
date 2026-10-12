@@ -122,6 +122,10 @@ export function Privacidade() {
             <>
               <b>Treinadores da escolinha</b>: só os dados de treino dos atletas que o responsável autorizou.
             </>,
+            <>
+              <b>Mercado Pago</b>: quando uma escolinha (ou família) assina um plano pago, o pagamento é feito no Mercado Pago, que trata os dados de
+              pagamento. O FutKids guarda só o e-mail de quem pagou, o plano, a validade e os números de referência do pagamento.
+            </>,
             'Autoridades, apenas quando a lei obrigar.',
           ]}
         />
@@ -205,33 +209,45 @@ export function Termos() {
             'O treinador só vê os treinos dos atletas cuja família autorizou, e usa essas informações apenas para acompanhar o treino na escolinha.',
             'É proibido copiar, divulgar ou usar os dados dos atletas para outro fim, ou cadastrar o nome verdadeiro de uma criança no lugar do apelido.',
             'A escolinha é responsável pelo uso que seus treinadores fazem do app e deve tirar o acesso de quem sair da equipe.',
-            'O plano grátis tem limites (treinadores, turmas e atletas). Planos pagos poderão ser oferecidos no futuro, com preço e condições informados antes da contratação.',
+            'O plano grátis tem limites (treinadores, turmas e atletas). Os planos pagos aumentam esses limites; preço e condições aparecem na tela "Planos" antes de pagar.',
           ]}
         />
       </Secao>
 
-      <Secao titulo="5. Uso correto">
+      <Secao titulo="5. Pagamentos, renovação e cancelamento">
+        <Lista
+          itens={[
+            'Os pagamentos são feitos pelo Mercado Pago (Pix, cartão ou boleto). O FutKids não recebe nem guarda os dados do cartão.',
+            'Assinatura mensal no cartão: renova sozinha todo mês até ser cancelada. Cancelar para a renovação; o plano continua até o fim do período já pago.',
+            'Pagamento avulso (1 mês ou 1 ano): vale pelo período pago e não renova sozinho.',
+            'O plano pago começa quando o Mercado Pago confirma o pagamento. Ao vencer sem renovação, a escolinha volta ao plano grátis: nada é apagado, mas novas turmas, treinadores e atletas acima do limite ficam bloqueados.',
+            'Direito de arrependimento: até 7 dias depois do pagamento, você pode pedir a devolução integral (Código de Defesa do Consumidor, art. 49) pelo e-mail de contato.',
+          ]}
+        />
+      </Secao>
+
+      <Secao titulo="6. Uso correto">
         <p>
           Não use o app para nada ilegal, ofensivo ou que coloque crianças em risco. Não tente acessar dados de outras famílias ou burlar as proteções do
           serviço. Podemos suspender contas que descumprirem estes termos.
         </p>
       </Secao>
 
-      <Secao titulo="6. Disponibilidade">
+      <Secao titulo="7. Disponibilidade">
         <p>
           O app funciona sem internet, mas a conta e a sincronia dependem dela e de serviços de terceiros (Google Firebase). Podemos mudar ou
           encerrar recursos, avisando antes quando afetar a conta.
         </p>
       </Secao>
 
-      <Secao titulo="7. Seus dados">
+      <Secao titulo="8. Seus dados">
         <p>
           O tratamento de dados segue a <Link to="/privacidade" className="font-bold underline">Política de Privacidade</Link>. Você pode baixar ou
           apagar seus dados a qualquer momento na tela da conta.
         </p>
       </Secao>
 
-      <Secao titulo="8. Lei e foro">
+      <Secao titulo="9. Lei e foro">
         <p>
           Estes termos seguem as leis do Brasil. Fica eleito o foro de {CONTROLADOR.cidade}, sem prejuízo do direito do consumidor de usar o foro do
           próprio domicílio. Dúvidas: {CONTROLADOR.email}.

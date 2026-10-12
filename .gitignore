@@ -31,3 +31,8 @@ src/local/
 
 # Materiais de referência do usuário (PDFs, docs, páginas salvas, desenhos exportados): ficam só no computador
 Arquivos/
+
+# Servidor (Cloud Functions): dependências e build
+functions/node_modules/
+functions/lib/
+.firebase/

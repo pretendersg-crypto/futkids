@@ -144,6 +144,25 @@ nessa fase, com alerta de gasto.
 - **Custo:** o plano Spark não cobra. O alerta de gasto é criado quando passar para o Blaze (fase 4).
 - **Checklist antes de abrir ao público:** FIREBASE.md.
 
+## 5.3 Como ficou a fase 4 (12/10/2026)
+
+- **Mercado Pago**, recebendo como pessoa física por enquanto (CNPJ depois). Planos da escolinha por
+  faixa de atletas: **Grátis** (20 atletas), **Básico** (60) e **Pro** (500), mensal ou anual.
+  - Os preços são provisórios e ficam em `functions/src/planos.json`. É o mesmo arquivo que o app
+    mostra.
+  - Família Premium fica "em breve".
+- **Servidor** (`functions/`, Cloud Functions 2ª geração, em São Paulo):
+  - `criarPagamento`: assinatura mensal no cartão ou pagamento avulso por Pix, boleto ou cartão;
+  - `avisoMercadoPago`: webhook com conferência do x-signature, idempotente;
+  - `cancelarAssinatura`;
+  - `vencerPlanos`: todo dia;
+  - `contarAtletas`: limite de atletas garantido pelo servidor.
+- Regras de cobrança puras e testadas em `functions/src/regras.ts`. O app só lê o plano: plano,
+  limites, validade, assinatura e contagem só o servidor grava.
+- Tela **⭐ Planos** na área do treinador. Termos com pagamento, renovação, cancelamento e
+  arrependimento de 7 dias (CDC, art. 49).
+- Como ligar: **COBRANCA.md**.
+
 ## 6. O que o dono do app precisa fazer
 
 - Criar o projeto Firebase (FIREBASE.md) e, além do Google, ligar em Authentication:
