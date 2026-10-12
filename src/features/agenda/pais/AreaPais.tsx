@@ -30,6 +30,7 @@ import { CategoriaDoJogador } from '../../categoria/CategoriaDoJogador'
 import { SeloCategoria } from '../../categoria/SeloCategoria'
 import { AtletaDoPlano } from '../../conta/AtletaDoPlano'
 import { Conta } from '../../conta/Conta'
+import { AtalhoPainel } from '../../painel/AtalhoPainel'
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
@@ -78,6 +79,7 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <AtalhoPainel />
       <AtletaDoPlano />
       <Conta />
       <PainelTreinador aoAbrir={() => setPerfilAberto(true)} />

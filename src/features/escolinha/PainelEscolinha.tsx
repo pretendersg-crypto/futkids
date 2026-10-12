@@ -11,6 +11,7 @@ import { BOTAO, useAcao } from '../conta/acao'
 import { Cartao, CodigoGrande, MensagemErro } from '../conta/comum'
 import { EntrarAdulto } from '../conta/Entrar'
 import { PlanosEscolinha } from './PlanosEscolinha'
+import { AtalhoPainel } from '../painel/AtalhoPainel'
 import { TurmaTela } from './TurmaTela'
 
 const nuvem = () => import('../../conta/nuvemEscolinha')
@@ -125,6 +126,7 @@ function Escolinha({ id, uid }: { id: string; uid: string }) {
   const pago = esc.plano !== 'gratis'
   return (
     <div className="flex flex-col gap-4">
+      <AtalhoPainel />
       <Cartao titulo={`⚽ ${esc.nome}`}>
         <button type="button" onClick={() => setPlanosAbertos(true)} className="self-start rounded-full bg-white px-3 py-1 text-left text-sm font-bold shadow">
           {pago ? '⭐ Plano pago' : '🆓 Plano grátis'}: até {esc.limites.treinadores} treinador(es), {esc.limites.turmas} turma(s) e {esc.limites.atletas} atletas ·{' '}

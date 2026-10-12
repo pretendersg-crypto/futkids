@@ -52,6 +52,10 @@ Treinos, Futsal Tático e os itens da Agenda):
   sendo montado, e o aparelho da criança ligado ao filho dela. Planos e progresso sincronizam entre os
   aparelhos; fotos e vídeos ficam só no aparelho. Aviso de privacidade e "apagar tudo" na própria tela.
   Como ligar: [FIREBASE.md](FIREBASE.md) (sem configurar, o app funciona como antes, só no aparelho)
+- **Painel para computador** (`/painel`, ou o aviso "🖥️ Está no computador?" na área dos pais e do
+  treinador): plano de casa e plano da turma em **grade de semanas** (domingo a sábado), com a
+  biblioteca de treinos ao lado. Arrastar o treino para o dia, mover entre dias, tirar, vídeo só do
+  dia, copiar ou limpar a semana. No menu também ficam a área dos pais completa e a conta
 - **Gestão dos gestos do goleiro** (aba Pais → 🧤 Fundamentos e gestos): mudar os do app (textos, desenho,
   vídeo) e criar novos, com desenho pronto ou imagem/GIF própria. Os Fundamentos do goleiro também entram
   no editor do "Treinar", como o Aquecimento

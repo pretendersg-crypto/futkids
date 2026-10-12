@@ -17,6 +17,8 @@ const ROTAS: RouteObject[] = [
   // Política de Privacidade e Termos de Uso (públicas, sem conta)
   { path: '/privacidade', lazy: () => import('./pages/Legal').then((m) => ({ Component: m.Privacidade })) },
   { path: '/termos', lazy: () => import('./pages/Legal').then((m) => ({ Component: m.Termos })) },
+  // Painel para computador (planos em grade, arrastar e soltar)
+  { path: '/painel', lazy: () => import('./pages/Painel').then((m) => ({ Component: m.Painel })) },
   // Área do treinador de escolinha (turmas, atletas e plano da turma)
   { path: '/treinador', lazy: () => import('./pages/TreinadorPagina').then((m) => ({ Component: m.TreinadorPagina })) },
   {
