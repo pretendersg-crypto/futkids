@@ -55,7 +55,8 @@ export function Painel() {
           <SeletorAtleta />
           <CopiarPlanoDeCasa compacto />
           <p className="basis-full text-sm text-slate-600">
-            O aquecimento entra sozinho antes de cada treino. Amarelo = dia mudado por você (↩ volta ao programa) · ✅ fez tudo · 🟡 fez uma parte.
+            Clique em <b>+ Adicionar</b> no dia para escolher treinos e gestos técnicos. Arraste uma ficha para mudar de dia; ✕ tira. O aquecimento entra
+            sozinho. Amarelo = dia mudado por você (↩ volta ao programa) · ✅ fez tudo · 🟡 fez uma parte.
           </p>
         </div>
         <PlanoDeCasa />

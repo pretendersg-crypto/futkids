@@ -5,6 +5,8 @@
 //  - a série animada do app que adapta aquele treino para criança (serie). Quando um vídeo virar
 //    animação própria, basta criar a série nova e trocar o `serie` do treino aqui.
 // A `categoria` diz a partir de qual categoria do jogador (data/categorias.ts) o vídeo é liberado.
+import { categoriaGestoPorId, type Gesto } from '../features/saidaGol/gestos'
+import { todosOsGestos, useGestosStore } from '../stores/gestosStore'
 import type { CategoriaId } from './categorias'
 
 export interface TreinoCalendario {
@@ -169,8 +171,22 @@ export function treinoDeFundamentos(f: FundamentosDosPais): TreinoCalendario {
   return { id: idDeFundamentos(f.id), nome: f.nome, emoji: f.emoji, rota: `/goleiro/treino/${f.id}`, atividade: 'goleiro', detalhe: 'Treino de fundamentos' }
 }
 
-/** Busca um treino do calendário, um vídeo adicionado, um treino criado pelos pais ou um treino de fundamentos */
+/** Id no calendário de um gesto técnico (um fundamento sozinho, ex.: "gesto:base") */
+export const idDeGesto = (id: string) => `gesto:${id}`
+
+export function treinoDeGesto(g: Gesto): TreinoCalendario {
+  const categoria = categoriaGestoPorId(g.categoria)
+  // Abre a aula do gesto; conta como treino de goleiro
+  return { id: idDeGesto(g.id), nome: g.nome, emoji: categoria.emoji, rota: `/goleiro/gestos/${g.id}`, atividade: 'goleiro', detalhe: `Gesto técnico · ${categoria.nome}` }
+}
+
+/** Busca um treino do calendário, um vídeo adicionado, um treino criado pelos pais, um treino de fundamentos ou um gesto */
 export function treinoPorId(id: string, extras: TreinoExtra[] = [], series: SerieDosPais[] = [], fundamentos: FundamentosDosPais[] = []): TreinoCalendario | undefined {
+  if (id.startsWith('gesto:')) {
+    // Os gestos do aparelho: os do app (com as mudanças dos pais) e os criados
+    const gesto = todosOsGestos(useGestosStore.getState()).find((g) => idDeGesto(g.id) === id)
+    return gesto && treinoDeGesto(gesto)
+  }
   const extra = extras.find((e) => e.id === id)
   if (extra) return treinoDeExtra(extra)
   const serie = series.find((s) => idDeSerie(s.modulo) === id)

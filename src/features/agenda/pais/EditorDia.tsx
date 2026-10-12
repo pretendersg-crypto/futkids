@@ -1,7 +1,8 @@
 // Editor de uma data da agenda (área dos pais): trocar, tirar ou incluir treinos, mudar o vídeo
 // só daquele dia, marcar descanso ou voltar ao que o programa diz.
 import { useState } from 'react'
-import { TREINOS_CALENDARIO, treinoDeExtra, treinoDeFundamentos, treinoDeSerie, treinoPorId, type ItemDia } from '../../../data/calendarioGoleiros'
+import { TREINOS_CALENDARIO, treinoDeExtra, treinoDeFundamentos, treinoDeGesto, treinoDeSerie, treinoPorId, type ItemDia } from '../../../data/calendarioGoleiros'
+import { useGestos } from '../../saidaGol/useGestos'
 import { useTreinosFundamentosStore } from '../../../stores/treinosFundamentosStore'
 import { pontuarTreinador } from '../../../stores/treinadorStore'
 import { useTreinosStore } from '../../../stores/treinosStore'
@@ -20,18 +21,20 @@ export function EditorDia({ data, aoFechar }: Props) {
   const programa = useProgramaStore()
   const seriesDosPais = useTreinosStore((s) => s.seriesExtras)
   const fundamentos = useTreinosFundamentosStore((s) => s.treinos)
+  const gestos = useGestos()
   const original = diaDoProgramaOriginal(data, programa)
   const [itens, setItens] = useState<ItemDia[]>(() => (programa.alteracoes[data] ?? original).itens.filter((i) => i.treino !== 'aquecimento'))
   const [novo, setNovo] = useState('')
   const [erro, setErro] = useState('')
 
   const nomeOriginal = original.itens.length ? original.itens.map((i) => treinoPorId(i.treino, programa.extras, seriesDosPais, fundamentos)?.nome ?? i.treino).join(' + ') : 'Descanso'
-  // Treinos do calendário + vídeos, treinos e treinos de fundamentos dos pais (o aquecimento já entra sozinho)
+  // Treinos do calendário + vídeos, treinos e treinos de fundamentos dos pais + gestos técnicos (o aquecimento já entra sozinho)
   const opcoes = [
     ...TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento'),
     ...programa.extras.map(treinoDeExtra),
     ...seriesDosPais.map(treinoDeSerie),
     ...fundamentos.map(treinoDeFundamentos),
+    ...gestos.map(treinoDeGesto),
   ]
 
   function salvar(lista: ItemDia[]) {

@@ -1,7 +1,7 @@
 // Grade de planejamento para computador: semanas em 7 colunas (domingo a sábado), cada dia com os
-// treinos em "fichas", e a biblioteca de treinos ao lado. Arrastar da biblioteca para o dia inclui;
-// arrastar uma ficha para outro dia move; ✕ tira; clicar num treino da biblioteca e depois no "+"
-// de um dia também inclui. Serve para o plano de casa (pais) e o plano da turma (treinador).
+// treinos em "fichas". Cada dia tem "+ Adicionar", que abre a lista de treinos (com abas e busca);
+// arrastar uma ficha para outro dia move; ✕ tira. A lista lateral (opcional) serve para arrastar.
+// Serve para o plano de casa (pais) e o plano da turma (treinador).
 import { useMemo, useState, type DragEvent } from 'react'
 import type { ItemDia, TreinoCalendario } from '../../data/calendarioGoleiros'
 import { diaDaSemana, formatarData, hojeISO, somarDias } from '../../utils/data'
@@ -11,6 +11,8 @@ import { NOMES_DIAS } from '../agenda/semana'
 
 export interface GrupoDeTreinos {
   titulo: string
+  /** Aba da lista de treinos (vários grupos podem ficar na mesma aba); sem = o próprio título */
+  secao?: string
   treinos: TreinoCalendario[]
 }
 
@@ -43,24 +45,32 @@ interface Props {
 const TIPO_DRAG = 'application/x-futkids'
 type Arrasto = { tipo: 'novo'; treino: string } | { tipo: 'mover'; de: string; indice: number }
 
+const diaMes = (data: string) => formatarData(data).slice(0, 5)
+const secaoDe = (g: GrupoDeTreinos) => g.secao ?? g.titulo
+
+/** Os grupos com o texto da busca (no nome, no detalhe ou no título do grupo, ex.: "quedas") */
+function filtrar(grupos: GrupoDeTreinos[], busca: string) {
+  const t = busca.trim().toLowerCase()
+  if (!t) return grupos
+  return grupos
+    .map((g) => ({ ...g, treinos: g.treinos.filter((x) => `${x.nome} ${x.detalhe ?? ''} ${g.titulo}`.toLowerCase().includes(t)) }))
+    .filter((g) => g.treinos.length > 0)
+}
+
 export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, estado, outros, nomeDe, vazio = 'Descanso', videos = [] }: Props) {
   const hoje = hojeISO()
   const [inicio, setInicio] = useState(() => somarDias(hoje, -diaDaSemana(hoje)))
-  const [semanas, setSemanas] = useState(4)
-  const [busca, setBusca] = useState('')
-  const [escolhido, setEscolhido] = useState<string | null>(null)
+  const [semanas, setSemanas] = useState(2)
   const [sobre, setSobre] = useState<string | null>(null)
   const [videoDe, setVideoDe] = useState<{ data: string; indice: number } | null>(null)
-  // A biblioteca pode ser escondida para a grade ganhar espaço (telas menores)
-  const [comBiblioteca, setComBiblioteca] = useState(true)
+  /** O dia em que a lista de treinos está aberta ("+ Adicionar") */
+  const [adicionandoEm, setAdicionandoEm] = useState<string | null>(null)
+  // A lista lateral para arrastar fica escondida até pedir (a grade ganha espaço)
+  const [comBiblioteca, setComBiblioteca] = useState(false)
+  const [busca, setBusca] = useState('')
 
   const linhas = Array.from({ length: semanas }, (_, s) => Array.from({ length: 7 }, (_, d) => somarDias(inicio, s * 7 + d)))
-  const filtrados = useMemo(() => {
-    const t = busca.trim().toLowerCase()
-    return grupos
-      .map((g) => ({ ...g, treinos: t ? g.treinos.filter((x) => x.nome.toLowerCase().includes(t)) : g.treinos }))
-      .filter((g) => g.treinos.length > 0)
-  }, [grupos, busca])
+  const filtrados = useMemo(() => filtrar(grupos, busca), [grupos, busca])
 
   function incluir(data: string, treino: string) {
     definir(data, [...itensDo(data), { treino }])
@@ -94,41 +104,49 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
   }
 
   function limparSemana(semana: string[]) {
+    if (!confirm(`Tirar todos os treinos da semana de ${diaMes(semana[0])} a ${diaMes(semana[6])}?`)) return
     for (const data of semana) definir(data, [])
   }
 
   const editando = videoDe ? itensDo(videoDe.data)[videoDe.indice] : null
+  const ultimoDia = linhas[linhas.length - 1][6]
+  const botaoBarra = 'rounded-xl bg-white px-3 py-1.5 font-bold shadow hover:bg-violet-50'
 
   return (
     <div className="flex min-h-0 gap-4">
       {/* Grade */}
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={() => setInicio(somarDias(inicio, -7))} className="rounded-xl bg-white px-3 py-2 font-bold shadow">
-            ◀ Semana anterior
+          <button type="button" onClick={() => setInicio(somarDias(inicio, -7))} aria-label="Semana anterior" className={botaoBarra}>
+            ◀
           </button>
-          <button type="button" onClick={() => setInicio(somarDias(hoje, -diaDaSemana(hoje)))} className="rounded-xl bg-white px-3 py-2 font-bold shadow">
+          <button type="button" onClick={() => setInicio(somarDias(hoje, -diaDaSemana(hoje)))} className={botaoBarra}>
             Hoje
           </button>
-          <button type="button" onClick={() => setInicio(somarDias(inicio, 7))} className="rounded-xl bg-white px-3 py-2 font-bold shadow">
-            Próxima semana ▶
+          <button type="button" onClick={() => setInicio(somarDias(inicio, 7))} aria-label="Próxima semana" className={botaoBarra}>
+            ▶
           </button>
-          <button type="button" onClick={() => setComBiblioteca((b) => !b)} className="ml-auto rounded-xl bg-white px-3 py-2 font-bold shadow">
-            {comBiblioteca ? '📚 Esconder treinos' : '📚 Mostrar treinos'}
+          <span className="px-1 text-lg font-extrabold">
+            {diaMes(inicio)} a {diaMes(ultimoDia)}
+          </span>
+          <select
+            value={semanas}
+            onChange={(e) => setSemanas(Number(e.target.value))}
+            aria-label="Quantas semanas mostrar"
+            className="rounded-xl border-2 border-violet-200 bg-white px-2 py-1 font-bold"
+          >
+            {[1, 2, 4].map((n) => (
+              <option key={n} value={n}>
+                {n} semana{n > 1 ? 's' : ''}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={() => setComBiblioteca((b) => !b)} className={`ml-auto ${botaoBarra}`}>
+            {comBiblioteca ? '📚 Fechar a lista' : '📚 Lista para arrastar'}
           </button>
-          <label className="flex items-center gap-2 font-bold">
-            Mostrar
-            <select value={semanas} onChange={(e) => setSemanas(Number(e.target.value))} className="rounded-xl border-2 border-violet-200 bg-white px-2 py-1">
-              {[1, 2, 4, 6].map((n) => (
-                <option key={n} value={n}>
-                  {n} semana{n > 1 ? 's' : ''}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
 
-        <div className="grid grid-cols-7 gap-2 text-center text-sm font-black text-slate-600">
+        <div className="grid grid-cols-7 gap-1.5 text-center text-sm font-black text-slate-600">
           {NOMES_DIAS.map((d) => (
             <span key={d}>{d}</span>
           ))}
@@ -136,23 +154,21 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
 
         {linhas.map((semana) => (
           <div key={semana[0]} className="flex flex-col gap-1">
-            <div className="flex items-center gap-3 text-sm">
-              <span className="font-bold text-slate-600">
-                Semana de {formatarData(semana[0])} a {formatarData(semana[6])}
-              </span>
-              <button type="button" onClick={() => copiarSemana(semana)} className="font-bold text-violet-700 underline">
-                Copiar para a semana seguinte
+            <div className="flex items-center justify-end gap-3 text-xs">
+              <button type="button" onClick={() => copiarSemana(semana)} title="Repete estes 7 dias na semana de baixo" className="font-bold text-violet-700 hover:underline">
+                📋 Repetir na semana seguinte
               </button>
-              <button type="button" onClick={() => limparSemana(semana)} className="font-bold text-red-700 underline">
-                Limpar a semana
+              <button type="button" onClick={() => limparSemana(semana)} className="font-bold text-red-700 hover:underline">
+                🗑️ Limpar a semana
               </button>
             </div>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1.5">
               {semana.map((data) => {
                 const itens = itensDo(data)
                 const deOutro = outros?.(data) ?? []
                 const mudou = alterado?.(data) ?? false
                 const feito = estado?.(data) ?? ''
+                const ehHoje = data === hoje
                 return (
                   <div
                     key={data}
@@ -162,21 +178,22 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
                     }}
                     onDragLeave={() => setSobre((s) => (s === data ? null : s))}
                     onDrop={(e) => soltar(e, data)}
-                    className={`flex min-h-28 flex-col gap-1 rounded-xl border-2 p-1 transition-colors ${
-                      sobre === data ? 'border-violet-600 bg-violet-100' : data === hoje ? 'border-violet-500 bg-violet-50' : mudou ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white'
-                    } ${data < hoje ? 'opacity-70' : ''}`}
+                    className={`flex min-h-32 flex-col gap-1 rounded-xl border-2 p-1.5 transition-colors ${
+                      sobre === data ? 'border-violet-600 bg-violet-100' : ehHoje ? 'border-violet-500 bg-violet-50' : mudou ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white'
+                    } ${data < hoje ? 'opacity-75' : ''}`}
                   >
                     <div className="flex items-center gap-1 text-xs">
-                      <span className="font-black">{formatarData(data).slice(0, 5)}</span>
+                      <span className="font-black">{diaMes(data)}</span>
+                      {ehHoje && <span className="rounded bg-violet-600 px-1 font-black text-white">HOJE</span>}
                       {feito && <span title="O que a criança fez">{feito}</span>}
                       {mudou && restaurar && (
                         <button type="button" onClick={() => restaurar(data)} title="Voltar ao que o programa diz" className="ml-auto font-bold text-amber-700">
-                          ↩ programa
+                          ↩
                         </button>
                       )}
                     </div>
                     {deOutro.map((f, i) => (
-                      <span key={`o${i}`} title={f.origem} className="truncate rounded-lg bg-sky-100 px-1.5 py-1 text-left text-xs">
+                      <span key={`o${i}`} title={`${f.nome} (${f.origem})`} className="truncate rounded-lg bg-sky-100 px-1.5 py-1 text-left text-xs">
                         {f.emoji} {f.nome} <span className="font-bold">{f.origem}</span>
                       </span>
                     ))}
@@ -189,38 +206,40 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
                           draggable
                           onDragStart={(e) => arrastar(e, { tipo: 'mover', de: data, indice: i })}
                           title={`${t.nome} (arraste para outro dia)`}
-                          className="group relative flex cursor-grab items-start gap-1 rounded-lg border border-violet-200 bg-violet-50 px-1.5 py-1 text-left text-xs active:cursor-grabbing"
+                          className="flex cursor-grab items-start gap-1 rounded-lg border border-violet-200 bg-violet-50 px-1.5 py-1 text-left text-xs active:cursor-grabbing"
                         >
                           <span aria-hidden>{t.emoji}</span>
                           {/* Quebra por sílabas em português (Along-amento), nunca no meio sem hífen */}
                           <span lang="pt-BR" className="line-clamp-3 min-w-0 flex-1 leading-tight font-bold hyphens-auto">
                             {t.nome}
                           </span>
-                          {item.video && (
-                            <span aria-label="Com vídeo só deste dia" className="group-hover:hidden">
-                              🎬
-                            </span>
-                          )}
-                          {/* Ações aparecem ao passar o mouse (ou ao focar com o teclado) */}
-                          <span className="absolute top-0.5 right-0.5 hidden gap-0.5 rounded-md bg-white/95 px-0.5 shadow group-focus-within:flex group-hover:flex">
-                            <button type="button" onClick={() => setVideoDe({ data, indice: i })} title="Vídeo só deste dia" aria-label={`Vídeo de ${t.nome} neste dia`}>
-                              🎬
-                            </button>
-                            <button type="button" onClick={() => definir(data, itens.filter((_, k) => k !== i))} title="Tirar" aria-label={`Tirar ${t.nome}`} className="px-0.5 font-black text-red-600">
-                              ✕
-                            </button>
-                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setVideoDe({ data, indice: i })}
+                            title={item.video ? 'Tem vídeo só deste dia (trocar)' : 'Pôr um vídeo só deste dia'}
+                            aria-label={`Vídeo de ${t.nome} neste dia`}
+                            className={item.video ? '' : 'opacity-30 hover:opacity-100'}
+                          >
+                            🎬
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => definir(data, itens.filter((_, k) => k !== i))}
+                            title="Tirar deste dia"
+                            aria-label={`Tirar ${t.nome}`}
+                            className="px-0.5 font-black text-red-600"
+                          >
+                            ✕
+                          </button>
                         </div>
                       )
                     })}
                     <button
                       type="button"
-                      disabled={!escolhido}
-                      onClick={() => escolhido && incluir(data, escolhido)}
-                      title={escolhido ? `Incluir ${nomeDe(escolhido).nome}` : 'Escolha um treino na biblioteca ou arraste para cá'}
-                      className="mt-auto truncate rounded-lg border border-dashed border-slate-300 px-1 text-xs text-slate-400 enabled:border-violet-400 enabled:text-violet-700 enabled:hover:bg-violet-50 disabled:cursor-default"
+                      onClick={() => setAdicionandoEm(data)}
+                      className="mt-auto rounded-lg border-2 border-dashed border-violet-300 py-1 text-xs font-extrabold text-violet-700 hover:border-violet-500 hover:bg-violet-100"
                     >
-                      {escolhido ? `+ ${nomeDe(escolhido).nome}` : '+'}
+                      + Adicionar
                     </button>
                   </div>
                 )
@@ -230,37 +249,42 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
         ))}
       </div>
 
-      {/* Biblioteca */}
+      {/* Lista lateral, para arrastar */}
       {comBiblioteca && (
-      <aside className="sticky top-4 flex max-h-[calc(100dvh-6rem)] w-56 shrink-0 flex-col gap-2 overflow-hidden rounded-2xl border-2 border-violet-200 bg-white p-2.5">
-        <h3 className="text-lg font-extrabold">📚 Treinos</h3>
-        <p className="text-xs leading-snug">Arraste para um dia. Ou clique num treino e depois no "+" dos dias.</p>
-        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Procurar treino…" className="rounded-xl border-2 border-violet-200 px-3 py-2" />
-        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
-          {filtrados.map((g) => (
-            <div key={g.titulo} className="flex flex-col gap-1">
-              <p className="text-xs font-black text-slate-500 uppercase">{g.titulo}</p>
-              {g.treinos.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  draggable
-                  onDragStart={(e) => arrastar(e, { tipo: 'novo', treino: t.id })}
-                  onClick={() => setEscolhido((x) => (x === t.id ? null : t.id))}
-                  className={`flex cursor-grab items-center gap-2 rounded-xl border-2 px-2 py-1.5 text-left text-sm ${
-                    escolhido === t.id ? 'border-violet-600 bg-violet-100 font-bold' : 'border-transparent bg-slate-50 hover:border-violet-200'
-                  }`}
-                >
-                  <span aria-hidden className="text-lg">
-                    {t.emoji}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">{t.nome}</span>
-                </button>
-              ))}
-            </div>
-          ))}
-        </div>
-      </aside>
+        <aside className="sticky top-4 flex max-h-[calc(100dvh-6rem)] w-56 shrink-0 flex-col gap-2 overflow-hidden rounded-2xl border-2 border-violet-200 bg-white p-2.5">
+          <p className="text-sm leading-snug font-bold">Arraste um treino para o dia.</p>
+          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Procurar…" className="rounded-xl border-2 border-violet-200 px-3 py-1.5" />
+          <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
+            {filtrados.map((g) => (
+              <div key={g.titulo} className="flex flex-col gap-1">
+                <p className="text-xs font-black text-slate-500">{g.secao ? `${g.secao} · ${g.titulo}` : g.titulo}</p>
+                {g.treinos.map((t) => (
+                  <div
+                    key={t.id}
+                    draggable
+                    onDragStart={(e) => arrastar(e, { tipo: 'novo', treino: t.id })}
+                    title={t.detalhe ?? t.nome}
+                    className="flex cursor-grab items-center gap-2 rounded-xl border-2 border-transparent bg-slate-50 px-2 py-1 text-left text-sm hover:border-violet-200 active:cursor-grabbing"
+                  >
+                    <span aria-hidden>{t.emoji}</span>
+                    <span className="min-w-0 flex-1 truncate">{t.nome}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </aside>
+      )}
+
+      {/* "+ Adicionar": a lista de treinos para o dia */}
+      {adicionandoEm && (
+        <EscolherTreino
+          data={adicionandoEm}
+          grupos={grupos}
+          noDia={itensDo(adicionandoEm).map((i) => nomeDe(i.treino))}
+          aoEscolher={(treino) => incluir(adicionandoEm, treino)}
+          aoFechar={() => setAdicionandoEm(null)}
+        />
       )}
 
       {/* Vídeo de uma ficha */}
@@ -309,6 +333,98 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * A lista de treinos de um dia: abas (gestos técnicos, fundamentos, app…), busca e os treinos em
+ * botões. Cada clique inclui no dia e a janela continua aberta para incluir mais; "Pronto" fecha.
+ */
+function EscolherTreino({
+  data,
+  grupos,
+  noDia,
+  aoEscolher,
+  aoFechar,
+}: {
+  data: string
+  grupos: GrupoDeTreinos[]
+  noDia: { emoji: string; nome: string }[]
+  aoEscolher: (treino: string) => void
+  aoFechar: () => void
+}) {
+  const secoes = [...new Set(grupos.map(secaoDe))]
+  const [secao, setSecao] = useState(secoes[0] ?? '')
+  const [busca, setBusca] = useState('')
+  // Com busca, procura em todas as abas
+  const visiveis = busca.trim() ? filtrar(grupos, busca) : grupos.filter((g) => secaoDe(g) === secao)
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4" onClick={aoFechar}>
+      <div
+        role="dialog"
+        aria-label="Adicionar treino"
+        onKeyDown={(e) => e.key === 'Escape' && aoFechar()}
+        onClick={(e) => e.stopPropagation()}
+        className="flex max-h-[calc(100dvh-2rem)] w-[min(52rem,100%)] flex-col gap-3 rounded-3xl bg-white p-4 shadow-xl"
+      >
+        <div className="flex items-center gap-3">
+          <h3 className="flex-1 text-xl font-extrabold">
+            + Adicionar em {NOMES_DIAS[diaDaSemana(data)]}, {diaMes(data)}
+          </h3>
+          <button type="button" onClick={aoFechar} className="rounded-xl bg-sol px-4 py-2 font-extrabold shadow">
+            ✅ Pronto
+          </button>
+        </div>
+        <p className="rounded-xl bg-violet-50 px-3 py-2 text-sm">
+          <b>Neste dia:</b> {noDia.length ? noDia.map((t) => `${t.emoji} ${t.nome}`).join(' · ') : 'nada ainda (descanso)'}
+        </p>
+        <input autoFocus value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="🔎 Procurar (ex.: queda, encaixe, HIIT)…" className="rounded-xl border-2 border-violet-200 px-3 py-2" />
+        {!busca.trim() && (
+          <div className="flex flex-wrap gap-1.5" role="tablist">
+            {secoes.map((s) => (
+              <button
+                key={s}
+                type="button"
+                role="tab"
+                aria-selected={s === secao}
+                onClick={() => setSecao(s)}
+                className={`rounded-full px-3 py-1.5 text-sm font-bold ${s === secao ? 'bg-violet-600 text-white' : 'bg-violet-100 hover:bg-violet-200'}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
+          {visiveis.length === 0 && <p className="text-sm">Nenhum treino com esse nome.</p>}
+          {visiveis.map((g) => (
+            <div key={g.titulo} className="flex flex-col gap-1.5">
+              <p className="text-sm font-black text-slate-600">{g.titulo}</p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {g.treinos.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => aoEscolher(t.id)}
+                    title={t.detalhe ?? t.nome}
+                    className="flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-slate-50 px-2 py-1.5 text-left text-sm hover:border-violet-400 hover:bg-violet-50"
+                  >
+                    <span aria-hidden className="text-lg">
+                      {t.emoji}
+                    </span>
+                    <span className="min-w-0 flex-1 leading-tight font-bold">{t.nome}</span>
+                    <span aria-hidden className="font-black text-violet-600">
+                      +
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

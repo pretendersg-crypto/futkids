@@ -2,7 +2,8 @@
 // séries e treinos de fundamentos prontos) e um link de vídeo opcional. Chega na agenda de cada
 // atleta da turma, marcado "⚽ <turma>".
 import { useEffect, useState } from 'react'
-import { TREINOS_CALENDARIO, treinoDeFundamentos, treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
+import { TREINOS_CALENDARIO, treinoDeFundamentos, treinoDeGesto, treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
+import { GESTOS_PRONTOS } from '../saidaGol/gestos'
 import { TREINOS_FUNDAMENTOS_INICIAIS } from '../../stores/treinosFundamentosStore'
 import { formatarData, hojeISO, somarDias, diaDaSemana } from '../../utils/data'
 import { linkSeguro } from '../../utils/link'
@@ -12,7 +13,11 @@ import { MensagemErro } from '../conta/comum'
 
 type Dias = Record<string, ItemDia[]>
 
-const OPCOES = [...TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento'), ...TREINOS_FUNDAMENTOS_INICIAIS.map(treinoDeFundamentos)]
+const OPCOES = [
+  ...TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento'),
+  ...TREINOS_FUNDAMENTOS_INICIAIS.map(treinoDeFundamentos),
+  ...GESTOS_PRONTOS.map(treinoDeGesto),
+]
 const nomeDe = (id: string) => {
   const t = treinoPorId(id, [], [], TREINOS_FUNDAMENTOS_INICIAIS)
   return t ? `${t.emoji} ${t.nome}` : id

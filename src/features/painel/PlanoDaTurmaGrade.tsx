@@ -4,22 +4,22 @@
 // Monta na grade e salva na nuvem. Só treinos do app (os criados em casa não existem para a turma).
 import { useCallback, useEffect, useState } from 'react'
 import { Modal } from '../../components/ui/Modal'
-import { TREINOS_CALENDARIO, treinoDeFundamentos, treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
+import { treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
 import type { DadosEscolinha, DiasDaTurma, Membro } from '../../conta/nuvemEscolinha'
 import { TREINOS_FUNDAMENTOS_INICIAIS } from '../../stores/treinosFundamentosStore'
 import { BOTAO, useAcao } from '../conta/acao'
 import { MensagemErro } from '../conta/comum'
-import { GradePlano, type GrupoDeTreinos } from './GradePlano'
+import { GESTOS_PRONTOS } from '../saidaGol/gestos'
+import { GradePlano } from './GradePlano'
+import { gruposDoPlano } from './grupos'
 import { VideosDoTreinador } from '../escolinha/VideosDoTreinador'
 import type { VideoDoTreinador as Video } from '../../conta/nuvemVideos'
 import { useContaStore } from '../../conta/contaStore'
 
 const nuvem = () => import('../../conta/nuvemEscolinha')
 
-const GRUPOS: GrupoDeTreinos[] = [
-  { titulo: 'Treinos de fundamentos', treinos: TREINOS_FUNDAMENTOS_INICIAIS.map(treinoDeFundamentos) },
-  { titulo: 'Treinos do app e do calendário', treinos: TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento') },
-]
+// A turma só usa o que vem no app (o que cada família criou não existe nos aparelhos dos atletas)
+const GRUPOS = gruposDoPlano({ gestos: GESTOS_PRONTOS, fundamentos: TREINOS_FUNDAMENTOS_INICIAIS })
 
 const nomeDe = (id: string) => {
   const t = treinoPorId(id, [], [], TREINOS_FUNDAMENTOS_INICIAIS)

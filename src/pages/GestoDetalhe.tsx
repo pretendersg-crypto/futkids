@@ -11,6 +11,7 @@ import { DesenhoGesto } from '../features/saidaGol/DesenhoGesto'
 import { etapaDoGesto, filaDaTrilha } from '../features/saidaGol/trilha'
 import { useGestos } from '../features/saidaGol/useGestos'
 import { useGestosConcluidosStore } from '../stores/gestosConcluidosStore'
+import { useProgressStore } from '../stores/progressStore'
 import { sons } from '../utils/som'
 
 export function GestoDetalhe() {
@@ -106,6 +107,8 @@ export function GestoDetalhe() {
           const loja = useGestosConcluidosStore.getState()
           if (concluida) return loja.desmarcar(gesto.id)
           loja.marcar(gesto.id)
+          // Conta como treino de goleiro do dia (o gesto pode estar na agenda)
+          useProgressStore.getState().registrarAtividade('goleiro')
           sons.concluido()
         }}
         aoProximo={proximo ? () => irPara(proximo) : undefined}

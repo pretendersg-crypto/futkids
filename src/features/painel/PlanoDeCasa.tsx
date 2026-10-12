@@ -3,7 +3,7 @@
 import { useCallback } from 'react'
 import { useContaStore } from '../../conta/contaStore'
 import { useTurmasStore } from '../../conta/turmasStore'
-import { TREINOS_CALENDARIO, treinoDeExtra, treinoDeFundamentos, treinoDeSerie, treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
+import { treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
 import { useProgramaStore } from '../../stores/programaStore'
 import { useProgressStore } from '../../stores/progressStore'
 import { pontuarTreinador } from '../../stores/treinadorStore'
@@ -11,7 +11,9 @@ import { TREINOS_FUNDAMENTOS_INICIAIS, useTreinosFundamentosStore } from '../../
 import { useTreinosStore } from '../../stores/treinosStore'
 import { formatarData } from '../../utils/data'
 import { diaDoProgramaOriginal, planoDoDia } from '../agenda/semana'
-import { GradePlano, type FichaDeOutroPlano, type GrupoDeTreinos } from './GradePlano'
+import { useGestos } from '../saidaGol/useGestos'
+import { GradePlano, type FichaDeOutroPlano } from './GradePlano'
+import { gruposDoPlano } from './grupos'
 
 export function PlanoDeCasa() {
   const programa = useProgramaStore()
@@ -21,12 +23,8 @@ export function PlanoDeCasa() {
   const atleta = useContaStore((s) => s.atletaAtivo)
   const planosDaTurma = useTurmasStore((s) => (atleta ? s.porAtleta[atleta] : undefined))
 
-  const grupos: GrupoDeTreinos[] = [
-    { titulo: 'Treinos de fundamentos', treinos: fundamentos.map(treinoDeFundamentos) },
-    { titulo: 'Treinos criados por você', treinos: series.map(treinoDeSerie) },
-    { titulo: 'Vídeos que você adicionou', treinos: programa.extras.map(treinoDeExtra) },
-    { titulo: 'Treinos do app e do calendário', treinos: TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento') },
-  ]
+  const gestos = useGestos()
+  const grupos = gruposDoPlano({ gestos, fundamentos, series, extras: programa.extras })
 
   const itensDo = useCallback(
     (data: string): ItemDia[] => (programa.alteracoes[data] ?? diaDoProgramaOriginal(data, programa)).itens.filter((i) => i.treino !== 'aquecimento'),
