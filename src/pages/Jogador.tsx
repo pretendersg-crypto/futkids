@@ -8,6 +8,7 @@ import { apelidoAleatorio } from '../data/apelidos'
 import { Avatar } from '../features/avatar/Avatar'
 import { EditorAvatar } from '../features/avatar/EditorAvatar'
 import { EscolherApelido } from '../features/avatar/EscolherApelido'
+import { contaConfigurada } from '../conta/conta'
 import { useUserStore } from '../stores/userStore'
 
 export function Jogador() {
@@ -59,6 +60,12 @@ export function Jogador() {
       >
         Pronto! ⚽
       </button>
+      {/* Adulto no próprio celular (montar o plano) ou ligar o aparelho da criança pelo código */}
+      {contaConfigurada() && (
+        <Link to="/conta" className="self-center text-base font-bold underline">
+          Sou adulto ou tenho um código: entrar na conta
+        </Link>
+      )}
     </main>
   )
 }

@@ -1,50 +1,102 @@
-// Ações da conta da família usadas pelas telas. O Firebase (nuvem.ts) só é baixado quando uma destas
-// funções é chamada, ou na abertura do app quando o aparelho já está ligado a uma conta.
+// Ações da conta usadas pelas telas. O Firebase (nuvem.ts) só é baixado quando uma destas funções é
+// chamada, ou na abertura do app quando o aparelho já está ligado a uma conta.
+import type { User } from 'firebase/auth'
 import { AVATAR_PADRAO } from '../features/avatar/opcoesAvatar'
 import { CHAVES_FAMILIA } from './chaves'
-import { useContaStore, type Filho } from './contaStore'
+import { useContaStore, type Atleta } from './contaStore'
 import { FIREBASE_CONFIG } from './firebaseConfig'
-import { manterPaisLiberado } from './sessaoPais'
 import { carregarPerfil, esquecerPerfil, guardarPerfil, PERFIL_ANTES_DA_CONTA } from './perfis'
+import { manterPaisLiberado } from './sessaoPais'
 
 export const contaConfigurada = () => FIREBASE_CONFIG !== null
 
 const nuvem = () => import('./nuvem')
 
-/** Abre o app já sincronizando, se este aparelho está ligado a uma conta e a um filho */
+function estado() {
+  return useContaStore.getState()
+}
+
+/** Abre o app já sincronizando, se este aparelho está ligado a uma conta e a um atleta */
 export async function iniciarConta() {
-  const { uid, filhoAtivo, definirEstado } = useContaStore.getState()
-  if (!contaConfigurada() || !uid || !filhoAtivo) return
+  const { uid, familia, atletaAtivo, definirEstado } = estado()
+  if (!contaConfigurada() || !uid || !familia || !atletaAtivo) return
   try {
     const n = await nuvem()
     const usuario = await n.usuarioAtual()
-    if (usuario?.uid !== uid) return definirEstado('erro', 'Entre de novo na conta da família (área dos pais).')
-    await n.iniciarSincronia(uid, filhoAtivo)
+    if (usuario?.uid !== uid) return definirEstado('erro', 'Entre de novo na conta (área dos pais).')
+    await n.iniciarSincronia(familia, atletaAtivo)
   } catch (erro) {
     definirEstado('erro', (erro as Error).message)
   }
 }
 
-export interface ResultadoEntrada {
-  filhos: Filho[]
-  /** A família já tinha dados na nuvem (outro aparelho entrou antes) */
-  familiaNaNuvem: boolean
+// ---------- entrar (responsável) ----------
+
+export interface Entrada {
+  /** Família do usuário (null = ainda não tem: criar uma ou entrar com o código do outro responsável) */
+  familia: string | null
+}
+
+async function depoisDeEntrar(usuario: User): Promise<Entrada> {
+  const n = await nuvem()
+  const { familia } = await n.lerUsuario(usuario.uid)
+  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia })
+  if (familia) estado().definirAtletas((await n.lerFamilia(familia)).atletas)
+  return { familia }
 }
 
 /** Login com Google. null = a pessoa fechou a janela (ou foi para a página do Google e vai voltar) */
-export async function entrar(): Promise<ResultadoEntrada | null> {
+export async function entrarComGoogle(): Promise<Entrada | null> {
   const n = await nuvem()
   const usuario = (await n.entrarComGoogle()) ?? (await n.usuarioAtual())
-  if (!usuario) return null
-  const conta = useContaStore.getState()
-  conta.entrou(usuario.uid, usuario.email)
-  await n.registrarAceite(usuario.uid)
-  const filhos = await n.listarFilhos(usuario.uid)
-  conta.definirFilhos(filhos)
-  return { filhos, familiaNaNuvem: await n.familiaTemDados(usuario.uid) }
+  return usuario && !usuario.isAnonymous ? depoisDeEntrar(usuario) : null
 }
 
-/** Guarda uma cópia dos dados de família deste aparelho antes da nuvem trocar por os dela */
+export async function enviarLinkPorEmail(email: string) {
+  await (await nuvem()).enviarLinkPorEmail(email)
+}
+
+/** Página /entrar: termina o login pelo link do e-mail (null = o endereço não é um link de entrada) */
+export async function concluirLinkDeEmail(url: string, email?: string): Promise<Entrada | null> {
+  const n = await nuvem()
+  if (!n.ehLinkDeEntrada(url)) return null
+  return depoisDeEntrar(await n.concluirLinkDeEmail(url, email))
+}
+
+/** Usuário que voltou do Google pela página (quando a janela foi bloqueada) */
+export async function retomarEntrada(): Promise<Entrada | null> {
+  if (!contaConfigurada() || estado().uid) return null
+  const n = await nuvem()
+  const usuario = await n.usuarioAtual()
+  return usuario && !usuario.isAnonymous ? depoisDeEntrar(usuario) : null
+}
+
+async function usuarioLogado(): Promise<User> {
+  const usuario = await (await nuvem()).usuarioAtual()
+  if (!usuario || usuario.isAnonymous) throw new Error('Entre na conta primeiro.')
+  return usuario
+}
+
+export async function criarFamilia() {
+  const n = await nuvem()
+  const usuario = await usuarioLogado()
+  const familia = await n.criarFamilia(usuario)
+  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia })
+  estado().definirAtletas([])
+}
+
+/** O outro responsável (pai/mãe) entra na família com o código */
+export async function entrarNaFamilia(codigo: string) {
+  const n = await nuvem()
+  const usuario = await usuarioLogado()
+  const familia = await n.entrarNaFamilia(usuario, codigo)
+  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia })
+  estado().definirAtletas((await n.lerFamilia(familia)).atletas)
+}
+
+// ---------- este aparelho e os atletas ----------
+
+/** Guarda uma cópia dos dados de família deste aparelho antes da nuvem trocar pelos dela */
 function guardarFamiliaAntesDaConta() {
   for (const chave of CHAVES_FAMILIA) {
     const valor = localStorage.getItem(chave)
@@ -52,106 +104,136 @@ function guardarFamiliaAntesDaConta() {
   }
 }
 
-/** 1º login neste aparelho: os dados que já estão aqui viram um filho novo na conta */
-export async function vincularComoFilhoNovo(apelido: string, familiaNaNuvem: boolean) {
-  const { uid } = useContaStore.getState()
-  if (!uid) throw new Error('Entre na conta primeiro.')
-  const n = await nuvem()
-  if (familiaNaNuvem) guardarFamiliaAntesDaConta()
-  const filho = await n.criarFilho(uid, apelido)
-  const conta = useContaStore.getState()
-  conta.definirFilhos([...conta.filhos, filho])
-  conta.definirFilhoAtivo(filho.id)
-  // A sincronia envia os dados do filho (a nuvem dele está vazia) e resolve os da família
-  await n.iniciarSincronia(uid, filho.id)
+function exigirFamilia() {
+  const { uid, familia } = estado()
+  if (!uid || !familia) throw new Error('Entre na conta primeiro.')
+  return { uid, familia }
 }
 
-/** 1º login neste aparelho: ele passa a ser de um filho que já está na conta */
-export async function vincularAFilhoExistente(id: string) {
-  const { uid } = useContaStore.getState()
-  if (!uid) throw new Error('Entre na conta primeiro.')
+/** 1º uso da conta neste aparelho: os dados que já estão aqui viram um atleta novo da família */
+export async function usarEsteAparelhoComoAtletaNovo(apelido: string) {
+  const { uid, familia } = exigirFamilia()
   const n = await nuvem()
-  guardarPerfil(PERFIL_ANTES_DA_CONTA)
-  guardarFamiliaAntesDaConta()
-  carregarPerfil(id)
-  await n.baixarPerfil(uid, id)
-  useContaStore.getState().definirFilhoAtivo(id)
-  manterPaisLiberado()
-  location.reload()
+  if (await n.familiaTemDados(familia)) guardarFamiliaAntesDaConta()
+  const atleta = await n.criarAtleta(uid, familia, apelido)
+  estado().definirAtletas([...estado().atletas, atleta])
+  estado().definirAtletaAtivo(atleta.id)
+  // A nuvem do atleta está vazia: a sincronia envia o que está aqui
+  await n.iniciarSincronia(familia, atleta.id)
 }
 
-/** Troca o filho deste aparelho (ex.: o pai vai montar o plano de outro filho) */
-export async function trocarFilho(id: string) {
-  const { uid, filhoAtivo } = useContaStore.getState()
-  if (!uid || id === filhoAtivo) return
+/** Cria um atleta na família (sem trocar o aparelho para ele), já com o apelido no jogador */
+export async function adicionarAtleta(apelido: string): Promise<Atleta> {
+  const { uid, familia } = exigirFamilia()
   const n = await nuvem()
-  if (filhoAtivo) {
-    // Manda o que está pendente; sem internet, a cópia guardada no aparelho segura até a próxima vez
+  const jogador = JSON.stringify({ state: { apelido, avatar: AVATAR_PADRAO, itensComprados: [], categoriaFixa: null }, version: 3 })
+  const atleta = await n.criarAtleta(uid, familia, apelido, { 'futkids-jogador': jogador })
+  estado().definirAtletas([...estado().atletas, atleta])
+  return atleta
+}
+
+/** Troca o atleta deste aparelho (ex.: o pai vai montar o plano de outro filho). Recarrega a página */
+export async function trocarAtleta(id: string) {
+  const { familia, atletaAtivo } = estado()
+  if (!familia || id === atletaAtivo) return
+  const n = await nuvem()
+  if (atletaAtivo) {
     try {
-      await n.enviarPendentes(uid, filhoAtivo)
+      await n.enviarPendentes(familia, atletaAtivo)
     } catch {
-      // segue: a cópia local guarda
+      // sem internet: a cópia guardada no aparelho segura até a próxima vez
     }
     n.pararSincronia()
-    guardarPerfil(filhoAtivo)
+    guardarPerfil(atletaAtivo)
+  } else {
+    // 1ª escolha neste aparelho: o que ele tinha antes fica guardado (nada se perde)
+    guardarPerfil(PERFIL_ANTES_DA_CONTA)
+    guardarFamiliaAntesDaConta()
   }
   carregarPerfil(id)
   try {
-    await n.baixarPerfil(uid, id)
+    await n.baixarPerfil(familia, id)
   } catch {
     // sem internet: abre com a cópia que o aparelho tiver
   }
-  useContaStore.getState().definirFilhoAtivo(id)
+  estado().definirAtletaAtivo(id)
   manterPaisLiberado()
   location.reload()
 }
 
-/** Cria um filho na conta (sem trocar o aparelho para ele), já com o apelido no jogador */
-export async function adicionarFilho(apelido: string): Promise<Filho> {
-  const { uid } = useContaStore.getState()
-  if (!uid) throw new Error('Entre na conta primeiro.')
-  const n = await nuvem()
-  const jogador = JSON.stringify({ state: { apelido, avatar: AVATAR_PADRAO, itensComprados: [], categoriaFixa: null }, version: 3 })
-  const filho = await n.criarFilho(uid, apelido, { 'futkids-jogador': jogador })
-  const conta = useContaStore.getState()
-  conta.definirFilhos([...conta.filhos, filho])
-  return filho
+export async function renomearAtleta(id: string, apelido: string) {
+  const { familia } = exigirFamilia()
+  await (await nuvem()).renomearAtleta(familia, id, apelido)
+  estado().definirAtletas(estado().atletas.map((a) => (a.id === id ? { ...a, apelido } : a)))
 }
 
-export async function renomearFilho(id: string, apelido: string) {
-  const { uid } = useContaStore.getState()
-  if (!uid) return
-  const n = await nuvem()
-  await n.renomearFilho(uid, id, apelido)
-  const conta = useContaStore.getState()
-  conta.definirFilhos(conta.filhos.map((f) => (f.id === id ? { ...f, apelido } : f)))
-}
-
-/** Apaga um filho da conta (e da nuvem). Não deixa apagar o filho ativo neste aparelho */
-export async function apagarFilho(id: string) {
-  const { uid, filhoAtivo } = useContaStore.getState()
-  if (!uid || id === filhoAtivo) throw new Error('Troque este aparelho para outro filho antes de apagar este.')
-  const n = await nuvem()
-  await n.apagarFilho(uid, id)
+/** Apaga um atleta da família (e da nuvem). Não deixa apagar o atleta ativo neste aparelho */
+export async function apagarAtleta(id: string) {
+  const { familia } = exigirFamilia()
+  if (id === estado().atletaAtivo) throw new Error('Troque este aparelho para outro atleta antes de apagar este.')
+  await (await nuvem()).apagarAtleta(familia, id)
   esquecerPerfil(id)
-  const conta = useContaStore.getState()
-  conta.definirFilhos(conta.filhos.filter((f) => f.id !== id))
+  estado().definirAtletas(estado().atletas.filter((a) => a.id !== id))
 }
+
+export async function gerarCodigoAparelho(atleta: string): Promise<string> {
+  const { uid, familia } = exigirFamilia()
+  return (await nuvem()).gerarCodigoAparelho(uid, familia, atleta)
+}
+
+export async function gerarCodigoResponsavel(): Promise<string> {
+  const { uid, familia } = exigirFamilia()
+  return (await nuvem()).gerarCodigoResponsavel(uid, familia)
+}
+
+export async function listarAparelhos(atleta: string) {
+  return (await nuvem()).listarAparelhos(atleta)
+}
+
+export async function desligarAparelho(atleta: string, dev: string) {
+  const { familia } = exigirFamilia()
+  await (await nuvem()).desligarAparelho(familia, atleta, dev)
+}
+
+// ---------- aparelho da criança ----------
+
+/**
+ * Liga este aparelho a um atleta pelo código (sem e-mail). "usarDadosDaqui": o que este aparelho já
+ * tinha (jogador, progresso) vai para o atleta; senão vale o que já está na conta. Recarrega a página.
+ */
+export async function ligarAparelhoDaCrianca(codigo: string, usarDadosDaqui: boolean) {
+  const n = await nuvem()
+  const { uid, familia, atleta } = await n.ligarAparelho(codigo)
+  estado().entrou({ uid, email: null, aparelhoDaCrianca: true, familia })
+  estado().definirAtletas([atleta])
+  guardarPerfil(PERFIL_ANTES_DA_CONTA)
+  guardarFamiliaAntesDaConta()
+  if (usarDadosDaqui) await n.enviarPendentes(familia, atleta.id, true)
+  else {
+    carregarPerfil(atleta.id)
+    await n.baixarPerfil(familia, atleta.id)
+  }
+  estado().definirAtletaAtivo(atleta.id)
+  manterPaisLiberado()
+  location.reload()
+}
+
+// ---------- sair e apagar ----------
 
 function esquecerContaNoAparelho() {
-  const { filhos, filhoAtivo } = useContaStore.getState()
-  // Cópias de outros filhos não ficam num aparelho sem conta
-  for (const f of filhos) if (f.id !== filhoAtivo) esquecerPerfil(f.id)
-  useContaStore.getState().limpar()
+  const { atletas, atletaAtivo } = estado()
+  // Cópias de outros atletas não ficam num aparelho sem conta
+  for (const a of atletas) if (a.id !== atletaAtivo) esquecerPerfil(a.id)
+  estado().limpar()
 }
 
-/** Sai da conta neste aparelho. Os dados do filho ativo continuam aqui (como antes da conta) */
+/** Sai da conta neste aparelho. Os dados do atleta ativo continuam aqui (como antes da conta) */
 export async function sairDaConta() {
-  const { uid, filhoAtivo } = useContaStore.getState()
+  const { familia, atletaAtivo } = estado()
   const n = await nuvem()
-  if (uid && filhoAtivo) {
+  if (familia && atletaAtivo) {
     try {
-      await n.enviarPendentes(uid, filhoAtivo)
+      await n.enviarPendentes(familia, atletaAtivo)
     } catch {
       // sem internet: o que não subiu fica só aqui
     }
@@ -161,12 +243,11 @@ export async function sairDaConta() {
   esquecerContaNoAparelho()
 }
 
-/** Apaga a conta e TODOS os dados da família na nuvem. O aparelho fica com os dados do filho ativo */
-export async function apagarContaDaFamilia() {
-  const { uid } = useContaStore.getState()
-  if (!uid) return
+/** Apaga a conta (e, sendo o único responsável, TODOS os dados da família na nuvem) */
+export async function apagarConta() {
+  const { uid, familia } = exigirFamilia()
   const n = await nuvem()
-  await n.apagarConta(uid)
+  await n.apagarConta(uid, familia)
   n.esquecerSincronia()
   esquecerContaNoAparelho()
 }

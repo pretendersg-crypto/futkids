@@ -11,6 +11,9 @@ import { Rali } from './pages/Rali'
 
 const ROTAS: RouteObject[] = [
   { path: '/jogador', element: <Jogador /> },
+  // Conta (responsável entra sem precisar de jogador; aparelho da criança liga por código) e o link do e-mail
+  { path: '/conta', lazy: () => import('./pages/ContaPagina').then((m) => ({ Component: m.ContaPagina })) },
+  { path: '/entrar', lazy: () => import('./pages/EntrarPorLink').then((m) => ({ Component: m.EntrarPorLink })) },
   {
     path: '/',
     element: <AppLayout />,

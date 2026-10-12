@@ -1,9 +1,9 @@
-// Conta da família NESTE aparelho: quem entrou (só o id e o e-mail do responsável, que vêm do Google),
-// os filhos da conta (apelidos) e qual filho usa este aparelho agora. Fica só no aparelho.
+// Conta NESTE aparelho: quem entrou (id e e-mail do responsável, ou "aparelho da criança" sem e-mail),
+// a família, os atletas dela (apelidos) e qual atleta usa este aparelho agora. Fica só no aparelho.
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-export interface Filho {
+export interface Atleta {
   id: string
   apelido: string
 }
@@ -13,49 +13,60 @@ export type EstadoSincronia = 'parada' | 'sincronizando' | 'em-dia' | 'sem-inter
 interface ContaState {
   uid: string | null
   email: string | null
-  filhos: Filho[]
-  /** Filho cujos dados estão ativos neste aparelho (null = ainda não escolheu) */
-  filhoAtivo: string | null
+  /** true = aparelho da criança (entrou com o código do atleta, sem e-mail) */
+  aparelhoDaCrianca: boolean
+  familia: string | null
+  atletas: Atleta[]
+  /** Atleta cujos dados estão ativos neste aparelho (null = ainda não escolheu) */
+  atletaAtivo: string | null
   /** Última sincronia completa (ms) */
   sincronizadoEm: number | null
   estado: EstadoSincronia
   erro: string | null
-  entrou: (uid: string, email: string | null) => void
-  definirFilhos: (filhos: Filho[]) => void
-  definirFilhoAtivo: (id: string | null) => void
+  entrou: (dados: { uid: string; email: string | null; aparelhoDaCrianca: boolean; familia: string | null }) => void
+  definirAtletas: (atletas: Atleta[]) => void
+  definirAtletaAtivo: (id: string | null) => void
   definirEstado: (estado: EstadoSincronia, erro?: string | null) => void
   marcarSincronizado: () => void
   limpar: () => void
 }
 
+const VAZIO = { uid: null, email: null, aparelhoDaCrianca: false, familia: null, atletas: [], atletaAtivo: null, sincronizadoEm: null }
+
 export const useContaStore = create<ContaState>()(
   persist(
     (set) => ({
-      uid: null,
-      email: null,
-      filhos: [],
-      filhoAtivo: null,
-      sincronizadoEm: null,
+      ...VAZIO,
       estado: 'parada',
       erro: null,
-      entrou: (uid, email) => set({ uid, email }),
-      definirFilhos: (filhos) => set({ filhos }),
-      definirFilhoAtivo: (filhoAtivo) => set({ filhoAtivo }),
+      entrou: (dados) => set(dados),
+      definirAtletas: (atletas) => set({ atletas }),
+      definirAtletaAtivo: (atletaAtivo) => set({ atletaAtivo }),
       definirEstado: (estado, erro = null) => set({ estado, erro }),
       marcarSincronizado: () => set({ sincronizadoEm: Date.now(), estado: 'em-dia', erro: null }),
-      limpar: () => set({ uid: null, email: null, filhos: [], filhoAtivo: null, sincronizadoEm: null, estado: 'parada', erro: null }),
+      limpar: () => set({ ...VAZIO, estado: 'parada', erro: null }),
     }),
     {
       name: 'futkids-conta',
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ uid: s.uid, email: s.email, filhos: s.filhos, filhoAtivo: s.filhoAtivo, sincronizadoEm: s.sincronizadoEm }),
+      partialize: (s) => ({
+        uid: s.uid,
+        email: s.email,
+        aparelhoDaCrianca: s.aparelhoDaCrianca,
+        familia: s.familia,
+        atletas: s.atletas,
+        atletaAtivo: s.atletaAtivo,
+        sincronizadoEm: s.sincronizadoEm,
+      }),
+      // v1 (família = conta do Google, "filhos") nunca foi publicada: começa do zero
+      migrate: () => VAZIO,
     },
   ),
 )
 
-/** Apelido do filho ativo neste aparelho (ou null) */
-export function apelidoDoFilhoAtivo(): string | null {
-  const { filhos, filhoAtivo } = useContaStore.getState()
-  return filhos.find((f) => f.id === filhoAtivo)?.apelido ?? null
+/** Apelido do atleta ativo neste aparelho (ou null) */
+export function apelidoDoAtletaAtivo(): string | null {
+  const { atletas, atletaAtivo } = useContaStore.getState()
+  return atletas.find((a) => a.id === atletaAtivo)?.apelido ?? null
 }

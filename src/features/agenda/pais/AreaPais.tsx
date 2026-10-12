@@ -28,8 +28,8 @@ import { CATEGORIAS, type CategoriaId } from '../../../data/categorias'
 import { categoriaDaSerie, categoriaDoVideo } from '../../categoria/categoria'
 import { CategoriaDoJogador } from '../../categoria/CategoriaDoJogador'
 import { SeloCategoria } from '../../categoria/SeloCategoria'
-import { ContaFamilia } from '../../conta/ContaFamilia'
-import { FilhoDoPlano } from '../../conta/FilhoDoPlano'
+import { AtletaDoPlano } from '../../conta/AtletaDoPlano'
+import { Conta } from '../../conta/Conta'
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
@@ -78,8 +78,8 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <FilhoDoPlano />
-      <ContaFamilia />
+      <AtletaDoPlano />
+      <Conta />
       <PainelTreinador aoAbrir={() => setPerfilAberto(true)} />
       <ProgressoAluno />
       <CategoriaDoJogador />

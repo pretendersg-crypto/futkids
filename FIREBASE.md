@@ -1,59 +1,68 @@
-# Conta da família (Firebase): como ligar
+# Conta (Firebase): como ligar
 
-A conta da família usa o **Firebase**, um serviço do Google. Ele cuida do login com Google e guarda
-na nuvem os planos e o progresso de cada filho. O plano gratuito (Spark) dá e sobra para uma família
-ou um time. Enquanto `src/conta/firebaseConfig.ts` estiver com `null`, o app funciona como antes, só
-no aparelho, e mostra "Conta da família: em breve".
+A conta do FutKids usa o **Firebase**, um serviço do Google, para o login e para guardar na nuvem os
+planos e o progresso. O desenho completo (famílias, atletas, escolinhas, planos pagos) está em
+[ARQUITETURA_CONTAS.md](ARQUITETURA_CONTAS.md).
+
+Enquanto `src/conta/firebaseConfig.ts` estiver com `null`, o app funciona como antes, só no
+aparelho, e mostra "Conta: em breve".
 
 ## 1. Criar o projeto
 
 1. Entre em <https://console.firebase.google.com> com a sua conta Google.
-2. Clique em **Criar um projeto** e dê um nome (ex.: `futkids-familia`).
+2. Clique em **Criar um projeto** e dê um nome (ex.: `futkids`).
 3. **Desligue** o Google Analytics. O app não usa, e assim nada de uso é coletado.
 
-## 2. Ligar o login com Google
+## 2. Ligar os 3 jeitos de entrar
 
-1. No menu: **Criação → Authentication → Vamos começar**.
-2. Na aba **Método de login**, escolha **Google**, ligue a chave **Ativar**, escolha o e-mail de
-   suporte e **Salve**.
-3. Na aba **Configurações → Domínios autorizados**, clique em **Adicionar domínio** e coloque:
-   - `pretendersg-crypto.github.io` (o site publicado)
-   - `localhost` já vem na lista (para testar no computador)
+Menu **Criação → Authentication → Vamos começar**, aba **Método de login**:
+
+1. **Google** → Ativar → escolha o e-mail de suporte → Salvar.
+2. **E-mail/senha** → ligue **Link do e-mail (login sem senha)** → Salvar. A primeira chave, de senha,
+   pode ficar desligada.
+3. **Anônimo** → Ativar → Salvar. É assim que o aparelho da criança entra só com o código do atleta,
+   sem e-mail.
+
+Na aba **Configurações → Domínios autorizados**, clique em **Adicionar domínio** e coloque
+`pretendersg-crypto.github.io`. O `localhost` já vem na lista.
 
 ## 3. Criar o banco de dados (Firestore)
 
-1. No menu: **Criação → Firestore Database → Criar banco de dados**.
+1. Menu **Criação → Firestore Database → Criar banco de dados**.
 2. Local: **southamerica-east1 (São Paulo)**.
 3. Comece no **modo de produção**.
-4. Na aba **Regras**, apague o que estiver lá, cole o conteúdo do arquivo `firestore.rules` deste
-   projeto e clique em **Publicar**.
+4. Na aba **Regras**, apague o que estiver lá, cole todo o conteúdo do arquivo `firestore.rules`
+   deste projeto e clique em **Publicar**.
 
 ## 4. Pegar a configuração do app web
 
-1. Na engrenagem ⚙️ → **Configurações do projeto** → **Seus apps** → ícone **`</>`** (Web).
-2. Apelido do app: `futkids`. **Não** marque Firebase Hosting (o site continua no GitHub Pages).
-3. O Firebase mostra um bloco `const firebaseConfig = { apiKey: ..., authDomain: ..., ... }`.
-4. Copie esse bloco e mande para o Claude. Ele coloca em `src/conta/firebaseConfig.ts`.
+1. Clique na engrenagem ⚙️ → **Configurações do projeto** → **Seus apps** → ícone **`</>`** (Web).
+2. Apelido: `futkids`. **Não** marque Firebase Hosting (o site continua no GitHub Pages).
+3. Copie o bloco `const firebaseConfig = { ... }` que aparece e mande para o Claude, que coloca em
+   `src/conta/firebaseConfig.ts`.
 
 Esses valores **não são senha**: todo app web do Firebase mostra isso no navegador. Quem protege os
 dados são as regras do passo 3.
 
-## Como funciona depois de ligado
+## Como funciona (Fase 1: famílias)
 
-- **Celular do pai:** Agenda → 👨‍👩‍👧 Pais → ☁️ Conta da família → aceita o aviso → **Entrar com
-  Google**. Cria os filhos pelo apelido. No topo da área dos pais, **"📋 Plano de: …"** troca o filho
-  cujo plano você está montando.
-- **Aparelho da criança:** entra uma vez com o Google do pai e escolhe **qual filho treina ali**. O
-  aparelho fica nesse filho. Trocar de filho ou sair só pela área dos pais, com o PIN.
-- **Sincronia:** o que o pai muda chega no aparelho da criança na hora, se os dois estiverem com
-  internet. O progresso da criança volta para o pai. Sem internet, cada aparelho segue normalmente e
-  envia quando a internet volta. Se os dois mudarem o mesmo dado ao mesmo tempo, vale o mais recente.
-- **O que é de cada um:**
-  - **Da família:** treinos e gestos criados pelos pais, treinos de fundamentos, PIN e Pai/Mãe
-    Treinador.
-  - **De cada filho:** jogador, progresso, conquistas, agenda/plano, reação, tática e gestos
-    concluídos.
-  - **Só do aparelho, nunca vai para a nuvem:** fotos e vídeos gravados, som e a faixa de instalar.
-  - A lista completa está em `src/conta/chaves.ts`.
-- **Apagar:** Conta da família → Privacidade, sair e apagar → **Apagar a conta e todos os dados da
-  nuvem**.
+- **Responsável no celular dele:** Conta → "Sou o responsável" → aceita o aviso → entra com Google
+  ou com o link no e-mail → "Criar a minha família" → adiciona os atletas pelo apelido.
+  - Para entrar sem montar jogador, use o link "Sou adulto…" na tela do jogador ou o endereço `/conta`.
+- **Outro responsável (pai/mãe):** o 1º toca em "👥 Convidar o outro responsável" e passa o código.
+  O 2º entra na conta dele e digita o código em "Sua família". O código vale 7 dias, uma vez só.
+- **Aparelho da criança:** o responsável toca em "📱 Ligar o aparelho dele". No tablet da criança:
+  Conta → "Este é o aparelho da criança" → digita o código (vale 24 horas, uma vez só). Não fica
+  e-mail nenhum no aparelho. Em "🔗 Aparelhos", o responsável desliga um aparelho perdido.
+- **Montar o plano:** no topo da área dos pais, **"📋 Plano de: …"** escolhe o atleta.
+- **Sincronia:**
+  - O que o responsável muda chega no aparelho da criança na hora, e o progresso volta.
+  - Sem internet, cada aparelho segue normalmente e envia quando a internet voltar.
+  - Se os dois lados mudarem o mesmo dado, vale a mudança mais recente.
+- **O que é de quem** (lista completa em `src/conta/chaves.ts`):
+  - **Família:** treinos e gestos criados pelos pais, treinos de fundamentos, PIN e Pai Treinador.
+  - **Atleta:** jogador, progresso, conquistas, plano de casa, reação e tática.
+  - **Só no aparelho:** fotos e vídeos gravados.
+- **Apagar:** Conta → Privacidade, sair e apagar.
+  - Se você é o único responsável, apaga tudo da família na nuvem.
+  - Se há outro responsável, você só sai da família e os dados continuam com ele.
