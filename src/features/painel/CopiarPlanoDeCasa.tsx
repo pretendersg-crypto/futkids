@@ -7,7 +7,7 @@ import { useContaStore } from '../../conta/contaStore'
 import { BOTAO, useAcao } from '../conta/acao'
 import { MensagemErro } from '../conta/comum'
 
-export function CopiarPlanoDeCasa() {
+export function CopiarPlanoDeCasa({ compacto = false }: { compacto?: boolean }) {
   const { uid, aparelhoDaCrianca, atletas, atletaAtivo } = useContaStore()
   const [aberto, setAberto] = useState(false)
   const [destinos, setDestinos] = useState<string[]>([])
@@ -19,8 +19,12 @@ export function CopiarPlanoDeCasa() {
 
   return (
     <>
-      <button type="button" onClick={() => setAberto(true)} className={`${BOTAO} self-start bg-white`}>
-        📋 Copiar o plano de {atual} para outro filho
+      <button
+        type="button"
+        onClick={() => setAberto(true)}
+        className={compacto ? 'rounded-xl border-2 border-violet-200 bg-white px-3 py-1.5 text-sm font-bold hover:border-violet-500' : `${BOTAO} self-start bg-white`}
+      >
+        📋 Copiar {compacto ? 'para outro filho' : `o plano de ${atual} para outro filho`}
       </button>
       {feito && <p className="font-bold text-green-700">✅ {feito}</p>}
       <Modal aberto={aberto} aoFechar={() => setAberto(false)} titulo={`Copiar o plano de ${atual}`}>

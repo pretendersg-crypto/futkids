@@ -56,7 +56,8 @@ export function Privacidade() {
 
       <Secao titulo="1. Quem é o responsável pelos dados">
         <p>
-          {CONTROLADOR.nome} ({CONTROLADOR.documento}), {CONTROLADOR.cidade}. Contato para qualquer pedido sobre dados: <b>{CONTROLADOR.email}</b>.
+          {CONTROLADOR.nome}
+          {CONTROLADOR.documento && ` (${CONTROLADOR.documento})`}, {CONTROLADOR.cidade}. Contato para qualquer pedido sobre dados: <b>{CONTROLADOR.email}</b>.
         </p>
       </Secao>
 
@@ -183,7 +184,8 @@ export function Termos() {
       <Secao titulo="1. O que é o FutKids">
         <p>
           Um app de treino de futebol e goleiro para crianças, com jogos, treinos animados e agenda. Responsáveis e treinadores podem montar planos de
-          treino. O serviço é oferecido por {CONTROLADOR.nome} ({CONTROLADOR.documento}).
+          treino. O serviço é oferecido por {CONTROLADOR.nome}
+          {CONTROLADOR.documento && ` (${CONTROLADOR.documento})`}.
         </p>
       </Secao>
 

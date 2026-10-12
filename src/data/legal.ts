@@ -6,13 +6,16 @@ export const RASCUNHO = true
 
 export const CONTROLADOR = {
   /** Nome completo (pessoa física) ou razão social (empresa) */
-  nome: '[NOME OU RAZÃO SOCIAL DO RESPONSÁVEL PELO APP]',
-  /** CPF ou CNPJ */
-  documento: '[CPF/CNPJ]',
+  nome: 'Luiz Antônio Rosanelli Dalla Costa',
+  /**
+   * CPF ou CNPJ. Vazio por enquanto: o site e o código são públicos, e um CPF publicado fica exposto.
+   * Preencher com o CNPJ quando houver (obrigatório para vender online, Decreto 7.962/2013).
+   */
+  documento: '',
   /** Cidade/UF (foro) */
-  cidade: '[CIDADE/UF]',
+  cidade: 'Santana do Livramento/RS',
   /** E-mail para pedidos de privacidade (acesso, correção, exclusão) e dúvidas */
-  email: '[E-MAIL DE CONTATO]',
+  email: 'pretendersg@gmail.com',
 }
 
 /** Versão da Política de Privacidade e dos Termos (mude quando o texto mudar: o aceite guarda esta versão) */

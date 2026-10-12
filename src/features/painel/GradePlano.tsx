@@ -51,6 +51,8 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
   const [escolhido, setEscolhido] = useState<string | null>(null)
   const [sobre, setSobre] = useState<string | null>(null)
   const [videoDe, setVideoDe] = useState<{ data: string; indice: number } | null>(null)
+  // A biblioteca pode ser escondida para a grade ganhar espaço (telas menores)
+  const [comBiblioteca, setComBiblioteca] = useState(true)
 
   const linhas = Array.from({ length: semanas }, (_, s) => Array.from({ length: 7 }, (_, d) => somarDias(inicio, s * 7 + d)))
   const filtrados = useMemo(() => {
@@ -111,7 +113,10 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
           <button type="button" onClick={() => setInicio(somarDias(inicio, 7))} className="rounded-xl bg-white px-3 py-2 font-bold shadow">
             Próxima semana ▶
           </button>
-          <label className="ml-auto flex items-center gap-2 font-bold">
+          <button type="button" onClick={() => setComBiblioteca((b) => !b)} className="ml-auto rounded-xl bg-white px-3 py-2 font-bold shadow">
+            {comBiblioteca ? '📚 Esconder treinos' : '📚 Mostrar treinos'}
+          </button>
+          <label className="flex items-center gap-2 font-bold">
             Mostrar
             <select value={semanas} onChange={(e) => setSemanas(Number(e.target.value))} className="rounded-xl border-2 border-violet-200 bg-white px-2 py-1">
               {[1, 2, 4, 6].map((n) => (
@@ -157,7 +162,7 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
                     }}
                     onDragLeave={() => setSobre((s) => (s === data ? null : s))}
                     onDrop={(e) => soltar(e, data)}
-                    className={`flex min-h-36 flex-col gap-1 rounded-2xl border-2 p-1.5 transition-colors ${
+                    className={`flex min-h-28 flex-col gap-1 rounded-xl border-2 p-1 transition-colors ${
                       sobre === data ? 'border-violet-600 bg-violet-100' : data === hoje ? 'border-violet-500 bg-violet-50' : mudou ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white'
                     } ${data < hoje ? 'opacity-70' : ''}`}
                   >
@@ -187,7 +192,10 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
                           className="group relative flex cursor-grab items-start gap-1 rounded-lg border border-violet-200 bg-violet-50 px-1.5 py-1 text-left text-xs active:cursor-grabbing"
                         >
                           <span aria-hidden>{t.emoji}</span>
-                          <span className="line-clamp-2 min-w-0 flex-1 leading-tight font-bold break-words">{t.nome}</span>
+                          {/* Quebra por sílabas em português (Along-amento), nunca no meio sem hífen */}
+                          <span lang="pt-BR" className="line-clamp-3 min-w-0 flex-1 leading-tight font-bold hyphens-auto">
+                            {t.nome}
+                          </span>
                           {item.video && (
                             <span aria-label="Com vídeo só deste dia" className="group-hover:hidden">
                               🎬
@@ -210,9 +218,9 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
                       disabled={!escolhido}
                       onClick={() => escolhido && incluir(data, escolhido)}
                       title={escolhido ? `Incluir ${nomeDe(escolhido).nome}` : 'Escolha um treino na biblioteca ou arraste para cá'}
-                      className="mt-auto rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 enabled:hover:border-violet-500 enabled:hover:text-violet-700 disabled:cursor-default"
+                      className="mt-auto truncate rounded-lg border border-dashed border-slate-300 px-1 text-xs text-slate-400 enabled:border-violet-400 enabled:text-violet-700 enabled:hover:bg-violet-50 disabled:cursor-default"
                     >
-                      {escolhido ? `+ ${nomeDe(escolhido).nome}` : '+ arraste um treino'}
+                      {escolhido ? `+ ${nomeDe(escolhido).nome}` : '+'}
                     </button>
                   </div>
                 )
@@ -223,9 +231,10 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
       </div>
 
       {/* Biblioteca */}
-      <aside className="sticky top-4 flex max-h-[calc(100dvh-8rem)] w-72 shrink-0 flex-col gap-2 overflow-hidden rounded-3xl border-2 border-violet-200 bg-white p-3">
+      {comBiblioteca && (
+      <aside className="sticky top-4 flex max-h-[calc(100dvh-6rem)] w-56 shrink-0 flex-col gap-2 overflow-hidden rounded-2xl border-2 border-violet-200 bg-white p-2.5">
         <h3 className="text-lg font-extrabold">📚 Treinos</h3>
-        <p className="text-xs">Arraste para um dia, ou clique para escolher e depois use o "+" do dia.</p>
+        <p className="text-xs leading-snug">Arraste para um dia. Ou clique num treino e depois no "+" dos dias.</p>
         <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Procurar treino…" className="rounded-xl border-2 border-violet-200 px-3 py-2" />
         <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
           {filtrados.map((g) => (
@@ -252,6 +261,7 @@ export function GradePlano({ grupos, itensDo, definir, restaurar, alterado, esta
           ))}
         </div>
       </aside>
+      )}
 
       {/* Vídeo de uma ficha */}
       {videoDe && editando && (
