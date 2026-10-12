@@ -1,35 +1,50 @@
 rules_version = '2';
 
-// Regras do Firestore do FutKids (ARQUITETURA_CONTAS.md). Fase 1: famílias, atletas e aparelhos.
+// Regras do Firestore do FutKids (ARQUITETURA_CONTAS.md).
+//  Fase 1: famílias, atletas e aparelhos da criança.  Fase 2: escolinhas, turmas e treinadores.
 //  - usuarios/{uid}: só o próprio usuário.
 //  - familias/{f}: só os responsáveis (pai/mãe). O 2º responsável entra com um convite.
-//  - atletas/{a}: os responsáveis da família dele e os aparelhos ligados a ele (por código).
-//  - convites/{código}: quem sabe o código lê aquele convite (o código é o id, longo e com validade).
-//  - "plano" e "limites" (gratuito/pago) não podem ser mudados pelo app: só pelo servidor, depois.
+//  - atletas/{a}: a família dele e os aparelhos ligados a ele; o treinador da escolinha SÓ LÊ, e só
+//    depois que a família autorizou (LGPD: dado de criança só com o consentimento do responsável).
+//  - escolinhas/{e}: os treinadores dela. Plano da turma: qualquer logado lê (não tem dado pessoal;
+//    os ids são longos e aleatórios). Membros da turma: os treinadores e a família de cada um.
+//  - convites/{código} e codigosTurma/{código}: quem sabe o código lê aquele documento.
+//  - "plano" e "limites" (gratuito/pago) só o servidor muda (fase de cobrança).
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function logado() {
       return request.auth != null;
     }
-    // Responsável = login com Google ou e-mail (não o aparelho anônimo da criança)
+    // Responsável/treinador = login com Google ou e-mail (não o aparelho anônimo da criança)
     function adulto() {
       return logado() && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
     function responsavelDe(f) {
-      return adulto() && request.auth.uid in get(/databases/$(database)/documents/familias/$(f)).data.responsaveis;
+      return adulto() && f != null && request.auth.uid in get(/databases/$(database)/documents/familias/$(f)).data.responsaveis;
     }
     function aparelhoDaFamilia(f) {
       return logado() && exists(/databases/$(database)/documents/familias/$(f)/aparelhos/$(request.auth.uid));
     }
+    function atleta(a) {
+      return get(/databases/$(database)/documents/atletas/$(a)).data;
+    }
     function familiaDoAtleta(a) {
-      return get(/databases/$(database)/documents/atletas/$(a)).data.familia;
+      return atleta(a).familia;
     }
     function aparelhoDoAtleta(a) {
       return logado() && exists(/databases/$(database)/documents/atletas/$(a)/aparelhos/$(request.auth.uid));
     }
     function podeAtleta(a) {
       return responsavelDe(familiaDoAtleta(a)) || aparelhoDoAtleta(a);
+    }
+    function treinadorDe(e) {
+      return adulto() && e != null && request.auth.uid in get(/databases/$(database)/documents/escolinhas/$(e)).data.treinadores;
+    }
+    // Treinador da escolinha do atleta, depois que a família autorizou
+    function treinadorAutorizado(a) {
+      let at = atleta(a);
+      return at.get('escolinha', null) != null && at.get('autorizacao', null) != null && treinadorDe(at.escolinha);
     }
     // Convite ainda válido, do tipo pedido, livre ou já reservado por quem está usando
     function convite(c) {
@@ -40,6 +55,11 @@ service cloud.firestore {
         && convite(c).tipo == tipo
         && convite(c).expiraEm > request.time
         && (convite(c).usadoPor == null || convite(c).usadoPor == request.auth.uid);
+    }
+    // Código da turma (para a família entrar), ainda ativo
+    function codigoTurmaValido(c, e, t) {
+      let ct = get(/databases/$(database)/documents/codigosTurma/$(c)).data;
+      return exists(/databases/$(database)/documents/codigosTurma/$(c)) && ct.ativo == true && ct.escolinha == e && ct.turma == t;
     }
     function dadoValido() {
       return request.resource.data.keys().hasOnly(['json', 'em'])
@@ -63,9 +83,8 @@ service cloud.firestore {
       allow create: if adulto()
         && request.resource.data.responsaveis == [request.auth.uid]
         && request.resource.data.plano == 'gratis';
-      // Responsável muda a família (lista de atletas etc.), sem mexer no plano
+      // Responsável muda a família (lista de atletas etc.), sem mexer no plano, e pode sair dela
       allow update: if responsavelDe(f) && semPlanoNovo()
-        // ...e pode sair dela (tirar só a si mesmo da lista)
         && (request.resource.data.responsaveis == resource.data.responsaveis
             || request.resource.data.responsaveis == resource.data.responsaveis.removeAll([request.auth.uid]));
       // 2º responsável entra com convite: só se acrescenta à lista
@@ -83,7 +102,7 @@ service cloud.firestore {
 
       // Aparelhos de criança ligados à família (para lerem a biblioteca da família)
       match /aparelhos/{dev} {
-        allow read, delete: if responsavelDe(f) || (logado() && request.auth.uid == dev);
+        allow get, delete: if responsavelDe(f) || (logado() && request.auth.uid == dev);
         allow list: if responsavelDe(f);
         allow create: if logado() && request.auth.uid == dev
           && conviteValido(request.resource.data.convite, 'aparelho')
@@ -93,20 +112,22 @@ service cloud.firestore {
 
     // ---------- atletas ----------
     match /atletas/{a} {
-      allow get: if podeAtleta(a);
-      // Atleta novo da família: só apelido; turmas vazias (a escolinha entra na fase 2)
+      allow get: if podeAtleta(a) || treinadorAutorizado(a);
+      // Atleta novo da família: só apelido, ainda sem escolinha
       allow create: if responsavelDe(request.resource.data.familia)
         && request.resource.data.criadoPor == request.auth.uid
         && request.resource.data.apelido is string
         && request.resource.data.apelido.size() <= 40
         && request.resource.data.turmas == [];
+      // A família muda o atleta: apelido, e entrar/sair de uma escolinha (com a autorização)
       allow update: if responsavelDe(resource.data.familia)
         && request.resource.data.familia == resource.data.familia
         && request.resource.data.apelido.size() <= 40;
       allow delete: if responsavelDe(resource.data.familia);
 
       match /dados/{chave} {
-        allow read, delete: if podeAtleta(a);
+        allow read: if podeAtleta(a) || treinadorAutorizado(a);
+        allow delete: if podeAtleta(a);
         allow create, update: if podeAtleta(a) && dadoValido();
       }
 
@@ -120,18 +141,100 @@ service cloud.firestore {
       }
     }
 
-    // ---------- convites ----------
+    // ---------- escolinhas ----------
+    match /escolinhas/{e} {
+      allow get: if treinadorDe(e);
+      // Nova escolinha: eu como dono e único treinador, no plano grátis e com os limites dele
+      allow create: if adulto()
+        && request.resource.data.donos == [request.auth.uid]
+        && request.resource.data.treinadores == [request.auth.uid]
+        && request.resource.data.turmas == {}
+        && request.resource.data.plano == 'gratis'
+        && request.resource.data.limites == { 'treinadores': 1, 'turmas': 1, 'atletas': 20 };
+      // Treinador muda a escolinha (nome, turmas dentro do limite) e pode sair dela
+      allow update: if treinadorDe(e) && semPlanoNovo()
+        && request.resource.data.donos == resource.data.donos
+        && request.resource.data.turmas.size() <= resource.data.limites.turmas
+        && (request.resource.data.treinadores == resource.data.treinadores
+            || request.resource.data.treinadores == resource.data.treinadores.removeAll([request.auth.uid])
+            // o dono pode tirar outro treinador
+            || (request.auth.uid in resource.data.donos
+                && request.resource.data.treinadores.size() == resource.data.treinadores.size() - 1
+                && request.auth.uid in request.resource.data.treinadores));
+      // Novo treinador entra com convite, dentro do limite do plano
+      allow update: if adulto() && !(request.auth.uid in resource.data.treinadores)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['treinadores', 'conviteEntrada'])
+        && request.resource.data.treinadores == resource.data.treinadores.concat([request.auth.uid])
+        && request.resource.data.treinadores.size() <= resource.data.limites.treinadores
+        && conviteValido(request.resource.data.conviteEntrada, 'treinador')
+        && convite(request.resource.data.conviteEntrada).escolinha == e;
+      allow delete: if adulto() && request.auth.uid in resource.data.donos;
+
+      match /turmas/{t} {
+        allow read: if logado();
+        allow write: if treinadorDe(e);
+
+        // Plano da turma: os treinadores montam; a criança, a família e quem tem o link leem
+        match /plano/{p} {
+          allow read: if logado();
+          allow write: if treinadorDe(e) && request.resource.data.dias is map && request.resource.data.em is number;
+        }
+
+        // Atletas da turma. Id = id do atleta (já autorizado pela família) ou o código do convite
+        // (atleta cadastrado pelo treinador, esperando a família aceitar: só o apelido)
+        match /membros/{m} {
+          allow get, list: if treinadorDe(e)
+            || (resource.data.familia != null && responsavelDe(resource.data.familia));
+          // Treinador cadastra e convida: só o apelido, sem família e sem autorização
+          allow create: if treinadorDe(e)
+            && request.resource.data.familia == null
+            && request.resource.data.atleta == null
+            && request.resource.data.autorizado == false
+            && request.resource.data.apelido is string
+            && request.resource.data.apelido.size() <= 40
+            && conviteValido(m, 'atleta') && convite(m).turma == t;
+          // Família põe o atleta dela na turma (autorizando), com o convite do treinador ou o código da turma
+          allow create: if responsavelDe(request.resource.data.familia)
+            && request.resource.data.atleta == m
+            && familiaDoAtleta(m) == request.resource.data.familia
+            && request.resource.data.autorizado == true
+            && (codigoTurmaValido(request.resource.data.codigo, e, t)
+                || (conviteValido(request.resource.data.codigo, 'atleta') && convite(request.resource.data.codigo).turma == t));
+          allow delete: if treinadorDe(e)
+            || (resource.data.familia != null && responsavelDe(resource.data.familia))
+            // a família, ao aceitar o convite, apaga o cadastro provisório do treinador
+            || (adulto() && resource.data.familia == null && conviteValido(m, 'atleta'));
+        }
+      }
+    }
+
+    // Código da turma (vários usos): a família digita para entrar na turma
+    match /codigosTurma/{c} {
+      allow get: if adulto();
+      allow create: if treinadorDe(request.resource.data.escolinha)
+        && request.resource.data.criadoPor == request.auth.uid
+        && request.resource.data.ativo == true;
+      allow update, delete: if treinadorDe(resource.data.escolinha);
+    }
+
+    // ---------- convites (uso único, com validade) ----------
     match /convites/{c} {
       // Quem tem o código lê aquele convite (não dá para listar os convites)
       allow get: if logado();
+      // Da família: ligar o aparelho da criança (24 h) ou chamar o outro responsável (7 dias)
       allow create: if responsavelDe(request.resource.data.familia)
         && request.resource.data.criadoPor == request.auth.uid
         && request.resource.data.tipo in ['aparelho', 'responsavel']
         && request.resource.data.usadoPor == null
         && request.resource.data.expiraEm <= request.time + duration.value(7, 'd')
-        // convite de aparelho só para um atleta da própria família
         && (request.resource.data.tipo != 'aparelho'
             || familiaDoAtleta(request.resource.data.atleta) == request.resource.data.familia);
+      // Da escolinha: chamar outro treinador (7 dias) ou convidar a família de um atleta (30 dias)
+      allow create: if treinadorDe(request.resource.data.escolinha)
+        && request.resource.data.criadoPor == request.auth.uid
+        && request.resource.data.tipo in ['treinador', 'atleta']
+        && request.resource.data.usadoPor == null
+        && request.resource.data.expiraEm <= request.time + duration.value(30, 'd');
       // Reservar o convite para si (uso único)
       allow update: if logado()
         && resource.data.usadoPor == null

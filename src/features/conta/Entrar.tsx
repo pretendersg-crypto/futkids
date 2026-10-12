@@ -2,6 +2,7 @@
 //  - Responsável (pai, mãe) ou treinador: aceita o aviso e entra com Google ou com link no e-mail;
 //  - Aparelho da criança: digita o código do atleta (gerado pelo responsável), sem e-mail nenhum.
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { codigoCompleto, lerCodigo } from '../../conta/codigos'
 import { entrarComGoogle, enviarLinkPorEmail, ligarAparelhoDaCrianca } from '../../conta/conta'
 import { useProgressStore } from '../../stores/progressStore'
@@ -26,18 +27,21 @@ export function Entrar() {
       <button type="button" onClick={() => setCaminho('crianca')} className={`${BOTAO} bg-white text-left`}>
         📱 Este é o aparelho da criança (tenho um código)
       </button>
+      <Link to="/treinador" className={`${BOTAO} grid place-items-start bg-white`}>
+        <span className="py-3">⚽ Sou treinador de escolinha</span>
+      </Link>
     </Cartao>
   )
 }
 
-function EntrarAdulto({ aoVoltar }: { aoVoltar: () => void }) {
+export function EntrarAdulto({ aoVoltar, titulo = '👨‍👩‍👧 Entrar como responsável' }: { aoVoltar?: () => void; titulo?: string }) {
   const [aceito, setAceito] = useState(false)
   const [email, setEmail] = useState('')
   const [linkEnviado, setLinkEnviado] = useState(false)
   const { ocupado, erro, rodar } = useAcao()
 
   return (
-    <Cartao titulo="👨‍👩‍👧 Entrar como responsável">
+    <Cartao titulo={titulo}>
       <AvisoPrivacidade />
       <label className="flex items-start gap-3 text-base font-bold">
         <input type="checkbox" checked={aceito} onChange={(e) => setAceito(e.target.checked)} className="mt-1 size-6 shrink-0 accent-sky-600" />
@@ -81,9 +85,11 @@ function EntrarAdulto({ aoVoltar }: { aoVoltar: () => void }) {
         )}
       </div>
       <MensagemErro erro={erro} />
-      <button type="button" onClick={aoVoltar} className="self-start text-sm font-bold underline">
-        ← Voltar
-      </button>
+      {aoVoltar && (
+        <button type="button" onClick={aoVoltar} className="self-start text-sm font-bold underline">
+          ← Voltar
+        </button>
+      )}
     </Cartao>
   )
 }

@@ -20,7 +20,8 @@ export const CHAVES_FILHO = [
   'futkids-gestos-concluidos',
 ] as const
 
-export const CHAVES_APARELHO = ['futkids-config', 'futkids-conta', 'futkids-sincronia', 'futkids-categoria-antiga'] as const
+// futkids-turmas: cópia do plano das turmas (vem da escolinha, não volta para a nuvem)
+export const CHAVES_APARELHO = ['futkids-config', 'futkids-conta', 'futkids-sincronia', 'futkids-categoria-antiga', 'futkids-turmas'] as const
 
 export type ChaveFamilia = (typeof CHAVES_FAMILIA)[number]
 export type ChaveFilho = (typeof CHAVES_FILHO)[number]

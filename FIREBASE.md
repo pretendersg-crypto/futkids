@@ -54,6 +54,11 @@ dados são as regras do passo 3.
 - **Aparelho da criança:** o responsável toca em "📱 Ligar o aparelho dele". No tablet da criança:
   Conta → "Este é o aparelho da criança" → digita o código (vale 24 horas, uma vez só). Não fica
   e-mail nenhum no aparelho. Em "🔗 Aparelhos", o responsável desliga um aparelho perdido.
+- **Treinador de escolinha** (`/treinador`, ou Conta → "Sou treinador de escolinha"): entra com
+  Google ou e-mail, cria a escolinha e a turma, cadastra os atletas pelo apelido (o que gera um
+  convite para a família) ou passa o **código da turma**, e monta o plano da turma. A família põe o
+  filho na turma em Conta → atleta → "⚽ Entrar numa turma", autorizando o treinador a ver os
+  treinos. Detalhes em ARQUITETURA_CONTAS.md, seção 5.1.
 - **Montar o plano:** no topo da área dos pais, **"📋 Plano de: …"** escolhe o atleta.
 - **Sincronia:**
   - O que o responsável muda chega no aparelho da criança na hora, e o progresso volta.

@@ -104,6 +104,27 @@ nessa fase, com alerta de gasto.
      um advogado.
 4. **Cobrança:** plano Blaze, Cloud Functions, Mercado Pago, tela de planos e de assinatura.
 
+## 5.1 Como ficou a fase 2 (12/10/2026)
+
+- **Treinador:** em `/treinador` (ou Conta → "Sou treinador de escolinha"):
+  - cria a escolinha (plano grátis: 1 treinador, 1 turma, 20 atletas) ou entra com o código de outro
+    treinador;
+  - cria a turma;
+  - cadastra o atleta só pelo apelido, o que gera um **convite** para a família (30 dias), ou passa o
+    **código da turma** (vários usos) para as famílias que já usam o app;
+  - monta o **plano da turma** dos próximos 14 dias, com "repetir a semana";
+  - vê o **treino** de cada atleta autorizado: nível, XP, dias treinados e conquistas.
+- **Família:** Conta → atleta → **⚽ Entrar numa turma**, com o código e a caixa de autorização ("os
+  treinadores podem VER os treinos..."). **Tirar** a qualquer hora: o treinador perde o acesso na hora.
+- **Agenda da criança:** os treinos da turma entram no dia marcados "⚽ <turma>", os de casa marcados
+  "🏠 Casa". O mesmo treino nos dois aparece uma vez só, valendo o da turma.
+- **Limites da v1:**
+  - um atleta fica em **uma escolinha** por vez, mas pode estar em várias turmas dela;
+  - o plano da turma usa só treinos do próprio app (calendário, séries e treinos de fundamentos
+    prontos), com um link de vídeo opcional. Biblioteca própria da escolinha fica para depois;
+  - o limite de 20 atletas é conferido pelo app. As regras do banco conferem só o limite de turmas e de
+    treinadores. Contar atletas com segurança precisa do servidor (fase 4).
+
 ## 6. O que o dono do app precisa fazer
 
 - Criar o projeto Firebase (FIREBASE.md) e, além do Google, ligar em Authentication:

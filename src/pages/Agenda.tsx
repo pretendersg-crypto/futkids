@@ -153,7 +153,10 @@ function MinhaAgenda() {
                     {t.emoji}
                   </span>
                   <span className="flex flex-1 flex-col items-start leading-tight">
-                    {tipo && <SeloTipo tipo={tipo} className="mb-1" />}
+                    <span className="flex flex-wrap gap-1">
+                      {tipo && <SeloTipo tipo={tipo} className="mb-1" />}
+                      {t.origem && <span className="mb-1 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-black">{t.origem}</span>}
+                    </span>
                     {t.titulo}
                     {t.detalhe && <span className="text-sm font-medium">{t.detalhe}</span>}
                     {/* Acima da categoria da criança: a agenda (montada pelos pais) libera hoje */}

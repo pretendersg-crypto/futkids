@@ -19,6 +19,7 @@ import { Modal } from '../../components/ui/Modal'
 import { useUserStore } from '../../stores/userStore'
 import { AvisoPrivacidade } from './AvisoPrivacidade'
 import { CampoApelido } from './CampoApelido'
+import { EscolinhaDoAtleta } from './EscolinhaDoAtleta'
 import { BOTAO, useAcao } from './acao'
 import { Cartao, CodigoGrande, MensagemErro } from './comum'
 
@@ -98,6 +99,7 @@ export function ContaDoResponsavel() {
               <p className="text-lg font-extrabold">
                 {a.apelido} {aqui && <span className="rounded-full bg-green-600 px-2 text-xs text-white">NESTE APARELHO</span>}
               </p>
+              <EscolinhaDoAtleta atleta={a} />
               <div className="flex flex-wrap gap-2">
                 {!aqui && (
                   <button type="button" disabled={ocupado} onClick={() => rodar(() => trocarAtleta(a.id))} className={`${BOTAO} bg-sol`}>

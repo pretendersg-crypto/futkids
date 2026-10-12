@@ -2,8 +2,10 @@
 // (calendário de goleiros ou plano infantil), das alterações feitas por eles e do progresso salvo.
 import planoInfantilJson from '../../data/agenda.json'
 import { PROGRAMA_GOLEIROS, treinoPorId, type DiaPrograma } from '../../data/calendarioGoleiros'
+import { useContaStore } from '../../conta/contaStore'
+import { planosDoAtleta } from '../../conta/turmasStore'
 import { useProgramaStore, type ConfigPrograma } from '../../stores/programaStore'
-import { useTreinosFundamentosStore } from '../../stores/treinosFundamentosStore'
+import { TREINOS_FUNDAMENTOS_INICIAIS, useTreinosFundamentosStore } from '../../stores/treinosFundamentosStore'
 import { useTreinosStore } from '../../stores/treinosStore'
 import { diaDaSemana, formatarData, hojeISO, somarDias } from '../../utils/data'
 
@@ -19,6 +21,8 @@ export interface TreinoSugerido {
   /** Vídeo do treinador (já com a troca feita pelos pais, se houver) */
   video?: string
   detalhe?: string
+  /** De onde veio: o plano de casa ou a turma da escolinha (ex.: "⚽ Sub-9") */
+  origem?: string
 }
 
 export interface PlanoDoDia {
@@ -91,14 +95,29 @@ export function descreverPosicao(iso: string, cfg: ConfigPrograma): string {
   return diasEntre(cfg.inicio, iso) < 0 ? `Calendário de goleiros: começa em ${formatarData(cfg.inicio)}` : 'Calendário de goleiros: terminou'
 }
 
+/** Treinos das turmas da escolinha neste dia (do atleta ativo no aparelho) */
+function treinosDasTurmas(iso: string): TreinoSugerido[] {
+  const fundamentos = [...useTreinosFundamentosStore.getState().treinos, ...TREINOS_FUNDAMENTOS_INICIAIS]
+  return planosDoAtleta(useContaStore.getState().atletaAtivo).flatMap((plano) =>
+    (plano.dias[iso] ?? []).flatMap((item): TreinoSugerido[] => {
+      // A turma só usa treinos do app (o que os pais criaram em casa não existe para o treinador)
+      const t = treinoPorId(item.treino, [], [], fundamentos)
+      if (!t || t.id === 'aquecimento') return []
+      return [{ id: t.id, atividade: t.atividade, titulo: t.nome, emoji: t.emoji, rota: t.rota, detalhe: t.detalhe, video: item.video ?? t.videoUrl, origem: `⚽ ${plano.nome}` }]
+    }),
+  )
+}
+
 /**
- * O plano do dia: o programa ativo, ou a troca feita pelos pais para aquela data.
- * Regra do calendário: o aquecimento vem SEMPRE antes de qualquer treino (entra sozinho).
+ * O plano do dia: o programa ativo (ou a troca feita pelos pais para aquela data) e, com escolinha,
+ * os treinos da turma marcados com a origem. Regra do calendário: o aquecimento vem SEMPRE antes de
+ * qualquer treino (entra sozinho).
  */
 export function planoDoDia(iso: string, cfg: ConfigPrograma = useProgramaStore.getState()): PlanoDoDia {
   const alteracao = cfg.alteracoes[iso]
   const dia = alteracao ?? diaDoProgramaOriginal(iso, cfg)
-  const treinos = dia.itens.flatMap((item): TreinoSugerido[] => {
+  const daTurma = treinosDasTurmas(iso)
+  const deCasa = dia.itens.flatMap((item): TreinoSugerido[] => {
     // Treinos criados pelos pais (no "Treinar" e de fundamentos) também podem estar no calendário
     const t = treinoPorId(item.treino, cfg.extras, useTreinosStore.getState().seriesExtras, useTreinosFundamentosStore.getState().treinos)
     if (!t) return []
@@ -111,9 +130,12 @@ export function planoDoDia(iso: string, cfg: ConfigPrograma = useProgramaStore.g
         rota: t.rota,
         detalhe: t.detalhe,
         video: item.video ?? cfg.videos[t.id] ?? t.videoUrl,
+        origem: daTurma.length > 0 ? '🏠 Casa' : undefined,
       },
     ]
   })
+  // O mesmo treino na turma e em casa aparece uma vez só (vale o da turma)
+  const treinos = [...daTurma, ...deCasa.filter((c) => !daTurma.some((t) => t.id === c.id))]
   if (treinos.length === 0) return { dia: diaDaSemana(iso), descanso: true, treinos: [], alterado: !!alteracao }
   const aquecimento = treinoPorId('aquecimento')!
   const comAquecimento = treinos.some((t) => t.id === 'aquecimento')

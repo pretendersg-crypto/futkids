@@ -39,8 +39,8 @@ export interface Entrada {
 
 async function depoisDeEntrar(usuario: User): Promise<Entrada> {
   const n = await nuvem()
-  const { familia } = await n.lerUsuario(usuario.uid)
-  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia })
+  const { familia, escolinha } = await n.lerUsuario(usuario.uid)
+  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia, escolinha })
   if (familia) estado().definirAtletas((await n.lerFamilia(familia)).atletas)
   return { familia }
 }
@@ -81,7 +81,7 @@ export async function criarFamilia() {
   const n = await nuvem()
   const usuario = await usuarioLogado()
   const familia = await n.criarFamilia(usuario)
-  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia })
+  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia, escolinha: estado().escolinha })
   estado().definirAtletas([])
 }
 
@@ -90,7 +90,7 @@ export async function entrarNaFamilia(codigo: string) {
   const n = await nuvem()
   const usuario = await usuarioLogado()
   const familia = await n.entrarNaFamilia(usuario, codigo)
-  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia })
+  estado().entrou({ uid: usuario.uid, email: usuario.email, aparelhoDaCrianca: false, familia, escolinha: estado().escolinha })
   estado().definirAtletas((await n.lerFamilia(familia)).atletas)
 }
 
@@ -216,6 +216,46 @@ export async function ligarAparelhoDaCrianca(codigo: string, usarDadosDaqui: boo
   estado().definirAtletaAtivo(atleta.id)
   manterPaisLiberado()
   location.reload()
+}
+
+// ---------- escolinha (treinador) ----------
+
+const escolinhaNuvem = () => import('./nuvemEscolinha')
+
+export async function criarEscolinha(nome: string) {
+  const e = await (await escolinhaNuvem()).criarEscolinha(await usuarioLogado(), nome)
+  estado().definirEscolinha(e)
+}
+
+export async function entrarNaEscolinha(codigo: string) {
+  const e = await (await escolinhaNuvem()).entrarNaEscolinha(await usuarioLogado(), codigo)
+  estado().definirEscolinha(e)
+}
+
+export async function sairDaEscolinha() {
+  const { escolinha } = estado()
+  if (!escolinha) return
+  await (await escolinhaNuvem()).sairDaEscolinha(await usuarioLogado(), escolinha)
+  estado().definirEscolinha(null)
+}
+
+// ---------- família: escolinha do atleta ----------
+
+/** Põe o atleta numa turma (código do convite do treinador ou da turma), autorizando a escolinha */
+export async function entrarNaTurma(atleta: Atleta, codigo: string) {
+  const { familia } = exigirFamilia()
+  const info = await (await escolinhaNuvem()).entrarNaTurma(await usuarioLogado(), familia, atleta, codigo)
+  // Se é o atleta deste aparelho, começa a ouvir o plano da turma
+  if (atleta.id === estado().atletaAtivo) (await escolinhaNuvem()).ouvirTurmas(atleta.id)
+  return info
+}
+
+export async function tirarDaEscolinha(atleta: string) {
+  await (await escolinhaNuvem()).sairDaEscolinhaFamilia(atleta)
+}
+
+export async function escolinhaDoAtleta(atleta: string) {
+  return (await escolinhaNuvem()).lerEscolinhaDoAtleta(atleta)
 }
 
 // ---------- sair e apagar ----------

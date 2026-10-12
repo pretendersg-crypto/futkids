@@ -52,7 +52,7 @@ let app: FirebaseApp | null = null
 let auth: Auth | null = null
 let db: Firestore | null = null
 
-function iniciar() {
+export function iniciar() {
   if (!FIREBASE_CONFIG) throw new Error('A conta ainda não foi configurada (FIREBASE.md).')
   if (!app) {
     app = initializeApp(FIREBASE_CONFIG)
@@ -127,27 +127,28 @@ export async function sair() {
 
 export interface DadosUsuario {
   familia: string | null
+  escolinha: string | null
 }
 
 export async function lerUsuario(uid: string): Promise<DadosUsuario> {
   const { db } = iniciar()
   const r = await getDoc(doc(db, 'usuarios', uid))
-  return { familia: (r.data()?.familia as string | undefined) ?? null }
+  return { familia: (r.data()?.familia as string | undefined) ?? null, escolinha: (r.data()?.escolinha as string | undefined) ?? null }
 }
 
-async function gravarUsuario(u: User, familia: string) {
+export async function gravarUsuario(u: User, campos: { familia?: string; escolinha?: string | null }) {
   const { db } = iniciar()
-  await setDoc(doc(db, 'usuarios', u.uid), { email: u.email ?? null, familia, aceite: { versao: VERSAO_TERMOS, em: Date.now() } }, { merge: true })
+  await setDoc(doc(db, 'usuarios', u.uid), { email: u.email ?? null, ...campos, aceite: { versao: VERSAO_TERMOS, em: Date.now() } }, { merge: true })
 }
 
-const novoId = (prefixo: string) => `${prefixo}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
+export const novoId = (prefixo: string) => `${prefixo}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
 
 /** Cria a família do responsável (plano grátis) */
 export async function criarFamilia(u: User): Promise<string> {
   const { db } = iniciar()
   const f = novoId('fam')
   await setDoc(doc(db, 'familias', f), { responsaveis: [u.uid], atletas: {}, plano: 'gratis', criadoEm: Date.now() })
-  await gravarUsuario(u, f)
+  await gravarUsuario(u, { familia: f })
   return f
 }
 
@@ -161,7 +162,7 @@ export async function entrarNaFamilia(u: User, codigo: string): Promise<string> 
   await updateDoc(doc(db, 'convites', codigo), { usadoPor: u.uid, usadoEm: Date.now() })
   // arrayUnion: o servidor acrescenta o novo à lista (ele ainda não pode ler a família)
   await updateDoc(doc(db, 'familias', f), { responsaveis: arrayUnion(u.uid), conviteEntrada: codigo })
-  await gravarUsuario(u, f)
+  await gravarUsuario(u, { familia: f })
   return f
 }
 
@@ -196,7 +197,7 @@ export async function renomearAtleta(f: string, id: string, apelido: string) {
   await updateDoc(doc(db, 'familias', f), { [`atletas.${id}`]: apelido })
 }
 
-async function apagarColecao(...caminho: [string, ...string[]]) {
+export async function apagarColecao(...caminho: [string, ...string[]]) {
   const { db } = iniciar()
   const r = await getDocs(collection(db, ...caminho))
   await Promise.all(r.docs.map((d) => deleteDoc(d.ref)))
@@ -342,6 +343,7 @@ let ultimosVistos: Record<string, string | null> = {}
 let aoEsconder: () => void = () => {}
 
 export function pararSincronia() {
+  void import('./nuvemEscolinha').then((m) => m.pararTurmas())
   paradas.forEach((p) => p())
   paradas = []
   if (relogio) clearInterval(relogio)
@@ -425,6 +427,9 @@ export async function iniciarSincronia(familia: string, atleta: string) {
       ),
     )
   }
+
+  // Plano das turmas da escolinha (se o atleta estiver em alguma)
+  void import('./nuvemEscolinha').then((m) => m.ouvirTurmas(atleta))
 
   relogio = setInterval(() => void olharAparelho(), INTERVALO_MS)
   aoEsconder = () => {
