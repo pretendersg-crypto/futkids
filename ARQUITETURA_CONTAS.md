@@ -140,7 +140,8 @@ nessa fase, com alerta de gasto.
 - **Versão do formato dos dados** (`VERSAO_DADOS`): cada dado na nuvem leva a versão do app que gravou.
   Um aparelho com app antigo não aplica nem sobrescreve dado de app mais novo, e mostra "atualize o
   app". Um teste avisa quando a versão de um store muda.
-- **App Check** (reCAPTCHA v3): fica pronto no código e é ligado quando a chave existir.
+- **App Check** (reCAPTCHA Enterprise, hoje "Fraud Defense" no Google Cloud): fica pronto no código e é
+  ligado quando a chave existir.
 - **Custo:** o plano Spark não cobra. O alerta de gasto é criado quando passar para o Blaze (fase 4).
 - **Checklist antes de abrir ao público:** FIREBASE.md.
 

@@ -15,7 +15,8 @@ export const FIREBASE_CONFIG: FirebaseOptions | null = {
 }
 
 /**
- * Chave do site do reCAPTCHA v3 para o App Check (prova que o acesso ao banco vem do app, não de um
- * robô). null = App Check desligado. Passo a passo em FIREBASE.md, seção 5.
+ * Chave do site do reCAPTCHA Enterprise (no Google Cloud, hoje "Fraud Defense") para o App Check: prova
+ * que o acesso ao banco vem do app, não de um robô. null = App Check desligado. Passo a passo em
+ * FIREBASE.md, seção 5.
  */
 export const APP_CHECK_CHAVE_SITE: string | null = null

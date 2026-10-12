@@ -10,7 +10,7 @@
 //   atletas/{a}/aparelhos/{dev}       aparelho de criança ligado a este atleta
 //   convites/{código}                 { tipo, familia, atleta?, expiraEm, usadoPor }
 import { initializeApp, type FirebaseApp } from 'firebase/app'
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'
 import { getFunctions, httpsCallable } from 'firebase/functions'
 import {
   deleteUser,
@@ -63,7 +63,7 @@ export function iniciar() {
     // "token de depuração" que aparece no console do navegador e é cadastrado no Firebase)
     if (APP_CHECK_CHAVE_SITE) {
       if (import.meta.env.DEV) Object.assign(self, { FIREBASE_APPCHECK_DEBUG_TOKEN: true })
-      initializeAppCheck(app, { provider: new ReCaptchaV3Provider(APP_CHECK_CHAVE_SITE), isTokenAutoRefreshEnabled: true })
+      initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(APP_CHECK_CHAVE_SITE), isTokenAutoRefreshEnabled: true })
     }
     auth = getAuth(app)
     auth.languageCode = 'pt'

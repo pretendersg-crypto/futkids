@@ -46,19 +46,30 @@ dados são as regras do passo 3.
 
 ## 5. Proteção contra uso indevido (App Check), antes de abrir ao público
 
-O App Check faz o banco só aceitar pedidos que vêm do app, e não de um robô gastando a sua cota.
+O App Check faz o banco só aceitar pedidos que vêm do app, e não de um robô gastando a sua cota. Ele
+usa o **reCAPTCHA Enterprise**, que no Google Cloud agora se chama **Fraud Defense**.
 
-1. Crie uma chave **reCAPTCHA v3** em <https://www.google.com/recaptcha/admin>:
-   - tipo **v3**;
-   - domínios `pretendersg-crypto.github.io` e `localhost`.
-2. No Firebase: **Criação → App Check → Apps → seu app web → reCAPTCHA**. Cole a **chave secreta**
-   e salve.
-3. Mande a **chave do site** para o Claude, que coloca em `APP_CHECK_CHAVE_SITE`
-   (`src/conta/firebaseConfig.ts`).
-4. Deixe uns dias só **monitorando** (App Check → APIs → Cloud Firestore → métricas).
+1. Abra o **Google Cloud Console** no **mesmo projeto** do Firebase (`futkids-30a76`) e procure por
+   **Fraud Defense** na barra de busca. Se pedir, ative a API.
+2. Crie uma **chave** (key):
+   - tipo **Site** (Website);
+   - domínios `pretendersg-crypto.github.io` e `localhost`;
+   - não marque "desafio de caixa de seleção" (checkbox): o App Check usa a chave por pontuação, que
+     não aparece para a criança.
+3. Copie o **ID da chave** (a chave do site). No Enterprise não há chave secreta.
+4. No Firebase: **Criação/Segurança → App Check → Apps → seu app web → reCAPTCHA Enterprise**, cole
+   o ID da chave e salve.
+5. Mande o **ID da chave** para o Claude. Ele não é segredo. O Claude coloca em
+   `APP_CHECK_CHAVE_SITE` (`src/conta/firebaseConfig.ts`).
+6. Deixe uns dias só **monitorando** (App Check → APIs → Cloud Firestore → métricas).
    - Se quase tudo vier "verificado", clique em **Aplicar** (enforce).
    - No computador de testes, o console do navegador mostra um "token de depuração". Cadastre esse
      token em App Check → Gerenciar tokens de depuração.
+
+**Custo:** até **10 mil verificações por mês grátis**. O app só pede uma verificação nova quando o
+"passe" vence, e não a cada leitura. Para gastar menos, aumente a validade do passe em App Check →
+Apps → ⋮ → TTL (ex.: 12 horas). Se o Google Cloud pedir uma conta de faturamento para ativar a API,
+ela será a mesma do plano Blaze da fase de cobrança.
 
 ## 6. Custos e alerta de gasto
 
