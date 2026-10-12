@@ -10,6 +10,8 @@ export interface PlanoDaTurma {
   escolinha: string
   /** AAAA-MM-DD → treinos do dia */
   dias: Record<string, ItemDia[]>
+  /** Plano individual do treinador para este atleta (não o da turma toda) */
+  individual?: boolean
 }
 
 interface TurmasState {

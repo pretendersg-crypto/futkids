@@ -32,6 +32,24 @@ describe('plano da turma na agenda', () => {
     expect(planoDoDia(DIA, cfg).treinos.map((t) => t.id)).toEqual(['aquecimento', 'fund:basicos', 'alongamento'])
   })
 
+  it('plano individual do treinador aparece como "Para você", junto com o da turma', () => {
+    useTurmasStore.setState({
+      porAtleta: {
+        a1: [
+          { turma: 't1', nome: 'Sub-9', escolinha: 'Bom de Bola', dias: { [DIA]: [{ treino: 'fund:basicos' }] } },
+          { turma: 't1', nome: 'Para você', escolinha: 'Bom de Bola', individual: true, dias: { [DIA]: [{ treino: 'fund:quedas-desvios' }] } },
+        ],
+      },
+    })
+    const cfg = { ...useProgramaStore.getState(), alteracoes: { [DIA]: { itens: [] } } }
+    const treinos = planoDoDia(DIA, cfg).treinos
+    expect(treinos.map((t) => [t.id, t.origem])).toEqual([
+      ['aquecimento', undefined],
+      ['fund:basicos', '⚽ Sub-9'],
+      ['fund:quedas-desvios', '⚽ Para você'],
+    ])
+  })
+
   it('sem escolinha nada muda (e não aparece a origem)', () => {
     useTurmasStore.setState({ porAtleta: {} })
     const cfg = { ...useProgramaStore.getState(), alteracoes: { [DIA]: { itens: [{ treino: 'forca' }] } } }

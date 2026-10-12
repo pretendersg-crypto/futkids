@@ -116,7 +116,8 @@ function treinosDasTurmas(iso: string): TreinoSugerido[] {
 export function planoDoDia(iso: string, cfg: ConfigPrograma = useProgramaStore.getState()): PlanoDoDia {
   const alteracao = cfg.alteracoes[iso]
   const dia = alteracao ?? diaDoProgramaOriginal(iso, cfg)
-  const daTurma = treinosDasTurmas(iso)
+  // Turma e individual com o mesmo treino: aparece uma vez (vale o primeiro, o da turma)
+  const daTurma = treinosDasTurmas(iso).filter((t, i, todos) => todos.findIndex((x) => x.id === t.id) === i)
   const deCasa = dia.itens.flatMap((item): TreinoSugerido[] => {
     // Treinos criados pelos pais (no "Treinar" e de fundamentos) também podem estar no calendário
     const t = treinoPorId(item.treino, cfg.extras, useTreinosStore.getState().seriesExtras, useTreinosFundamentosStore.getState().treinos)

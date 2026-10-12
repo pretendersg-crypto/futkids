@@ -548,6 +548,11 @@ export async function iniciarSincronia(familia: string, atleta: string) {
   window.addEventListener('visibilitychange', aoEsconder)
 }
 
+/** Grava um dado de outro atleta da família direto na nuvem (ex.: copiar o plano de casa de um filho para outro) */
+export async function gravarDadoDoAtleta(atleta: string, chave: ChaveSincronizada, json: string) {
+  await setDoc(doc(iniciar().db, 'atletas', atleta, 'dados', chave), { json, em: Date.now(), app: VERSAO_DADOS })
+}
+
 /** Baixa da nuvem os dados da família e de um atleta direto para o aparelho (antes de recarregar) */
 export async function baixarPerfil(familia: string, atleta: string) {
   const { db } = iniciar()

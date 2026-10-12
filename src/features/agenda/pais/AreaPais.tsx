@@ -31,6 +31,7 @@ import { SeloCategoria } from '../../categoria/SeloCategoria'
 import { AtletaDoPlano } from '../../conta/AtletaDoPlano'
 import { Conta } from '../../conta/Conta'
 import { AtalhoPainel } from '../../painel/AtalhoPainel'
+import { CopiarPlanoDeCasa } from '../../painel/CopiarPlanoDeCasa'
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
@@ -119,6 +120,7 @@ export function AreaPais({ aoSair }: { aoSair: () => void }) {
           </div>
         )}
         <p className="text-sm font-bold">Hoje: {descreverPosicao(hoje, programa)}</p>
+        <CopiarPlanoDeCasa />
       </section>
 
       {/* Mês */}

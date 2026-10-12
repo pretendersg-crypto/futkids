@@ -9,6 +9,7 @@ import { AreaPais } from '../features/agenda/pais/AreaPais'
 import { TrancaPais } from '../features/agenda/pais/TrancaPais'
 import { AtletaDoPlano } from '../features/conta/AtletaDoPlano'
 import { Conta } from '../features/conta/Conta'
+import { CopiarPlanoDeCasa } from '../features/painel/CopiarPlanoDeCasa'
 import { PlanoDaTurmaGrade } from '../features/painel/PlanoDaTurmaGrade'
 import { PlanoDeCasa } from '../features/painel/PlanoDeCasa'
 import { useUserStore } from '../stores/userStore'
@@ -41,14 +42,18 @@ export function Painel() {
         <p className="text-sm text-slate-600">
           O aquecimento entra sozinho antes de qualquer treino. Dias em amarelo foram mudados por você (↩ volta ao programa). ✅ fez tudo · 🟡 fez uma parte.
         </p>
+        <CopiarPlanoDeCasa />
         <PlanoDeCasa />
       </div>
     )
   else if (aba === 'turma' && escolinha)
     conteudo = (
       <div className="flex flex-col gap-3">
-        <h2 className="text-2xl font-extrabold">⚽ Plano da turma</h2>
-        <p className="text-sm text-slate-600">Aparece na agenda de cada atleta da turma, junto com o plano de casa. Lembre de salvar.</p>
+        <h2 className="text-2xl font-extrabold">⚽ Plano da equipe</h2>
+        <p className="text-sm text-slate-600">
+          "Toda a turma" chega para todos os atletas de uma vez; escolha um atleta para um plano só dele. Os dois aparecem na agenda da criança junto
+          com o plano de casa. Lembre de salvar.
+        </p>
         <PlanoDaTurmaGrade escolinha={escolinha} />
       </div>
     )
@@ -72,7 +77,7 @@ export function Painel() {
           <nav aria-label="Painel" className="sticky top-0 flex h-dvh w-60 shrink-0 flex-col gap-1 border-r-2 border-violet-100 bg-white p-3">
             <p className="mb-2 text-xl font-extrabold">🖥️ Painel FutKids</p>
             {item('casa', '📅 Plano de casa')}
-            {item('turma', '⚽ Plano da turma', Boolean(escolinha))}
+            {item('turma', '⚽ Plano da equipe', Boolean(escolinha))}
             {item('pais', '🧰 Treinos, gestos e mais')}
             {item('conta', '☁️ Conta')}
             <div className="mt-auto flex flex-col gap-1 text-sm">

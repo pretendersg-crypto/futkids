@@ -28,6 +28,8 @@ export function TurmaTela({ uid, escolinha, turma, aoVoltar, aoMudar }: Props) {
   const [mostrar, setMostrar] = useState<{ codigo: string; legenda: string } | null>(null)
   const [resumo, setResumo] = useState<{ membro: Membro; dados: ResumoAtleta } | null>(null)
   const [renomear, setRenomear] = useState<string | null>(null)
+  // Plano individual de um atleta (além do plano da turma)
+  const [individual, setIndividual] = useState<Membro | null>(null)
   const [apagar, setApagar] = useState(false)
   const { ocupado, erro, rodar } = useAcao()
 
@@ -59,6 +61,32 @@ export function TurmaTela({ uid, escolinha, turma, aoVoltar, aoMudar }: Props) {
   }, [escolinha.id, turma.id])
 
   // Total da escolinha contado pelo servidor; sem ele, os desta turma
+  const carregarIndividual = useCallback(async () => (individual?.atleta ? (await nuvem()).lerPlanoIndividual(escolinha.id, turma.id, individual.atleta) : {}), [escolinha.id, turma.id, individual])
+  const salvarIndividual = useCallback(
+    async (dias: Parameters<Awaited<ReturnType<typeof nuvem>>['salvarPlanoIndividual']>[3]) => {
+      if (individual?.atleta) await (await nuvem()).salvarPlanoIndividual(escolinha.id, turma.id, individual.atleta, dias)
+    },
+    [escolinha.id, turma.id, individual],
+  )
+
+  if (individual) {
+    return (
+      <section className="flex flex-col gap-4">
+        <header className="flex items-center gap-3">
+          <button type="button" onClick={() => setIndividual(null)} aria-label="Voltar à turma" className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-2xl shadow">
+            ⬅️
+          </button>
+          <h2 className="flex-1 text-2xl font-extrabold">👤 Plano de {individual.apelido}</h2>
+        </header>
+        <p className="text-sm">
+          Plano só de {individual.apelido}, além do plano da turma. Aparece na agenda dele como "⚽ Para você". Para copiar para outros atletas, use o
+          painel no computador.
+        </p>
+        <PlanoTurma carregar={carregarIndividual} salvar={salvarIndividual} />
+      </section>
+    )
+  }
+
   const cheio = Math.max(escolinha.atletas ?? 0, membros?.length ?? 0) >= escolinha.limites.atletas
 
   return (
@@ -88,6 +116,11 @@ export function TurmaTela({ uid, escolinha, turma, aoVoltar, aoMudar }: Props) {
                 {m.autorizado && m.atleta && (
                   <button type="button" disabled={ocupado} onClick={() => rodar(async () => setResumo({ membro: m, dados: await (await nuvem()).lerResumoAtleta(m.atleta!) }))} className={`${BOTAO} bg-sol`}>
                     📈 Ver o treino
+                  </button>
+                )}
+                {m.autorizado && m.atleta && (
+                  <button type="button" onClick={() => setIndividual(m)} className={`${BOTAO} bg-white`}>
+                    👤 Plano individual
                   </button>
                 )}
                 <button

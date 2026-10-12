@@ -192,6 +192,17 @@ service cloud.firestore {
           allow write: if treinadorDe(e) && request.resource.data.dias is map && request.resource.data.em is number;
         }
 
+        // Plano individual de um atleta da turma (além do plano da turma): o treinador monta; a família
+        // e o aparelho do atleta leem. Só para atleta já autorizado (que está nos membros com o id dele)
+        match /individuais/{a} {
+          allow read: if treinadorDe(e) || podeAtleta(a);
+          allow delete: if treinadorDe(e);
+          allow create, update: if treinadorDe(e)
+            && exists(/databases/$(database)/documents/escolinhas/$(e)/turmas/$(t)/membros/$(a))
+            && request.resource.data.dias is map
+            && request.resource.data.em is number;
+        }
+
         // Atletas da turma. Id = id do atleta (já autorizado pela família) ou o código do convite
         // (atleta cadastrado pelo treinador, esperando a família aceitar: só o apelido)
         match /membros/{m} {

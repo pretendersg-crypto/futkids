@@ -240,6 +240,30 @@ export async function salvarPlanoTurma(e: string, t: string, dias: DiasDaTurma) 
   await setDoc(doc(iniciar().db, 'escolinhas', e, 'turmas', t, 'plano', 'atual'), { dias: limpos, em: Date.now() })
 }
 
+// ---------- plano individual de um atleta (treinador) ----------
+
+const caminhoIndividual = (e: string, t: string, a: string) => ['escolinhas', e, 'turmas', t, 'individuais', a] as const
+
+export async function lerPlanoIndividual(e: string, t: string, a: string): Promise<DiasDaTurma> {
+  const r = await getDoc(doc(iniciar().db, ...caminhoIndividual(e, t, a)))
+  return (r.data()?.dias as DiasDaTurma | undefined) ?? {}
+}
+
+export async function salvarPlanoIndividual(e: string, t: string, a: string, dias: DiasDaTurma) {
+  const limpos = Object.fromEntries(
+    Object.entries(dias)
+      .filter(([, itens]) => itens.length > 0)
+      .map(([data, itens]) => [data, itens.map((i) => (i.video ? { treino: i.treino, video: i.video } : { treino: i.treino }))]),
+  )
+  await setDoc(doc(iniciar().db, ...caminhoIndividual(e, t, a)), { dias: limpos, em: Date.now() })
+}
+
+/** Copia o plano individual de um atleta para outros (substitui o deles) */
+export async function copiarPlanoIndividual(e: string, t: string, de: string, para: string[]) {
+  const dias = await lerPlanoIndividual(e, t, de)
+  for (const a of para) if (a !== de) await salvarPlanoIndividual(e, t, a, dias)
+}
+
 // ---------- resumo do atleta (treinador, depois da autorização) ----------
 
 export interface ResumoAtleta {
@@ -371,13 +395,25 @@ export function ouvirTurmas(a: string) {
       const loja = useTurmasStore.getState()
       if (!e || turmas.length === 0) return loja.definir(a, [])
       const planos: Record<string, PlanoDaTurma> = {}
+      const publicar = () => useTurmasStore.getState().definir(a, Object.values(planos))
       for (const t of turmas) {
+        // Plano da turma (vale para todos) e o plano individual deste atleta, se houver
         dasTurmas.push(
           onSnapshot(
             doc(db, 'escolinhas', e, 'turmas', t, 'plano', 'atual'),
             (p) => {
               planos[t] = { turma: t, nome: nomes[t] ?? 'Turma', escolinha: String(d.escolinhaNome ?? ''), dias: (p.data()?.dias as DiasDaTurma | undefined) ?? {} }
-              useTurmasStore.getState().definir(a, Object.values(planos))
+              publicar()
+            },
+            () => undefined,
+          ),
+          onSnapshot(
+            doc(db, ...caminhoIndividual(e, t, a)),
+            (p) => {
+              const dias = (p.data()?.dias as DiasDaTurma | undefined) ?? {}
+              if (Object.keys(dias).length === 0) delete planos[`${t}:individual`]
+              else planos[`${t}:individual`] = { turma: t, nome: 'Para você', escolinha: String(d.escolinhaNome ?? ''), dias, individual: true }
+              publicar()
             },
             () => undefined,
           ),

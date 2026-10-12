@@ -258,6 +258,23 @@ export async function escolinhaDoAtleta(atleta: string) {
   return (await escolinhaNuvem()).lerEscolinhaDoAtleta(atleta)
 }
 
+// ---------- copiar o plano de casa entre filhos ----------
+
+/** Copia o plano de casa do atleta deste aparelho para outros atletas da família (substitui o deles) */
+export async function copiarPlanoDeCasa(para: string[]) {
+  exigirFamilia()
+  const { atletaAtivo } = estado()
+  const json = localStorage.getItem('futkids-programa')
+  if (!json) throw new Error('Este atleta ainda não tem plano de casa para copiar.')
+  const n = await nuvem()
+  for (const a of para) {
+    if (a === atletaAtivo) continue
+    await n.gravarDadoDoAtleta(a, 'futkids-programa', json)
+    // A cópia guardada neste aparelho (se houver) também fica igual, para a troca de atleta não juntar com a antiga
+    if (localStorage.getItem(`futkids-perfil:${a}:futkids-programa`) !== null) localStorage.setItem(`futkids-perfil:${a}:futkids-programa`, json)
+  }
+}
+
 // ---------- baixar os dados (LGPD) ----------
 
 /** Baixa um arquivo .json com tudo o que a nuvem guarda da família */
