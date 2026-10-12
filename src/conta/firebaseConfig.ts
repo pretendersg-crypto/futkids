@@ -19,4 +19,4 @@ export const FIREBASE_CONFIG: FirebaseOptions | null = {
  * que o acesso ao banco vem do app, não de um robô. null = App Check desligado. Passo a passo em
  * FIREBASE.md, seção 5.
  */
-export const APP_CHECK_CHAVE_SITE: string | null = null
+export const APP_CHECK_CHAVE_SITE: string | null = '6LcQOOstAAAAAKxFlYL5Po8uWiCmiEj0_v7QRomF'

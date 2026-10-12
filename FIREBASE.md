@@ -66,6 +66,11 @@ usa o **reCAPTCHA Enterprise**, que no Google Cloud agora se chama **Fraud Defen
    - No computador de testes, o console do navegador mostra um "token de depuração". Cadastre esse
      token em App Check → Gerenciar tokens de depuração.
 
+**Se der erro 403:** quase sempre o app foi registrado no App Check com a opção "reCAPTCHA" (v3,
+com chave secreta) em vez de "reCAPTCHA Enterprise". Depois de um 403, o navegador espera **1 dia**
+antes de tentar de novo. Para testar na hora, apague os dados do site (ou o banco
+`firebase-app-check-database`) e recarregue.
+
 **Custo:** até **10 mil verificações por mês grátis**. O app só pede uma verificação nova quando o
 "passe" vence, e não a cada leitura. Para gastar menos, aumente a validade do passe em App Check →
 Apps → ⋮ → TTL (ex.: 12 horas). Se o Google Cloud pedir uma conta de faturamento para ativar a API,

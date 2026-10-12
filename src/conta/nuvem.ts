@@ -10,7 +10,7 @@
 //   atletas/{a}/aparelhos/{dev}       aparelho de criança ligado a este atleta
 //   convites/{código}                 { tipo, familia, atleta?, expiraEm, usadoPor }
 import { initializeApp, type FirebaseApp } from 'firebase/app'
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check'
+import { getToken, initializeAppCheck, ReCaptchaEnterpriseProvider, type AppCheck } from 'firebase/app-check'
 import { getFunctions, httpsCallable } from 'firebase/functions'
 import {
   deleteUser,
@@ -54,22 +54,32 @@ import { recarregarStore } from './registro'
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
 let db: Firestore | null = null
+let appCheck: AppCheck | null = null
 
 export function iniciar() {
   if (!FIREBASE_CONFIG) throw new Error('A conta ainda não foi configurada (FIREBASE.md).')
   if (!app) {
     app = initializeApp(FIREBASE_CONFIG)
-    // App Check: o banco só aceita pedidos que vêm do app (no computador do desenvolvedor, usa o
-    // "token de depuração" que aparece no console do navegador e é cadastrado no Firebase)
+    // App Check: o banco só aceita pedidos que vêm do app. A chave aceita localhost, então funciona
+    // também no "npm run dev"; se lá a pontuação vier baixa, ligue VITE_APPCHECK_DEPURACAO=true e
+    // cadastre no Firebase o token de depuração que aparece no console do navegador.
     if (APP_CHECK_CHAVE_SITE) {
-      if (import.meta.env.DEV) Object.assign(self, { FIREBASE_APPCHECK_DEBUG_TOKEN: true })
-      initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(APP_CHECK_CHAVE_SITE), isTokenAutoRefreshEnabled: true })
+      if (import.meta.env.DEV && import.meta.env.VITE_APPCHECK_DEPURACAO === 'true') Object.assign(self, { FIREBASE_APPCHECK_DEBUG_TOKEN: true })
+      appCheck = initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(APP_CHECK_CHAVE_SITE), isTokenAutoRefreshEnabled: true })
     }
     auth = getAuth(app)
     auth.languageCode = 'pt'
     db = getFirestore(app)
   }
   return { auth: auth!, db: db! }
+}
+
+/** Diagnóstico: o App Check consegue o "passe" deste aparelho? (só para testes) */
+export async function testarAppCheck(): Promise<string> {
+  iniciar()
+  if (!appCheck) return 'App Check desligado'
+  const r = await getToken(appCheck, true)
+  return r.token ? 'ok' : 'sem passe'
 }
 
 /** Funções do servidor (região São Paulo), ex.: criarPagamento */
