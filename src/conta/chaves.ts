@@ -29,5 +29,12 @@ export type ChaveSincronizada = ChaveFamilia | ChaveFilho
 
 export const CHAVES_SINCRONIZADAS: readonly ChaveSincronizada[] = [...CHAVES_FAMILIA, ...CHAVES_FILHO]
 
+/**
+ * Versão do FORMATO dos dados sincronizados. Suba sempre que a "version" de algum store mudar (o teste
+ * em conta.test.ts avisa). Um aparelho com o app antigo não aplica nem envia dados gravados por um app
+ * mais novo: pede para atualizar (assim ele não estraga o formato novo).
+ */
+export const VERSAO_DADOS = 1
+
 /** Cópia local do perfil de um filho que não está ativo neste aparelho */
 export const chaveGuardada = (filho: string, chave: ChaveFilho) => `futkids-perfil:${filho}:${chave}`

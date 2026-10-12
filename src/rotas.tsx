@@ -14,6 +14,9 @@ const ROTAS: RouteObject[] = [
   // Conta (responsável entra sem precisar de jogador; aparelho da criança liga por código) e o link do e-mail
   { path: '/conta', lazy: () => import('./pages/ContaPagina').then((m) => ({ Component: m.ContaPagina })) },
   { path: '/entrar', lazy: () => import('./pages/EntrarPorLink').then((m) => ({ Component: m.EntrarPorLink })) },
+  // Política de Privacidade e Termos de Uso (públicas, sem conta)
+  { path: '/privacidade', lazy: () => import('./pages/Legal').then((m) => ({ Component: m.Privacidade })) },
+  { path: '/termos', lazy: () => import('./pages/Legal').then((m) => ({ Component: m.Termos })) },
   // Área do treinador de escolinha (turmas, atletas e plano da turma)
   { path: '/treinador', lazy: () => import('./pages/TreinadorPagina').then((m) => ({ Component: m.TreinadorPagina })) },
   {

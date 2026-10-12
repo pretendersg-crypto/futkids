@@ -8,7 +8,7 @@ export interface Atleta {
   apelido: string
 }
 
-export type EstadoSincronia = 'parada' | 'sincronizando' | 'em-dia' | 'sem-internet' | 'erro'
+export type EstadoSincronia = 'parada' | 'sincronizando' | 'em-dia' | 'sem-internet' | 'atualizar' | 'erro'
 
 interface ContaState {
   uid: string | null

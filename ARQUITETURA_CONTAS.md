@@ -125,6 +125,25 @@ nessa fase, com alerta de gasto.
   - o limite de 20 atletas é conferido pelo app. As regras do banco conferem só o limite de turmas e de
     treinadores. Contar atletas com segurança precisa do servidor (fase 4).
 
+## 5.2 Como ficou a fase 3 (12/10/2026)
+
+- **Política de Privacidade** (`/privacidade`) e **Termos de Uso** (`/termos`):
+  - páginas públicas, em linguagem simples;
+  - incluem segurança nos treinos e regras para escolinhas;
+  - os dados do controlador ficam em `src/data/legal.ts`, e enquanto `RASCUNHO = true` aparece o
+    aviso de rascunho.
+- **Aceites:**
+  - responsável e treinador aceitam a política e os termos ao entrar (guarda a versão e a data);
+  - quem cria a escolinha aceita a parte "Escolinhas e treinadores".
+- **Baixar os meus dados:** um arquivo .json com tudo o que a nuvem guarda da família e dos atletas
+  (direito de acesso e de portabilidade).
+- **Versão do formato dos dados** (`VERSAO_DADOS`): cada dado na nuvem leva a versão do app que gravou.
+  Um aparelho com app antigo não aplica nem sobrescreve dado de app mais novo, e mostra "atualize o
+  app". Um teste avisa quando a versão de um store muda.
+- **App Check** (reCAPTCHA v3): fica pronto no código e é ligado quando a chave existir.
+- **Custo:** o plano Spark não cobra. O alerta de gasto é criado quando passar para o Blaze (fase 4).
+- **Checklist antes de abrir ao público:** FIREBASE.md.
+
 ## 6. O que o dono do app precisa fazer
 
 - Criar o projeto Firebase (FIREBASE.md) e, além do Google, ligar em Authentication:

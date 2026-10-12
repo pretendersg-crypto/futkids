@@ -4,9 +4,6 @@
 export const ALFABETO = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
 export const TAMANHO_CODIGO = 8
 
-/** Versão do aviso de privacidade/termos aceita pelo responsável (muda quando o texto mudar) */
-export const VERSAO_TERMOS = '2026-10-12'
-
 export function gerarCodigo(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(TAMANHO_CODIGO))
   return [...bytes].map((b) => ALFABETO[b % ALFABETO.length]).join('')

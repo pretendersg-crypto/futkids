@@ -258,6 +258,20 @@ export async function escolinhaDoAtleta(atleta: string) {
   return (await escolinhaNuvem()).lerEscolinhaDoAtleta(atleta)
 }
 
+// ---------- baixar os dados (LGPD) ----------
+
+/** Baixa um arquivo .json com tudo o que a nuvem guarda da família */
+export async function baixarMeusDados() {
+  const { familia } = exigirFamilia()
+  const dados = await (await nuvem()).exportarDados(await usuarioLogado(), familia)
+  const url = URL.createObjectURL(new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `futkids-meus-dados-${new Date().toISOString().slice(0, 10)}.json`
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+}
+
 // ---------- sair e apagar ----------
 
 function esquecerContaNoAparelho() {

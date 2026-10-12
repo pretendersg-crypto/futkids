@@ -5,6 +5,7 @@ import {
   adicionarAtleta,
   apagarAtleta,
   apagarConta,
+  baixarMeusDados,
   desligarAparelho,
   gerarCodigoAparelho,
   gerarCodigoResponsavel,
@@ -28,6 +29,7 @@ const ESTADOS: Record<EstadoSincronia, string> = {
   sincronizando: '🔄 Sincronizando…',
   'em-dia': '✅ Em dia',
   'sem-internet': '📴 Sem internet (envia quando voltar)',
+  atualizar: '🆕 Há uma versão nova do app: feche e abra o app para atualizar (até lá, este aparelho não sincroniza)',
   erro: '⚠️ Problema',
 }
 
@@ -178,6 +180,9 @@ export function ContaDoResponsavel() {
         <summary className="cursor-pointer font-bold">Privacidade, sair e apagar</summary>
         <div className="mt-2 flex flex-col gap-2">
           <AvisoPrivacidade aberto />
+          <button type="button" disabled={ocupado} onClick={() => rodar(baixarMeusDados)} className={`${BOTAO} bg-white`}>
+            📥 Baixar os meus dados
+          </button>
           <button type="button" disabled={ocupado} onClick={() => rodar(sairDaConta)} className={`${BOTAO} bg-white`}>
             🚪 Sair da conta neste aparelho
           </button>

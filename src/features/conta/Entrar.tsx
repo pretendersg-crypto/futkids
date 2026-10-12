@@ -45,7 +45,17 @@ export function EntrarAdulto({ aoVoltar, titulo = '👨‍👩‍👧 Entrar com
       <AvisoPrivacidade />
       <label className="flex items-start gap-3 text-base font-bold">
         <input type="checkbox" checked={aceito} onChange={(e) => setAceito(e.target.checked)} className="mt-1 size-6 shrink-0 accent-sky-600" />
-        Sou o responsável pela criança e concordo com o aviso acima.
+        <span>
+          Sou maior de idade, responsável pela criança (ou treinador), e concordo com a{' '}
+          <Link to="/privacidade" className="underline">
+            Política de Privacidade
+          </Link>{' '}
+          e os{' '}
+          <Link to="/termos" className="underline">
+            Termos de Uso
+          </Link>
+          .
+        </span>
       </label>
 
       <button type="button" disabled={!aceito || ocupado} onClick={() => rodar(entrarComGoogle)} className={`${BOTAO} bg-white`}>

@@ -61,11 +61,13 @@ service cloud.firestore {
       let ct = get(/databases/$(database)/documents/codigosTurma/$(c)).data;
       return exists(/databases/$(database)/documents/codigosTurma/$(c)) && ct.ativo == true && ct.escolinha == e && ct.turma == t;
     }
+    // Dado sincronizado: { json, em, app } (app = versão do formato dos dados do app que gravou)
     function dadoValido() {
-      return request.resource.data.keys().hasOnly(['json', 'em'])
+      return request.resource.data.keys().hasOnly(['json', 'em', 'app'])
         && request.resource.data.json is string
         && request.resource.data.json.size() < 900000
-        && request.resource.data.em is number;
+        && request.resource.data.em is number
+        && (!('app' in request.resource.data) || request.resource.data.app is int);
     }
     function semPlanoNovo() {
       return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['plano', 'limites']);

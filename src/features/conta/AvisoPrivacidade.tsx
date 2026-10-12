@@ -1,5 +1,7 @@
 // Aviso de privacidade da conta da família (LGPD: dados de crianças só com o responsável, o mínimo
-// necessário, para uma finalidade clara, e com como apagar).
+// necessário, para uma finalidade clara, e com como apagar). O texto completo está em /privacidade.
+import { Link } from 'react-router'
+
 export function AvisoPrivacidade({ aberto = false }: { aberto?: boolean }) {
   return (
     <details open={aberto} className="rounded-2xl bg-white p-3 text-sm">
@@ -23,9 +25,20 @@ export function AvisoPrivacidade({ aberto = false }: { aberto?: boolean }) {
           <b>Sem anúncios</b> e sem vender ou passar os dados para ninguém.
         </li>
         <li>
-          <b>Apagar:</b> a qualquer momento, em "Apagar a conta e todos os dados da nuvem".
+          <b>Apagar:</b> a qualquer momento, em "Apagar a minha conta".
         </li>
       </ul>
+      <p className="mt-2">
+        Texto completo:{' '}
+        <Link to="/privacidade" className="font-bold underline">
+          Política de Privacidade
+        </Link>{' '}
+        e{' '}
+        <Link to="/termos" className="font-bold underline">
+          Termos de Uso
+        </Link>
+        .
+      </p>
     </details>
   )
 }

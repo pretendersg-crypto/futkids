@@ -10,6 +10,7 @@
 //   atletas/{a}                          + { escolinha, escolinhaNome, turmas[], turmasNomes{}, autorizacao }
 import type { User } from 'firebase/auth'
 import { arrayRemove, arrayUnion, deleteDoc, deleteField, doc, getDoc, getDocs, onSnapshot, setDoc, Timestamp, updateDoc, collection, type Unsubscribe } from 'firebase/firestore'
+import { VERSAO_TERMOS } from '../data/legal'
 import { gerarCodigo } from './codigos'
 import { apagarColecao, gravarUsuario, iniciar, novoId } from './nuvem'
 import type { ItemDia } from '../data/calendarioGoleiros'
@@ -46,6 +47,8 @@ export async function criarEscolinha(u: User, nome: string): Promise<string> {
     turmas: {},
     plano: 'gratis',
     limites: { ...LIMITES_GRATIS },
+    // Aceite dos Termos (parte das escolinhas) por quem criou
+    aceiteTermos: { versao: VERSAO_TERMOS, por: u.uid, em: Date.now() },
     criadoEm: Date.now(),
   })
   await gravarUsuario(u, { escolinha: e })

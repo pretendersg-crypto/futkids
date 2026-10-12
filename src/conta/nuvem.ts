@@ -10,6 +10,7 @@
 //   atletas/{a}/aparelhos/{dev}       aparelho de criança ligado a este atleta
 //   convites/{código}                 { tipo, familia, atleta?, expiraEm, usadoPor }
 import { initializeApp, type FirebaseApp } from 'firebase/app'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import {
   deleteUser,
   getAuth,
@@ -41,11 +42,12 @@ import {
   type Firestore,
   type Unsubscribe,
 } from 'firebase/firestore'
-import { CHAVES_FAMILIA, CHAVES_FILHO, type ChaveSincronizada } from './chaves'
+import { CHAVES_FAMILIA, CHAVES_FILHO, VERSAO_DADOS, type ChaveSincronizada } from './chaves'
 import { useContaStore, type Atleta } from './contaStore'
-import { decidir, type MetaChave, type Remoto } from './decidir'
-import { FIREBASE_CONFIG } from './firebaseConfig'
-import { gerarCodigo, VERSAO_TERMOS } from './codigos'
+import { decidir, gravadoPorAppMaisNovo, type MetaChave, type Remoto } from './decidir'
+import { APP_CHECK_CHAVE_SITE, FIREBASE_CONFIG } from './firebaseConfig'
+import { VERSAO_TERMOS } from '../data/legal'
+import { gerarCodigo } from './codigos'
 import { recarregarStore } from './registro'
 
 let app: FirebaseApp | null = null
@@ -56,6 +58,12 @@ export function iniciar() {
   if (!FIREBASE_CONFIG) throw new Error('A conta ainda não foi configurada (FIREBASE.md).')
   if (!app) {
     app = initializeApp(FIREBASE_CONFIG)
+    // App Check: o banco só aceita pedidos que vêm do app (no computador do desenvolvedor, usa o
+    // "token de depuração" que aparece no console do navegador e é cadastrado no Firebase)
+    if (APP_CHECK_CHAVE_SITE) {
+      if (import.meta.env.DEV) Object.assign(self, { FIREBASE_APPCHECK_DEBUG_TOKEN: true })
+      initializeAppCheck(app, { provider: new ReCaptchaV3Provider(APP_CHECK_CHAVE_SITE), isTokenAutoRefreshEnabled: true })
+    }
     auth = getAuth(app)
     auth.languageCode = 'pt'
     db = getFirestore(app)
@@ -186,7 +194,7 @@ export async function criarAtleta(uid: string, f: string, apelido: string, dados
   await setDoc(doc(db, 'atletas', id), { apelido, familia: f, criadoPor: uid, turmas: [], criadoEm: Date.now() })
   await updateDoc(doc(db, 'familias', f), { [`atletas.${id}`]: apelido })
   for (const [chave, json] of Object.entries(dados)) {
-    if (json) await setDoc(doc(db, 'atletas', id, 'dados', chave), { json, em: Date.now() })
+    if (json) await setDoc(doc(db, 'atletas', id, 'dados', chave), { json, em: Date.now(), app: VERSAO_DADOS })
   }
   return { id, apelido }
 }
@@ -229,6 +237,43 @@ export async function apagarConta(uid: string, f: string) {
   }
   await deleteDoc(doc(db, 'usuarios', uid))
   if (auth.currentUser) await deleteUser(auth.currentUser)
+}
+
+/** Tudo o que a nuvem guarda da família (direito de acesso e portabilidade da LGPD) */
+export async function exportarDados(u: User, f: string) {
+  const { db } = iniciar()
+  const lerDados = async (...caminho: [string, ...string[]]) => {
+    const r = await getDocs(collection(db, ...caminho))
+    return Object.fromEntries(
+      r.docs.map((d) => {
+        try {
+          return [d.id, JSON.parse(String(d.data().json))]
+        } catch {
+          return [d.id, d.data().json]
+        }
+      }),
+    )
+  }
+  const familia = await lerFamilia(f)
+  const atletas = []
+  for (const a of familia.atletas) {
+    const info = (await getDoc(doc(db, 'atletas', a.id))).data() ?? {}
+    atletas.push({
+      id: a.id,
+      apelido: a.apelido,
+      escolinha: info.escolinhaNome ?? null,
+      turmas: Object.values((info.turmasNomes as Record<string, string> | undefined) ?? {}),
+      autorizacaoDaEscolinha: info.autorizacao ?? null,
+      dados: await lerDados('atletas', a.id, 'dados'),
+    })
+  }
+  return {
+    app: 'FutKids',
+    exportadoEm: new Date().toISOString(),
+    responsavel: { email: u.email },
+    familia: { responsaveis: familia.responsaveis.length, dados: await lerDados('familias', f, 'dados') },
+    atletas,
+  }
 }
 
 /** A família já tem dados na nuvem? (no 1º login de um aparelho, para saber quem vale) */
@@ -364,6 +409,8 @@ export async function iniciarSincronia(familia: string, atleta: string) {
   async function resolver(chave: ChaveSincronizada, remoto: Remoto | null) {
     const caminho = caminhoDe(familia, atleta, chave)
     const metas = lerMetas()
+    // Dado de um app mais novo: não aplica nem sobrescreve; pede para atualizar o app
+    if (gravadoPorAppMaisNovo(remoto, VERSAO_DADOS)) return useContaStore.getState().definirEstado('atualizar')
     const local = localStorage.getItem(chave)
     const acao = decidir(local, metas[caminho] ?? {}, remoto)
     if (acao === 'baixar' && remoto) {
@@ -374,7 +421,7 @@ export async function iniciarSincronia(familia: string, atleta: string) {
       await recarregarStore(chave)
     } else if (acao === 'enviar' && local) {
       const em = Date.now()
-      await setDoc(doc(db, caminho), { json: local, em })
+      await setDoc(doc(db, caminho), { json: local, em, app: VERSAO_DADOS })
       metas[caminho] = { base: local, baseEm: em }
       gravarMetas(metas)
     }
@@ -399,7 +446,7 @@ export async function iniciarSincronia(familia: string, atleta: string) {
         return
       }
     }
-    useContaStore.getState().marcarSincronizado()
+    if (useContaStore.getState().estado !== 'atualizar') useContaStore.getState().marcarSincronizado()
   }
 
   try {
@@ -408,7 +455,7 @@ export async function iniciarSincronia(familia: string, atleta: string) {
       await resolver(chave, r.exists() ? (r.data() as Remoto) : null)
       ultimosVistos[chave] = localStorage.getItem(chave)
     }
-    useContaStore.getState().marcarSincronizado()
+    if (useContaStore.getState().estado !== 'atualizar') useContaStore.getState().marcarSincronizado()
   } catch (erro) {
     useContaStore.getState().definirEstado(navigator.onLine ? 'erro' : 'sem-internet', (erro as Error).message)
   }
@@ -447,6 +494,7 @@ export async function baixarPerfil(familia: string, atleta: string) {
     const r = await getDoc(doc(db, caminho))
     if (!r.exists()) continue
     const remoto = r.data() as Remoto
+    if (gravadoPorAppMaisNovo(remoto, VERSAO_DADOS)) continue
     if (decidir(localStorage.getItem(chave), metas[caminho] ?? {}, remoto) !== 'baixar') continue
     localStorage.setItem(chave, remoto.json)
     metas[caminho] = { base: remoto.json, baseEm: remoto.em }
@@ -462,8 +510,10 @@ export async function enviarPendentes(familia: string, atleta: string, tudo = fa
     const caminho = caminhoDe(familia, atleta, chave)
     const local = localStorage.getItem(chave)
     if (local && (tudo || local !== metas[caminho]?.base)) {
+      const remoto = await getDoc(doc(db, caminho))
+      if (gravadoPorAppMaisNovo(remoto.exists() ? (remoto.data() as Remoto) : null, VERSAO_DADOS)) continue
       const em = Date.now()
-      await setDoc(doc(db, caminho), { json: local, em })
+      await setDoc(doc(db, caminho), { json: local, em, app: VERSAO_DADOS })
       metas[caminho] = { base: local, baseEm: em }
     }
   }

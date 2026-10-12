@@ -44,6 +44,47 @@ Na aba **Configurações → Domínios autorizados**, clique em **Adicionar dom�
 Esses valores **não são senha**: todo app web do Firebase mostra isso no navegador. Quem protege os
 dados são as regras do passo 3.
 
+## 5. Proteção contra uso indevido (App Check), antes de abrir ao público
+
+O App Check faz o banco só aceitar pedidos que vêm do app, e não de um robô gastando a sua cota.
+
+1. Crie uma chave **reCAPTCHA v3** em <https://www.google.com/recaptcha/admin>:
+   - tipo **v3**;
+   - domínios `pretendersg-crypto.github.io` e `localhost`.
+2. No Firebase: **Criação → App Check → Apps → seu app web → reCAPTCHA**. Cole a **chave secreta**
+   e salve.
+3. Mande a **chave do site** para o Claude, que coloca em `APP_CHECK_CHAVE_SITE`
+   (`src/conta/firebaseConfig.ts`).
+4. Deixe uns dias só **monitorando** (App Check → APIs → Cloud Firestore → métricas).
+   - Se quase tudo vier "verificado", clique em **Aplicar** (enforce).
+   - No computador de testes, o console do navegador mostra um "token de depuração". Cadastre esse
+     token em App Check → Gerenciar tokens de depuração.
+
+## 6. Custos e alerta de gasto
+
+- No plano **Spark** (gratuito) não há cobrança: se a cota do dia acabar, o banco para até o dia
+  seguinte.
+- Quando passar para o **Blaze** (fase de cobrança), faça isto antes de qualquer outra coisa:
+  - Google Cloud → Faturamento → **Orçamentos e alertas**;
+  - crie um orçamento baixo (ex.: R$ 50/mês) com alertas em 50%, 90% e 100%.
+
+## Antes de abrir ao público (checklist)
+
+- [ ] `src/data/legal.ts`:
+  - [ ] nome ou razão social, CPF/CNPJ, cidade e e-mail de contato preenchidos;
+  - [ ] `RASCUNHO = false`.
+- [ ] Política de Privacidade (`/privacidade`) e Termos de Uso (`/termos`) **revisados por um
+      advogado**. O app trata dados de crianças (LGPD art. 14).
+- [ ] App Check ligado e aplicado (seção 5).
+- [ ] Regras do Firestore publicadas com a versão atual de `firestore.rules`.
+- [ ] Teste de ponta a ponta feito:
+  - [ ] pai e mãe;
+  - [ ] aparelho da criança;
+  - [ ] treinador e turma;
+  - [ ] tirar da escolinha;
+  - [ ] apagar a conta;
+  - [ ] baixar os dados.
+
 ## Como funciona (Fase 1: famílias)
 
 - **Responsável no celular dele:** Conta → "Sou o responsável" → aceita o aviso → entra com Google

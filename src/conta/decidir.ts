@@ -6,7 +6,12 @@ export interface Remoto {
   json: string
   /** Quando foi gravado na nuvem (ms) */
   em: number
+  /** Versão do formato dos dados do app que gravou (VERSAO_DADOS); sem = 1 */
+  app?: number
 }
+
+/** O dado na nuvem foi gravado por um app mais novo que este? */
+export const gravadoPorAppMaisNovo = (remoto: Remoto | null, versao: number) => (remoto?.app ?? 1) > versao
 
 export interface MetaChave {
   /** Último conteúdo igual nos dois lados */

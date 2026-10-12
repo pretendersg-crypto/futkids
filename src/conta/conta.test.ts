@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { CHAVES_APARELHO, CHAVES_FAMILIA, CHAVES_FILHO } from './chaves'
-import { decidir } from './decidir'
+import { CHAVES_APARELHO, CHAVES_FAMILIA, CHAVES_FILHO, VERSAO_DADOS } from './chaves'
+import { decidir, gravadoPorAppMaisNovo } from './decidir'
 
 describe('chaves da conta da família', () => {
   it('todo store salvo está em família, filho ou aparelho (e em uma só)', () => {
@@ -10,6 +10,47 @@ describe('chaves da conta da família', () => {
     const todas: string[] = [...CHAVES_FAMILIA, ...CHAVES_FILHO, ...CHAVES_APARELHO]
     expect(new Set(todas).size).toBe(todas.length)
     for (const nome of nomes) expect(todas, nome).toContain(nome)
+  })
+})
+
+describe('versão do formato dos dados', () => {
+  // Se este teste falhar porque a "version" de um store mudou: suba VERSAO_DADOS em chaves.ts e
+  // atualize a lista abaixo (assim um aparelho com o app antigo não estraga o formato novo).
+  const VERSOES_DOS_STORES: Record<string, number> = {
+    'futkids-conquistas': 1,
+    'futkids-agenda': 1,
+    'futkids-alimentacao': 1,
+    'futkids-config': 1,
+    'futkids-gestos-concluidos': 1,
+    'futkids-gestos': 1,
+    'futkids-pais': 2,
+    'futkids-programa': 1,
+    'futkids-progresso': 1,
+    'futkids-reacao': 1,
+    'futkids-tatica': 1,
+    'futkids-treinador': 1,
+    'futkids-treinos-fundamentos': 1,
+    'futkids-treinos': 1,
+    'futkids-jogador': 3,
+  }
+
+  it('as versões dos stores são as conhecidas para VERSAO_DADOS = 1', () => {
+    const fontes = import.meta.glob<string>(['../stores/*.ts', '!../stores/*.test.ts'], { eager: true, query: '?raw', import: 'default' })
+    const achadas: Record<string, number> = {}
+    for (const codigo of Object.values(fontes)) {
+      const nome = /name: '(futkids[^']*)'/.exec(codigo)?.[1]
+      const versao = /\n\s*version: (\d+),/.exec(codigo)?.[1]
+      if (nome) achadas[nome] = Number(versao ?? 0)
+    }
+    expect(VERSAO_DADOS).toBe(1)
+    expect(achadas).toEqual(VERSOES_DOS_STORES)
+  })
+
+  it('dado gravado por um app mais novo é recusado', () => {
+    expect(gravadoPorAppMaisNovo({ json: '{}', em: 1 }, 1)).toBe(false)
+    expect(gravadoPorAppMaisNovo({ json: '{}', em: 1, app: 1 }, 1)).toBe(false)
+    expect(gravadoPorAppMaisNovo({ json: '{}', em: 1, app: 2 }, 1)).toBe(true)
+    expect(gravadoPorAppMaisNovo(null, 1)).toBe(false)
   })
 })
 

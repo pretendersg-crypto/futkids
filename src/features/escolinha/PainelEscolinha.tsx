@@ -38,6 +38,7 @@ export function PainelEscolinha() {
 function SemEscolinha() {
   const email = useContaStore((s) => s.email)
   const [nome, setNome] = useState('')
+  const [aceito, setAceito] = useState(false)
   const [codigo, setCodigo] = useState('')
   const { ocupado, erro, rodar } = useAcao()
   return (
@@ -48,7 +49,17 @@ function SemEscolinha() {
           Nome da escolinha (ou do time)
           <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={40} placeholder="Ex.: Escolinha Bom de Bola" className="min-h-12 rounded-xl border-2 border-sky-200 px-3 font-normal" />
         </label>
-        <button type="button" disabled={ocupado || !nome.trim()} onClick={() => rodar(() => criarEscolinha(nome.trim()))} className={`${BOTAO} bg-sol`}>
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" checked={aceito} onChange={(e) => setAceito(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-sky-600" />
+          <span>
+            Li e aceito os{' '}
+            <Link to="/termos" className="font-bold underline">
+              Termos de Uso
+            </Link>{' '}
+            (parte "Escolinhas e treinadores"): só vejo o treino dos atletas que a família autorizar e uso só para acompanhar o treino.
+          </span>
+        </label>
+        <button type="button" disabled={ocupado || !nome.trim() || !aceito} onClick={() => rodar(() => criarEscolinha(nome.trim()))} className={`${BOTAO} bg-sol`}>
           ✨ Criar a escolinha (grátis)
         </button>
       </div>
