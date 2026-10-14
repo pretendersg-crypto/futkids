@@ -9,6 +9,7 @@ import { usePaisStore } from '../stores/paisStore'
 import { useProgramaStore } from '../stores/programaStore'
 import { useProgressStore } from '../stores/progressStore'
 import { useReacaoStore } from '../stores/reacaoStore'
+import { useTaticaCriadaStore } from '../stores/taticaCriadaStore'
 import { useTaticaStore } from '../stores/taticaStore'
 import { useTreinadorStore } from '../stores/treinadorStore'
 import { useTreinosFundamentosStore } from '../stores/treinosFundamentosStore'
@@ -28,6 +29,7 @@ export const STORES: Record<ChaveSincronizada, ComPersist> = {
   'futkids-gestos': useGestosStore,
   'futkids-treinos-fundamentos': useTreinosFundamentosStore,
   'futkids-treinador': useTreinadorStore,
+  'futkids-tatica-criada': useTaticaCriadaStore,
   'futkids-jogador': useUserStore,
   'futkids-progresso': useProgressStore,
   'futkids-conquistas': useAchievementsStore,

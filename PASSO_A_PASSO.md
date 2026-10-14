@@ -21,6 +21,9 @@ Atualizado em 12/10/2026. Está em ordem: cada etapa só depende das de cima.
   leitores da turma.
 - ⬜ **Domínio do site publicado**: Authentication → aba **Configurações** → **Domínios autorizados**
   → **Adicionar domínio** → `pretendersg-crypto.github.io`.
+- ⬜ **Regras do Firestore de novo (14/10/2026)**: mudaram para o Futsal Tático da turma (puzzles e
+  pranchetas do treinador). Mesmo caminho: Firestore Database → **Regras** → apagar tudo → colar o
+  `firestore.rules` inteiro → **Publicar**. Sem isso, salvar puzzle "para a turma" dá "sem permissão".
 - ⬜ (Opcional) **Nova chave secreta do reCAPTCHA**, porque a antiga foi enviada no chat. O app não usa
   essa chave.
 

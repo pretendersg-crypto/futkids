@@ -78,6 +78,10 @@ const ROTAS: RouteObject[] = [
           { index: true, lazy: () => import('./pages/Tatica').then((m) => ({ Component: m.Tatica })) },
           // ex.: /tatica/jogar?modo=relogio&dif=facil ou /tatica/jogar?id=tabela
           { path: 'jogar', lazy: () => import('./pages/JogarTatica').then((m) => ({ Component: m.JogarTatica })) },
+          // Lance explicado na prancheta (ex.: /tatica/lance/sistema-3-1)
+          { path: 'lance/:lance', lazy: () => import('./pages/LanceTatico').then((m) => ({ Component: m.LanceTatico })) },
+          // Criar e editar puzzles e pranchetas (pais e treinador)
+          { path: 'criar', lazy: () => import('./pages/CriarTatica').then((m) => ({ Component: m.CriarTatica })) },
         ],
       },
       { path: 'agenda', lazy: () => import('./pages/Agenda').then((m) => ({ Component: m.Agenda })) },

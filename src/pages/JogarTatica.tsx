@@ -7,7 +7,7 @@ import { Mascote } from '../components/mascote/Mascote'
 import { PainelRecompensa } from '../components/ui/PainelRecompensa'
 import { FALAS_FIM, sortearFala } from '../data/mascote'
 import { proximoPuzzle, puzzlesDoFiltro, type Filtros } from '../features/tatica/escolher'
-import { puzzlePorId } from '../features/tatica/puzzles'
+import { puzzlePorIdEmTodos } from '../features/tatica/fontes'
 import { ResolverPuzzle } from '../features/tatica/ResolverPuzzle'
 import type { CategoriaTatica, Dificuldade, Puzzle } from '../features/tatica/tipos'
 import { entregarRecompensa, type ResultadoRecompensa } from '../stores/progressStore'
@@ -19,7 +19,7 @@ const TAMANHO_RODADA = 5
 const SEGUNDOS_RELOGIO = 60
 
 function sortearPrimeiro(f: Filtros, ids: string[]): Puzzle | undefined {
-  if (ids.length) return puzzlePorId(ids[0])
+  if (ids.length) return puzzlePorIdEmTodos(ids[0])
   const s = useTaticaStore.getState()
   return proximoPuzzle(f, s.rating, s.porPuzzle, [])
 }

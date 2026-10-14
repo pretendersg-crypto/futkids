@@ -1,8 +1,8 @@
 // Qual puzzle vem a seguir: dentro dos filtros, primeiro os que a criança ainda não acertou,
 // com rating perto do dela (um pouco acima, para desafiar). Sorteia entre os 3 mais adequados
-// para a rodada não ser sempre igual.
+// para a rodada não ser sempre igual. Inclui os puzzles da família e do treinador.
 import type { DesempenhoPuzzle } from '../../stores/taticaStore'
-import { PUZZLES } from './puzzles'
+import { todosOsPuzzles } from './fontes'
 import type { CategoriaTatica, Dificuldade, Puzzle } from './tipos'
 
 export interface Filtros {
@@ -11,7 +11,7 @@ export interface Filtros {
 }
 
 export function puzzlesDoFiltro(f: Filtros): Puzzle[] {
-  return PUZZLES.filter((p) => (!f.dificuldade || p.dificuldade === f.dificuldade) && (!f.categoria || p.categoria === f.categoria))
+  return todosOsPuzzles().filter((p) => (!f.dificuldade || p.dificuldade === f.dificuldade) && (!f.categoria || p.categoria === f.categoria))
 }
 
 export function proximoPuzzle(f: Filtros, rating: number, porPuzzle: Record<string, DesempenhoPuzzle>, jaNaRodada: string[], sorteio = Math.random): Puzzle | undefined {

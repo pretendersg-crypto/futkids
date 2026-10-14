@@ -5,6 +5,7 @@
 //   escolinhas/{e}/turmas/{t}            { nome, codigo }
 //   escolinhas/{e}/turmas/{t}/plano/atual { dias{AAAA-MM-DD: [{treino, video?}]}, em }
 //   escolinhas/{e}/turmas/{t}/membros/{m} { apelido, familia, atleta, autorizado, codigo }
+//   escolinhas/{e}/turmas/{t}/taticas/{id} puzzles e pranchetas do treinador (nuvemTatica.ts)
 //      m = id do atleta (família autorizou) ou o código do convite (cadastrado pelo treinador)
 //   codigosTurma/{c}                     { escolinha, turma, nomes, ativo }  (vários usos)
 //   atletas/{a}                          + { escolinha, escolinhaNome, turmas[], turmasNomes{}, autorizacao }
@@ -406,6 +407,7 @@ export function ouvirTurmas(a: string) {
       const loja = useTurmasStore.getState()
       if (!e || turmas.length === 0) {
         loja.definirVideos(a, [])
+        loja.definirTaticas(a, [])
         return loja.definir(a, [])
       }
       const planos: Record<string, PlanoDaTurma> = {}
@@ -416,6 +418,11 @@ export function ouvirTurmas(a: string) {
         void import('./nuvemVideos').then((v) => {
           const guardar = v.guardarVideos(a)
           for (const t of turmas) dasTurmas.push(v.ouvirVideos(uid, e, t, a, guardar))
+        })
+        // Puzzles e pranchetas do Futsal Tático feitos pelo treinador
+        void import('./nuvemTatica').then((n) => {
+          const guardar = n.guardarTaticas(a)
+          for (const t of turmas) dasTurmas.push(n.ouvirTaticas(uid, e, t, nomes[t] ?? 'Turma', a, guardar))
         })
       }
       for (const t of turmas) {

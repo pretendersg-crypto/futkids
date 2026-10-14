@@ -1,6 +1,7 @@
 // Página /painel: painel do adulto para o COMPUTADOR (tela larga). Menu à esquerda:
 //  📅 Plano de casa (grade de semanas, arrastar e soltar), ⚽ Plano da equipe (treinador),
-//  🧰 Área dos pais completa (treinos, gestos, fundamentos, programa, categoria), ☁️ Conta.
+//  🧠 Tática (puzzles e pranchetas do Futsal Tático), 🧰 Área dos pais completa (treinos, gestos,
+//  fundamentos, programa, categoria), ☁️ Conta.
 // Usa letra menor que o app da criança (tela de adulto, com mais coisa à vista). Pede o PIN dos pais.
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
@@ -9,11 +10,12 @@ import { AreaPais } from '../features/agenda/pais/AreaPais'
 import { TrancaPais } from '../features/agenda/pais/TrancaPais'
 import { Conta } from '../features/conta/Conta'
 import { CopiarPlanoDeCasa } from '../features/painel/CopiarPlanoDeCasa'
+import { GerenciarTaticas } from '../features/tatica/editor/GerenciarTaticas'
 import { PlanoDaTurmaGrade } from '../features/painel/PlanoDaTurmaGrade'
 import { PlanoDeCasa } from '../features/painel/PlanoDeCasa'
 import { SeletorAtleta } from '../features/painel/SeletorAtleta'
 
-type Aba = 'casa' | 'turma' | 'pais' | 'conta'
+type Aba = 'casa' | 'turma' | 'tatica' | 'pais' | 'conta'
 
 /** No painel, o "tamanho base" da letra é menor (todas as medidas do app são relativas a ele) */
 function useLetraDePainel() {
@@ -75,6 +77,19 @@ export function Painel() {
         <PlanoDaTurmaGrade escolinha={escolinha} />
       </div>
     )
+  else if (aba === 'tatica')
+    conteudo = (
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-extrabold">🧠 Futsal Tático: puzzles e pranchetas</h2>
+          <p className="text-sm text-slate-600">
+            Crie puzzles (melhor jogada, onde se posicionar, encontre o erro) e pranchetas com o lance explicado passo a passo. Escolha para quem: a
+            sua família ou uma turma da escolinha.
+          </p>
+        </div>
+        <GerenciarTaticas />
+      </div>
+    )
   else if (aba === 'conta')
     conteudo = (
       <div className="max-w-2xl">
@@ -96,6 +111,7 @@ export function Painel() {
             <p className="mb-2 px-1 text-lg font-extrabold">🖥️ Painel FutKids</p>
             {item('casa', '📅', 'Plano de casa')}
             {item('turma', '⚽', 'Plano da equipe', Boolean(escolinha))}
+            {item('tatica', '🧠', 'Tática')}
             {item('pais', '🧰', 'Treinos, gestos e mais')}
             {item('conta', '☁️', 'Conta')}
             <div className="mt-auto flex flex-col gap-1">

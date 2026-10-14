@@ -3,10 +3,15 @@
 import { describe, expect, it } from 'vitest'
 import { PUZZLES, puzzlePorId } from './puzzles'
 import { chanceEsperada, novoRating, RATING_MINIMO, variacaoRating } from './rating'
-import type { Passo } from './tipos'
-import { aplicarJogada, conferirPuzzle, jogadoresQueAgem, opcaoCorreta, opcoesDoJogador, validarJogada } from './validador'
+import { acabarPuzzle, copiarComoNovo, puzzleEmBranco } from './editor/novos'
+import { conferirPrancheta, jogadoresNoQuadro, PRANCHETAS_PRONTAS } from './pranchetas'
+import { ehJogada, type Passo, type PassoErro, type PassoJogada, type PassoPosicao } from './tipos'
+import { acertouErro, acertouPosicao, aplicarJogada, aplicarPasso, cenasDosPassos, conferirPuzzle, jogadoresQueAgem, opcaoCorreta as correta, opcoesDoJogador, validarJogada } from './validador'
 
-const passoExemplo: Passo = {
+/** Os puzzles antigos são todos de jogada */
+const opcaoCorreta = (p: Passo) => correta(p as PassoJogada)
+
+const passoExemplo: PassoJogada = {
   pergunta: 'Teste',
   opcoes: [
     { id: 'p9', jogador: 'a10', acao: 'passe', alvo: { tipo: 'jogador', id: 'a9' }, rotulo: '', correta: true, explicacao: 'livre' },
@@ -102,7 +107,7 @@ describe('puzzles', () => {
   it('tem pelo menos 15 puzzles nas 3 dificuldades e nas 4 categorias', () => {
     expect(PUZZLES.length).toBeGreaterThanOrEqual(15)
     expect(new Set(PUZZLES.map((p) => p.dificuldade))).toEqual(new Set(['facil', 'intermediario', 'avancado']))
-    expect(new Set(PUZZLES.map((p) => p.categoria))).toEqual(new Set(['ataque', 'defesa', 'transicao', 'bola-parada']))
+    expect(new Set(PUZZLES.map((p) => p.categoria))).toEqual(new Set(['ataque', 'defesa', 'transicao', 'bola-parada', 'sistemas']))
   })
   it('ids únicos', () => {
     expect(new Set(PUZZLES.map((p) => p.id)).size).toBe(PUZZLES.length)
@@ -114,11 +119,93 @@ describe('puzzles', () => {
     for (const p of PUZZLES) {
       let cena = { jogadores: p.jogadores, bola: p.bola }
       for (const passo of p.passos) {
+        if (!ehJogada(passo)) {
+          cena = aplicarPasso(cena, passo)
+          continue
+        }
         const certa = opcaoCorreta(passo)
         // Quem passa ou chuta precisa estar com a bola
         if (certa.acao === 'passe' || certa.acao === 'finalizacao' || certa.acao === 'drible') expect(cena.bola, `${p.id}: ${certa.id}`).toBe(certa.jogador)
         cena = aplicarJogada(cena, passo, certa)
       }
     }
+  })
+})
+
+describe('onde se posicionar e encontre o erro', () => {
+  const pos = puzzlePorId('pos-cobertura')!
+  const erro = puzzlePorId('erro-esqueceu-o-9')!
+
+  it('posição: toque perto do lugar certo vale, longe não', () => {
+    const passo = pos.passos[0] as PassoPosicao
+    expect(acertouPosicao(passo, { x: passo.certo.x + 0.03, y: passo.certo.y })).toBe(true)
+    expect(acertouPosicao(passo, { x: 0.45, y: 0.42 })).toBe(false)
+  })
+  it('posição: depois da resposta, o jogador vai para o lugar certo', () => {
+    const passo = pos.passos[0] as PassoPosicao
+    const depois = aplicarPasso({ jogadores: pos.jogadores, bola: pos.bola }, passo)
+    expect(depois.jogadores.find((j) => j.id === passo.jogador)?.pos).toEqual(passo.certo)
+  })
+  it('erro: só o jogador mal posicionado vale, e ele vai para onde deveria estar', () => {
+    const passo = erro.passos[0] as PassoErro
+    expect(acertouErro(passo, 'a8')).toBe(true)
+    expect(acertouErro(passo, 'a4')).toBe(false)
+    expect(aplicarPasso({ jogadores: erro.jogadores, bola: erro.bola }, passo).jogadores.find((j) => j.id === 'a8')?.pos).toEqual(passo.corrigir)
+  })
+  it('ninguém começa já no lugar certo (senão o puzzle não ensina nada)', () => {
+    for (const p of PUZZLES) {
+      p.passos.forEach((passo, i) => {
+        if (passo.tipo !== 'posicao') return
+        const quem = cenasDosPassos(p)[i].jogadores.find((j) => j.id === passo.jogador)!
+        expect(acertouPosicao(passo, quem.pos), `${p.id}`).toBe(false)
+      })
+    }
+  })
+  it('a conferência acha pergunta incompleta', () => {
+    const quebrado = { ...pos, passos: [{ tipo: 'posicao', pergunta: '', jogador: 'b10', certo: { x: 2, y: 0 }, explicacao: '' } as PassoPosicao] }
+    expect(conferirPuzzle(quebrado).length).toBeGreaterThanOrEqual(3)
+  })
+})
+
+describe('pranchetas', () => {
+  it.each(PRANCHETAS_PRONTAS.map((p) => [p.id, p] as const))('%s está correta', (_id, p) => {
+    expect(conferirPrancheta(p)).toEqual([])
+  })
+  it('o quadro guarda só quem mudou de lugar; os outros ficam onde estavam', () => {
+    const pr = PRANCHETAS_PRONTAS.find((p) => p.id === 'sistema-4-0')!
+    const q2 = jogadoresNoQuadro(pr, 2)
+    expect(q2.find((j) => j.id === 'a7')?.pos).toEqual({ x: 0.8, y: 0.33 }) // mudou no quadro 1
+    expect(q2.find((j) => j.id === 'a4')?.pos).toEqual({ x: 0.5, y: 0.38 }) // mudou no quadro 2
+    expect(q2.find((j) => j.id === 'a9')?.pos).toEqual({ x: 0.5, y: 0.85 }) // nunca mudou
+  })
+})
+
+describe('editor', () => {
+  it('puzzle em branco precisa ser completado para salvar', () => {
+    expect(conferirPuzzle(acabarPuzzle(puzzleEmBranco())).length).toBeGreaterThan(0)
+  })
+  it('acabar: botão sem texto ganha um texto padrão e o rating segue a dificuldade', () => {
+    const p = puzzleEmBranco()
+    p.titulo = 'Teste'
+    p.dificuldade = 'avancado'
+    p.passos = [
+      {
+        pergunta: 'Qual?',
+        opcoes: [
+          { id: 'o1', jogador: 'a10', acao: 'passe', alvo: { tipo: 'jogador', id: 'a9' }, rotulo: '', correta: true, explicacao: 'livre' },
+          { id: 'o2', jogador: 'a10', acao: 'finalizacao', alvo: { tipo: 'gol' }, rotulo: '', correta: false, explicacao: 'longe' },
+        ],
+      },
+    ]
+    const pronto = acabarPuzzle(p)
+    expect(conferirPuzzle(pronto)).toEqual([])
+    expect((pronto.passos[0] as PassoJogada).opcoes.map((o) => o.rotulo)).toEqual(['Passe para o 9', 'Chutar no gol'])
+    expect(pronto.rating).toBe(1350)
+  })
+  it('cópia de um pronto ganha id novo e não leva a origem', () => {
+    const c = copiarComoNovo({ ...PUZZLES[0], origem: 'x' }, 'pz')
+    expect(c.id).not.toBe(PUZZLES[0].id)
+    expect(c.origem).toBeUndefined()
+    expect(conferirPuzzle(c)).toEqual([])
   })
 })

@@ -1,32 +1,43 @@
-// Futsal Tático (/tatica): puzzles de "qual a melhor jogada?", como os puzzles de xadrez.
-// Abas: Jogar (rodada de 5, treino ou contra o relógio, com filtros), Puzzles (lista para escolher
-// um) e Progresso (rating, gráfico, acertos por categoria e últimas tentativas).
+// Futsal Tático (/tatica): puzzles de "qual a melhor jogada?", "onde se posicionar" e "encontre o
+// erro", como os puzzles de xadrez. Abas: Jogar (rodada de 5, treino ou contra o relógio, com
+// filtros), Puzzles (lista para escolher um, com os do treinador e da família), Lances (pranchetas:
+// sistemas de jogo e lances explicados pelo treinador) e Progresso (rating, gráfico, acertos por
+// categoria e últimas tentativas). Pais e treinador criam puzzles e lances em /tatica/criar.
 import { useState, type ReactNode } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Modal } from '../components/ui/Modal'
 import { SeloTipo } from '../components/ui/TipoAtividade'
 import { PortaoDosPais } from '../components/ui/PortaoDosPais'
 import { puzzlesDoFiltro } from '../features/tatica/escolher'
-import { PUZZLES, puzzlePorId } from '../features/tatica/puzzles'
+import { usePranchetas, usePuzzles } from '../features/tatica/fontes'
 import {
+  CATEGORIAS_TATICA as CATEGORIAS,
+  DIFICULDADES_TATICA as DIFICULDADES,
   EMOJI_CATEGORIA,
   EMOJI_DIFICULDADE,
   NOMES_CATEGORIA,
   NOMES_DIFICULDADE,
+  tipoDoPasso,
   type CategoriaTatica,
   type Dificuldade,
+  type Puzzle,
 } from '../features/tatica/tipos'
 import { useTaticaStore } from '../stores/taticaStore'
 import { destravarSom } from '../utils/som'
 
-type Aba = 'jogar' | 'puzzles' | 'progresso'
+type Aba = 'jogar' | 'puzzles' | 'lances' | 'progresso'
 const ABAS: [Aba, string][] = [
   ['jogar', '▶️ Jogar'],
   ['puzzles', '📋 Puzzles'],
+  ['lances', '🎬 Lances'],
   ['progresso', '📈 Progresso'],
 ]
-const DIFICULDADES: Dificuldade[] = ['facil', 'intermediario', 'avancado']
-const CATEGORIAS: CategoriaTatica[] = ['ataque', 'defesa', 'transicao', 'bola-parada']
+
+/** Que tipo de pergunta o puzzle tem (para a lista) */
+function tiposDePergunta(p: Puzzle): string {
+  const tipos = new Set(p.passos.map(tipoDoPasso))
+  return [tipos.has('posicao') && '📍 posição', tipos.has('erro') && '🔎 erro', tipos.has('jogada') && p.passos.length > 1 && `${p.passos.length} jogadas`].filter(Boolean).join(' · ')
+}
 
 export function Tatica() {
   const [params, setParams] = useSearchParams()
@@ -43,7 +54,7 @@ export function Tatica() {
         <Numero emoji="🏅" valor={melhorSequencia} rotulo="recorde" />
       </div>
 
-      <div role="tablist" aria-label="Partes do Futsal Tático" className="grid grid-cols-3 gap-1 rounded-3xl bg-white p-1 shadow">
+      <div role="tablist" aria-label="Partes do Futsal Tático" className="grid grid-cols-4 gap-1 rounded-3xl bg-white p-1 shadow">
         {ABAS.map(([id, nome]) => (
           <button
             key={id}
@@ -51,7 +62,7 @@ export function Tatica() {
             role="tab"
             aria-selected={aba === id}
             onClick={() => setParams(id === 'jogar' ? {} : { aba: id }, { replace: true })}
-            className={`min-h-12 rounded-3xl text-base font-extrabold ${aba === id ? 'bg-emerald-600 text-white' : ''}`}
+            className={`min-h-12 rounded-3xl text-sm leading-tight font-extrabold ${aba === id ? 'bg-emerald-600 text-white' : ''}`}
           >
             {nome}
           </button>
@@ -60,7 +71,10 @@ export function Tatica() {
 
       {aba === 'jogar' && <AbaJogar />}
       {aba === 'puzzles' && <AbaPuzzles />}
+      {aba === 'lances' && <AbaLances />}
       {aba === 'progresso' && <AbaProgresso />}
+
+      {aba !== 'progresso' && <BotaoCriar />}
     </section>
   )
 }
@@ -159,17 +173,38 @@ function AbaJogar() {
   )
 }
 
+/** Pais e treinador: criar puzzles e lances (passa pela conta de adulto) */
+function BotaoCriar() {
+  const navegar = useNavigate()
+  const [portao, setPortao] = useState(false)
+  return (
+    <>
+      <button type="button" onClick={() => setPortao(true)} className="min-h-14 rounded-3xl border-4 border-dashed border-emerald-400 bg-emerald-50 text-lg font-extrabold">
+        ✏️ Criar puzzles e lances (pais e treinador)
+      </button>
+      <Modal aberto={portao} aoFechar={() => setPortao(false)} titulo="Área dos pais">
+        {portao && <PortaoDosPais aoLiberar={() => navegar('/tatica/criar', { state: { liberado: true } })} />}
+      </Modal>
+    </>
+  )
+}
+
 function AbaPuzzles() {
   const porPuzzle = useTaticaStore((s) => s.porPuzzle)
+  const todos = usePuzzles()
+  // Os criados (treinador e família) vêm primeiro, numa lista só
+  const criados = todos.filter((p) => p.origem)
+  const grupos: { titulo: string; lista: Puzzle[] }[] = [
+    ...(criados.length ? [{ titulo: '⭐ Do treinador e da família', lista: criados }] : []),
+    ...DIFICULDADES.map((d) => ({ titulo: `${EMOJI_DIFICULDADE[d]} ${NOMES_DIFICULDADE[d]}`, lista: todos.filter((p) => !p.origem && p.dificuldade === d) })),
+  ]
   return (
     <div className="flex flex-col gap-4">
-      {DIFICULDADES.map((d) => (
-        <div key={d} className="flex flex-col gap-2">
-          <h2 className="text-xl font-extrabold">
-            {EMOJI_DIFICULDADE[d]} {NOMES_DIFICULDADE[d]}
-          </h2>
+      {grupos.map(({ titulo, lista }) => (
+        <div key={titulo} className="flex flex-col gap-2">
+          <h2 className="text-xl font-extrabold">{titulo}</h2>
           <ul className="flex flex-col gap-2">
-            {PUZZLES.filter((p) => p.dificuldade === d).map((p) => {
+            {lista.map((p) => {
               const desempenho = porPuzzle[p.id]
               return (
                 <li key={p.id}>
@@ -183,10 +218,10 @@ function AbaPuzzles() {
                     </span>
                     <span className="flex flex-1 flex-col leading-tight">
                       <span className="font-extrabold">
-                        {p.titulo} {p.passos.length > 1 && <span className="text-xs font-bold">· {p.passos.length} jogadas</span>}
+                        {p.titulo} {tiposDePergunta(p) && <span className="text-xs font-bold">· {tiposDePergunta(p)}</span>}
                       </span>
                       <span className="text-sm">
-                        {NOMES_CATEGORIA[p.categoria]} · ⭐ {p.rating}
+                        {NOMES_CATEGORIA[p.categoria]} · {p.origem ?? `⭐ ${p.rating}`}
                       </span>
                     </span>
                     <span className="text-sm font-bold">
@@ -203,8 +238,52 @@ function AbaPuzzles() {
   )
 }
 
+function AbaLances() {
+  const pranchetas = usePranchetas()
+  const prontas = pranchetas.filter((p) => !p.origem)
+  const criadas = pranchetas.filter((p) => p.origem)
+  const lista = (titulo: string, itens: typeof pranchetas) =>
+    itens.length > 0 && (
+      <div className="flex flex-col gap-2">
+        <h2 className="text-xl font-extrabold">{titulo}</h2>
+        <ul className="flex flex-col gap-2">
+          {itens.map((p) => (
+            <li key={p.id}>
+              <Link to={`/tatica/lance/${p.id}`} className="flex min-h-16 items-center gap-3 rounded-2xl border-4 border-sky-200 bg-white p-2">
+                <span aria-hidden className="text-3xl">
+                  {EMOJI_CATEGORIA[p.categoria]}
+                </span>
+                <span className="flex flex-1 flex-col leading-tight">
+                  <span className="font-extrabold">{p.titulo}</span>
+                  <span className="text-sm">
+                    {p.descricao} {p.origem && <b>· {p.origem}</b>}
+                  </span>
+                </span>
+                <span className="text-sm font-bold">{p.quadros.length} quadros ▶️</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-start gap-3 rounded-3xl border-4 border-sky-300 bg-sky-50 p-3 text-base">
+        <span aria-hidden className="text-4xl">
+          📋
+        </span>
+        <p>Lances explicados na prancheta, passo a passo: veja como o time se mexe em cada sistema de jogo e as jogadas que o treinador preparou.</p>
+      </div>
+      {lista('⭐ Do treinador e da família', criadas)}
+      {lista('📐 Sistemas de jogo', prontas)}
+    </div>
+  )
+}
+
 function AbaProgresso() {
   const { historico, porPuzzle, melhorRating, zerar } = useTaticaStore()
+  const PUZZLES = usePuzzles()
+  const puzzlePorId = (id: string) => PUZZLES.find((p) => p.id === id)
   const [apagar, setApagar] = useState<'portao' | 'confirmar' | null>(null)
 
   if (historico.length === 0) {

@@ -5,6 +5,11 @@
   transition: transform 0.7s ease-in-out;
 }
 
+/* No editor o jogador segue o dedo na hora (sem deslizar) */
+.tatica-editor .tatica-jogador {
+  transition: none;
+}
+
 /* Anel piscando em quem pode jogar e nos alvos */
 .tatica-pulso {
   animation: tatica-pulso 1.1s ease-in-out infinite;

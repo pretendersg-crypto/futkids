@@ -26,11 +26,25 @@ export interface VideoGuardado {
   turma: string
 }
 
+/** Puzzle ou prancheta do Futsal Tático feito pelo treinador para a turma */
+export interface TaticaGuardada {
+  id: string
+  tipo: 'puzzle' | 'prancheta'
+  titulo: string
+  /** O puzzle ou a prancheta, em JSON (conferido antes de mostrar) */
+  json: string
+  em: number
+  turma: string
+  turmaNome: string
+}
+
 interface TurmasState {
   porAtleta: Record<string, PlanoDaTurma[]>
   videosPorAtleta: Record<string, VideoGuardado[]>
+  taticasPorAtleta: Record<string, TaticaGuardada[]>
   definir: (atleta: string, planos: PlanoDaTurma[]) => void
   definirVideos: (atleta: string, videos: VideoGuardado[]) => void
+  definirTaticas: (atleta: string, taticas: TaticaGuardada[]) => void
   esquecer: () => void
 }
 
@@ -39,10 +53,12 @@ export const useTurmasStore = create<TurmasState>()(
     (set) => ({
       porAtleta: {},
       videosPorAtleta: {},
+      taticasPorAtleta: {},
       definir: (atleta, planos) => set((s) => ({ porAtleta: { ...s.porAtleta, [atleta]: planos } })),
       definirVideos: (atleta, videos) =>
         set((s) => ({ videosPorAtleta: { ...s.videosPorAtleta, [atleta]: videos.map(({ id, titulo, tipo, caminho, em, atleta: a, turma }) => ({ id, titulo, tipo, caminho, em, atleta: a, turma })) } })),
-      esquecer: () => set({ porAtleta: {}, videosPorAtleta: {} }),
+      definirTaticas: (atleta, taticas) => set((s) => ({ taticasPorAtleta: { ...s.taticasPorAtleta, [atleta]: taticas } })),
+      esquecer: () => set({ porAtleta: {}, videosPorAtleta: {}, taticasPorAtleta: {} }),
     }),
     { name: 'futkids-turmas', version: 1, storage: createJSONStorage(() => localStorage) },
   ),
