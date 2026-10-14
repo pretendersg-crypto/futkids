@@ -1,13 +1,13 @@
-// Aba "Reação" (/reacao): drills de reação para goleiro (cores, setas e números na tela, ideia
-// do app SwitchedOn) e o histórico. Os drills ficam em dois blocos: 🎮 na tela (toque) e 🏃 com o
-// corpo (celular no chão); ?tipo=corpo mostra o do corpo primeiro. Criar/mudar drills passa pelo
-// portão dos pais.
+// Aba "Reação" (/reacao): drills de reação (cores, setas, números, cantos do gol, apito… ideia
+// do app SwitchedOn) e o histórico. Filtro no topo: 🧤 goleiro, ⚽ linha ou 👥 todos. Os drills ficam
+// em dois blocos: 🎮 na tela e 🏃 com o corpo (celular no chão); ?tipo=corpo mostra o do corpo
+// primeiro. Criar/mudar drills passa pelo portão dos pais.
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Modal } from '../components/ui/Modal'
 import { BlocoTipo } from '../components/ui/TipoAtividade'
 import { PortaoDosPais } from '../components/ui/PortaoDosPais'
-import { DRILLS_PRONTOS, minutosDoDrill, novoDrill, type Drill } from '../features/reacao/drills'
+import { combinaComPublico, DRILLS_PRONTOS, ehDoCorpo, ehEditavel, minutosDoDrill, novoDrill, PUBLICOS, type Drill } from '../features/reacao/drills'
 import { EditorDrill } from '../features/reacao/EditorDrill'
 import { formatarMs } from '../features/reacao/finalizar'
 import { Historico } from '../features/reacao/Historico'
@@ -19,7 +19,7 @@ type Aba = 'drills' | 'historico'
 export function Reacao() {
   const [params, setParams] = useSearchParams()
   const aba: Aba = params.get('aba') === 'historico' ? 'historico' : 'drills'
-  const { drills: criados, sessoes, salvarDrill, removerDrill } = useReacaoStore()
+  const { drills: criados, sessoes, salvarDrill, removerDrill, publico, escolherPublico } = useReacaoStore()
   const [liberado, setLiberado] = useState(false)
   /** Drill aberto no editor (novo, cópia de um pronto ou um criado) */
   const [editando, setEditando] = useState<{ drill: Drill; criado: boolean } | null>(null)
@@ -88,22 +88,42 @@ export function Reacao() {
         <Historico />
       ) : (
         <>
-          <p className="text-center text-lg">Cores, setas e números aparecem na tela: reaja rápido como um goleiro!</p>
+          <p className="text-center text-lg">Cores, setas, cantos do gol e apito: reaja rápido como um craque!</p>
 
-          {(params.get('tipo') === 'corpo' ? (['auto', 'toque'] as const) : (['toque', 'auto'] as const)).map((modo) => {
-            const criadosDoModo = criados.filter((d) => d.modo === modo)
+          {/* Para quem: goleiro, linha ou todos (fica guardado) */}
+          <div role="radiogroup" aria-label="Drills para" className="grid grid-cols-3 gap-2">
+            {PUBLICOS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                role="radio"
+                aria-checked={publico === p.id}
+                onClick={() => escolherPublico(p.id)}
+                className={`flex min-h-14 flex-col items-center justify-center rounded-2xl border-4 text-base leading-tight font-extrabold ${publico === p.id ? 'border-teal-600 bg-teal-500 text-white' : 'border-teal-200 bg-white'}`}
+              >
+                <span aria-hidden className="text-2xl">
+                  {p.emoji}
+                </span>
+                {p.id === 'todos' ? 'Todos' : p.nome}
+              </button>
+            ))}
+          </div>
+
+          {(params.get('tipo') === 'corpo' ? (['corpo', 'tela'] as const) : (['tela', 'corpo'] as const)).map((tipo) => {
+            const doBloco = (d: Drill) => (tipo === 'corpo') === ehDoCorpo(d) && combinaComPublico(d, publico)
+            const criadosDoModo = criados.filter(doBloco)
             return (
               <BlocoTipo
-                key={modo}
-                tipo={modo === 'auto' ? 'corpo' : 'tela'}
-                titulo={modo === 'auto' ? 'Reação com o corpo' : 'Reação na tela'}
+                key={tipo}
+                tipo={tipo}
+                titulo={tipo === 'corpo' ? 'Reação com o corpo' : 'Reação na tela'}
                 explicacao={
-                  modo === 'auto'
-                    ? 'Apoie o celular no chão: os sinais aparecem e você reage com o corpo (cones, quedas, passos).'
-                    : 'Segure o celular e toque na resposta certa o mais rápido que puder.'
+                  tipo === 'corpo'
+                    ? 'Apoie o celular no chão: os sinais aparecem e você reage com o corpo (cones, bola, quedas, passos).'
+                    : 'Segure o celular e toque na resposta certa o mais rápido que puder. Tem jogo de memória e duelo para 2!'
                 }
               >
-                <ListaDrills titulo="Drills" drills={DRILLS_PRONTOS.filter((d) => d.modo === modo)} ultimo={ultimo} />
+                <ListaDrills titulo="Drills" drills={DRILLS_PRONTOS.filter(doBloco)} ultimo={ultimo} />
                 {criadosDoModo.length > 0 && (
                   <ListaDrills
                     titulo="⭐ Criados pelo treinador"
@@ -127,7 +147,7 @@ export function Reacao() {
             </button>
             <p className="text-sm">Ou copie um drill pronto e mude o que quiser:</p>
             <div className="flex flex-wrap gap-2">
-              {DRILLS_PRONTOS.map((d) => (
+              {DRILLS_PRONTOS.filter(ehEditavel).map((d) => (
                 <button
                   key={d.id}
                   type="button"
@@ -186,7 +206,7 @@ function ListaDrills({ titulo, drills, ultimo, aoEditar }: ListaProps) {
                   <span className="text-base">{d.descricao}</span>
                   <span className="text-sm font-bold">
                     ⏱️ {minutosDoDrill(d)} min ·{' '}
-                    {u ? `última vez: ${new Date(u.quando).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}${u.mediaMs ? ` (${formatarMs(u.mediaMs)})` : ''}` : '✨ nunca feito'}
+                    {u ? `última vez: ${new Date(u.quando).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}${u.mediaMs ? ` (${formatarMs(u.mediaMs)})` : u.maiorSequencia !== undefined ? ` (sequência de ${u.maiorSequencia})` : ''}` : '✨ nunca feito'}
                   </span>
                 </span>
                 <span aria-hidden className="text-3xl">

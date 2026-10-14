@@ -1,8 +1,11 @@
 // Um drill de reação (/reacao/:drill): como montar → execução em tela cheia → resultado.
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
-import { drillPorId, minutosDoDrill, resumoSinais, type Drill } from '../features/reacao/drills'
+import { useCategoria } from '../features/categoria/categoria'
+import { drillNoRitmo, drillPorId, ehDrillPronto, minutosDoDrill, PUBLICOS, resumoSinais, type Drill } from '../features/reacao/drills'
 import { ExecutarDrill } from '../features/reacao/ExecutarDrill'
+import { ExecutarDuelo } from '../features/reacao/ExecutarDuelo'
+import { ExecutarMemoria } from '../features/reacao/ExecutarMemoria'
 import { finalizarDrill, type Placar, type ResultadoDrill } from '../features/reacao/finalizar'
 import { FimDrill } from '../features/reacao/FimDrill'
 import { falar, temVoz } from '../features/reacao/voz'
@@ -11,12 +14,17 @@ import { destravarSom } from '../utils/som'
 
 export function DrillReacao() {
   const criados = useReacaoStore((s) => s.drills)
-  const drill = drillPorId(useParams().drill, criados)
+  const original = drillPorId(useParams().drill, criados)
+  const categoria = useCategoria().atual
+  // Os drills prontos ficam no ritmo da categoria (memorizado: o motor reinicia se o drill mudar)
+  const drill = useMemo(() => original && drillNoRitmo(original, categoria.id), [original, categoria.id])
   if (!drill) return <Navigate to="/reacao" replace />
-  return <TelaDrill key={drill.id} drill={drill} />
+  return <TelaDrill key={drill.id} drill={drill} ritmo={ehDrillPronto(drill.id) ? `${categoria.emoji} ${categoria.nome}` : undefined} />
 }
 
-function TelaDrill({ drill }: { drill: Drill }) {
+const COMO: Record<Drill['modo'], string> = { auto: '📱 Celular no chão', toque: '👆 Na tela', memoria: '🧠 Na tela', duelo: '⚔️ Tablet na mesa' }
+
+function TelaDrill({ drill, ritmo }: { drill: Drill; ritmo?: string }) {
   const [rodada, setRodada] = useState(0)
   const [rodando, setRodando] = useState(false)
   const [resultado, setResultado] = useState<ResultadoDrill | null>(null)
@@ -38,7 +46,13 @@ function TelaDrill({ drill }: { drill: Drill }) {
     [drill],
   )
 
-  if (rodando) return <ExecutarDrill key={rodada} drill={drill} aoTerminar={aoTerminar} />
+  const publico = PUBLICOS.find((p) => p.id === (drill.publico ?? 'todos'))
+
+  if (rodando) {
+    if (drill.modo === 'memoria') return <ExecutarMemoria key={rodada} drill={drill} aoTerminar={aoTerminar} />
+    if (drill.modo === 'duelo') return <ExecutarDuelo key={rodada} drill={drill} aoTerminar={aoTerminar} />
+    return <ExecutarDrill key={rodada} drill={drill} aoTerminar={aoTerminar} />
+  }
   if (resultado) return <FimDrill resultado={resultado} aoRepetir={comecar} />
 
   return (
@@ -54,7 +68,7 @@ function TelaDrill({ drill }: { drill: Drill }) {
       </header>
 
       <section className="flex flex-col gap-2 rounded-3xl border-4 border-teal-300 bg-teal-50 p-4">
-        <h2 className="text-xl font-extrabold">{drill.modo === 'toque' ? '👆 Na tela' : '📱 Celular no chão'}</h2>
+        <h2 className="text-xl font-extrabold">{COMO[drill.modo]}</h2>
         <ol className="flex list-decimal flex-col gap-2 pl-6 text-lg">
           {drill.instrucoes.map((passo) => (
             <li key={passo}>{passo}</li>
@@ -64,10 +78,20 @@ function TelaDrill({ drill }: { drill: Drill }) {
       </section>
 
       <ul className="flex flex-wrap gap-2 text-base font-bold">
+        {publico && (
+          <li className="rounded-full bg-white px-3 py-1 shadow">
+            {publico.emoji} {publico.id === 'todos' ? 'Para todos' : publico.nome}
+          </li>
+        )}
         <li className="rounded-full bg-white px-3 py-1 shadow">🚦 {resumoSinais(drill)}</li>
         <li className="rounded-full bg-white px-3 py-1 shadow">
-          🔁 {drill.series} × {drill.repeticoes} sinais
+          {drill.modo === 'memoria' ? `🔁 até ${drill.repeticoes} cores · 3 vidas` : `🔁 ${drill.series} × ${drill.repeticoes} sinais`}
         </li>
+        {ritmo && (
+          <li className="rounded-full bg-white px-3 py-1 shadow" title="Os drills prontos ficam mais lentos ou mais rápidos conforme a categoria">
+            ⚡ Ritmo {ritmo}
+          </li>
+        )}
         {drill.series > 1 && drill.descansoS > 0 && <li className="rounded-full bg-white px-3 py-1 shadow">💧 {drill.descansoS} s de descanso</li>}
         <li className="rounded-full bg-white px-3 py-1 shadow">⏱️ uns {minutosDoDrill(drill)} min</li>
         {drill.voz && temVoz() && <li className="rounded-full bg-white px-3 py-1 shadow">🗣️ fala o sinal</li>}

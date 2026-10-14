@@ -1,10 +1,11 @@
-// Criar ou mudar um drill de reação (pais/treinador): nome, sinais (cores, setas, números),
-// modo, séries, tempos e o que fazer. Só grava ao tocar em "Salvar drill".
+// Criar ou mudar um drill de reação (pais/treinador): nome, para quem, sinais (cores, setas,
+// números, cantos do gol, apito, finta), modo, séries, tempos e o que fazer. Só grava ao tocar em
+// "Salvar drill".
 import { useState } from 'react'
 import { CampoNumero } from '../../components/ui/CampoNumero'
 import type { Drill, ModoDrill } from './drills'
-import { resumoSinais } from './drills'
-import { CORES, DIRECOES, sinaisPossiveis, type CorId, type DirecaoId } from './sinais'
+import { PUBLICOS, resumoSinais } from './drills'
+import { CANTOS, CORES, DIRECOES, sinaisDeReagir, sinaisPossiveis, type CantoId, type CorId, type DirecaoId } from './sinais'
 
 const ICONES = ['⚡', '🚦', '🧤', '🦶', '🔢', '✋', '👟', '🎯', '🔀', '⏱️', '🧠', '🏃', '🤸', '⚽', '🥅', '🔥']
 
@@ -36,7 +37,7 @@ export function EditorDrill({ inicial, aoSalvar, aoCancelar, aoApagar }: Props) 
   function salvar() {
     if (!d.nome.trim()) return setErro('Dê um nome ao drill.')
     const possiveis = sinaisPossiveis(d).length
-    if (possiveis === 0) return setErro('Escolha pelo menos uma cor, seta ou número.')
+    if (possiveis === 0 || sinaisDeReagir(d).length === 0) return setErro('Escolha pelo menos uma cor, seta, número, canto do gol ou o apito.')
     if (d.modo === 'toque' && possiveis < 2) return setErro('No modo toque, escolha pelo menos 2 sinais (senão não há o que decidir).')
     aoSalvar({
       ...d,
@@ -71,6 +72,23 @@ export function EditorDrill({ inicial, aoSalvar, aoCancelar, aoApagar }: Props) 
               className={`grid aspect-square place-items-center rounded-xl border-4 text-xl ${d.emoji === i ? 'border-teal-600 bg-teal-100' : 'border-transparent bg-teal-50'}`}
             >
               {i}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend className="mb-1 text-base font-bold">Para quem</legend>
+        <div className="grid grid-cols-3 gap-2">
+          {PUBLICOS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              aria-pressed={(d.publico ?? 'todos') === p.id}
+              onClick={() => mudar({ publico: p.id })}
+              className={`min-h-12 rounded-xl border-4 font-extrabold ${(d.publico ?? 'todos') === p.id ? 'border-teal-600 bg-teal-100' : 'border-teal-100 bg-white'}`}
+            >
+              {p.emoji} {p.nome}
             </button>
           ))}
         </div>
@@ -152,6 +170,41 @@ export function EditorDrill({ inicial, aoSalvar, aoCancelar, aoApagar }: Props) 
           <CampoNumero valor={d.numeros} min={0} max={6} aoMudar={(numeros) => mudar({ numeros })} rotulo="números" />
         </div>
         <p className="-mt-2 text-xs">0 = sem números.</p>
+
+        <div>
+          <p className="mb-1 font-bold">🥅 Cantos do gol</p>
+          <div className="grid grid-cols-3 gap-1 rounded-t-xl border-x-4 border-t-4 border-slate-400 bg-slate-100 p-1">
+            {CANTOS.map((c) => {
+              const ativo = (d.cantos ?? []).includes(c.id)
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  aria-pressed={ativo}
+                  onClick={() => mudar({ cantos: alternar<CantoId>(d.cantos ?? [], c.id) })}
+                  className={`min-h-11 rounded-lg border-2 text-xs font-bold ${ativo ? 'border-teal-600 bg-teal-100' : 'border-transparent bg-white'}`}
+                >
+                  {ativo ? '⚽ ' : ''}
+                  {c.nome}
+                </button>
+              )
+            })}
+          </div>
+          <p className="mt-1 text-xs">A tela mostra o gol com a bola no canto. No modo toque, a criança toca no canto.</p>
+        </div>
+
+        <label className="flex items-start gap-2 rounded-xl bg-teal-50 p-2 text-sm">
+          <input type="checkbox" checked={Boolean(d.som)} onChange={(e) => mudar({ som: e.target.checked })} className="mt-1 size-5 accent-teal-600" />
+          <span>
+            <b>🔊 Apito</b>: às vezes o sinal é só o som do apito, sem nada na tela (treina o ouvido). Precisa do som ligado.
+          </span>
+        </label>
+        <label className="flex items-start gap-2 rounded-xl bg-teal-50 p-2 text-sm">
+          <input type="checkbox" checked={Boolean(d.fintas)} onChange={(e) => mudar({ fintas: e.target.checked })} className="mt-1 size-5 accent-teal-600" />
+          <span>
+            <b>🙅 Finta</b>: de vez em quando aparece a finta e o certo é <b>não</b> reagir (ficar firme). Treina a paciência.
+          </span>
+        </label>
       </fieldset>
 
       {/* Volume e tempos */}

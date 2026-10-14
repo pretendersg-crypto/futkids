@@ -13,8 +13,18 @@ export type Fase =
   | { nome: 'sinal'; sinal: Sinal }
   | { nome: 'descanso'; resta: number }
 
-/** Resposta da última vez (modo toque), mostrada durante a espera */
-export type Retorno = { certo: true; ms: number } | { certo: false; perdido: boolean } | { cedo: true } | null
+/**
+ * Resposta da última vez (modo toque), mostrada durante a espera. Sem `ms` = segurou certo num
+ * sinal de não reagir; `finta` = reagiu quando era para segurar.
+ */
+export type Retorno = { certo: true; ms?: number } | { certo: false; perdido: boolean; finta?: boolean } | { cedo: true } | null
+
+/** No modo toque, o tempo para responder encolhe com acertos seguidos (até esta parte do original) */
+export const TEMPO_MINIMO_RELATIVO = 0.6
+/** Acertos seguidos para apertar o tempo */
+const SEQUENCIA_PARA_ACELERAR = 3
+/** Espera curta entre os sinais de uma rajada (rebote) */
+const ESPERA_RAJADA_MS: [number, number] = [600, 900]
 
 export interface Avisos {
   fase: (f: Fase) => void
@@ -34,6 +44,11 @@ export function criarMotor(drill: Drill, avisar: Avisos) {
   let anteriores: Sinal[] = []
   let pausado = false
   let terminou = false
+  // Ritmo que se ajusta (modo toque): tempo para responder e acertos seguidos
+  let tempoResposta = drill.exibicaoMs
+  let seguidos = 0
+  // Posição dentro da rajada (rebote: 2 sinais quase seguidos)
+  let naRajada = 0
   const relogio = { inicio: Date.now(), pausadoEm: 0, pausas: 0 }
 
   const mudarFase = (f: Fase) => {
@@ -61,28 +76,60 @@ export function criarMotor(drill: Drill, avisar: Avisos) {
 
   function espera() {
     mudarFase({ nome: 'espera' })
-    agendar(mostrarSinal, sortear(drill.esperaMinMs, drill.esperaMaxMs))
+    const rajada = drill.rajada ?? 1
+    // No meio da rajada o próximo vem quase em seguida (o rebote)
+    const curta = rajada > 1 && naRajada % rajada !== 0
+    agendar(mostrarSinal, curta ? sortear(...ESPERA_RAJADA_MS) : sortear(drill.esperaMinMs, drill.esperaMaxMs))
+  }
+
+  /** Ajusta o tempo para responder (só no modo toque) */
+  function ritmo(acertou: boolean) {
+    if (drill.modo !== 'toque') return
+    if (acertou) {
+      seguidos++
+      if (seguidos >= SEQUENCIA_PARA_ACELERAR) tempoResposta = Math.max(drill.exibicaoMs * TEMPO_MINIMO_RELATIVO, tempoResposta * 0.9)
+    } else {
+      seguidos = 0
+      tempoResposta = Math.min(drill.exibicaoMs, tempoResposta * 1.15)
+    }
   }
 
   function mostrarSinal() {
     const sinal = sortearSinal(drill, anteriores)
     anteriores = [...anteriores.slice(-4), sinal]
+    naRajada++
     mudarPlacar({ rep: placar.rep + 1, sinais: placar.sinais + 1 })
     mudarFase({ nome: 'sinal', sinal })
-    sons.largada()
-    if (drill.voz) falar(textoDoSinal(sinal))
-    agendar(() => {
-      // O tempo acabou sem resposta
-      if (drill.modo === 'toque') {
-        mudarPlacar({ perdidos: placar.perdidos + 1 })
-        avisar.retorno({ certo: false, perdido: true })
-      }
-      fimDoSinal()
-    }, drill.exibicaoMs)
+    if (sinal.tipo === 'som') sons.apitoJuiz()
+    else sons.largada()
+    const texto = textoDoSinal(sinal)
+    if (drill.voz && texto) falar(texto)
+    agendar(
+      () => {
+        // O tempo acabou sem resposta
+        if (drill.modo === 'toque') {
+          if (respostaCerta(sinal) === null) {
+            // Era para segurar, e segurou
+            sons.defesa()
+            mudarPlacar({ acertos: placar.acertos + 1 })
+            avisar.retorno({ certo: true })
+            ritmo(true)
+          } else {
+            mudarPlacar({ perdidos: placar.perdidos + 1 })
+            avisar.retorno({ certo: false, perdido: true })
+            ritmo(false)
+          }
+        }
+        fimDoSinal()
+      },
+      drill.modo === 'toque' ? tempoResposta : drill.exibicaoMs,
+    )
   }
 
   function fimDoSinal() {
     if (placar.rep < drill.repeticoes) return espera()
+    // Série nova começa com a rajada do começo
+    naRajada = 0
     if (placar.serie >= drill.series) return terminar(true)
     if (drill.descansoS <= 0) {
       mudarPlacar({ serie: placar.serie + 1, rep: 0 })
@@ -129,14 +176,17 @@ export function criarMotor(drill: Drill, avisar: Avisos) {
         return
       }
       const ms = Math.round(performance.now() - inicioSinal)
-      if (id === respostaCerta(fase.sinal)) {
+      const certa = respostaCerta(fase.sinal)
+      if (id === certa) {
         sons.defesa()
         mudarPlacar({ acertos: placar.acertos + 1, tempos: [...placar.tempos, ms] })
         avisar.retorno({ certo: true, ms })
+        ritmo(true)
       } else {
         sons.gol()
         mudarPlacar({ erros: placar.erros + 1 })
-        avisar.retorno({ certo: false, perdido: false })
+        avisar.retorno({ certo: false, perdido: false, finta: certa === null })
+        ritmo(false)
       }
       window.clearTimeout(timer)
       fimDoSinal()
@@ -154,7 +204,10 @@ export function criarMotor(drill: Drill, avisar: Avisos) {
       calar()
       relogio.pausadoEm = Date.now()
       // Sinal interrompido não conta (vai aparecer outro)
-      if (fase.nome === 'sinal') mudarPlacar({ rep: placar.rep - 1, sinais: placar.sinais - 1 })
+      if (fase.nome === 'sinal') {
+        mudarPlacar({ rep: placar.rep - 1, sinais: placar.sinais - 1 })
+        naRajada--
+      }
       return true
     },
 

@@ -2,7 +2,7 @@
 // foi feito. Tudo só no aparelho (localStorage).
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import type { Drill, ModoDrill } from '../features/reacao/drills'
+import type { Drill, ModoDrill, PublicoDrill } from '../features/reacao/drills'
 
 export interface SessaoReacao {
   id: string
@@ -28,6 +28,10 @@ export interface SessaoReacao {
   /** Tempo de reação dos acertos, em milissegundos */
   mediaMs?: number
   melhorMs?: number
+  /** Memória de cores: maior sequência repetida certa */
+  maiorSequencia?: number
+  /** Duelo: pontos do jogador 1 (de baixo) e do jogador 2 (de cima) */
+  duelo?: [number, number]
 }
 
 /** Mais que isso, as sessões mais antigas saem (o localStorage é pequeno) */
@@ -36,6 +40,9 @@ const MAXIMO_SESSOES = 500
 interface ReacaoState {
   drills: Drill[]
   sessoes: SessaoReacao[]
+  /** Filtro da tela de Reação: drills de goleiro, de linha ou todos */
+  publico: PublicoDrill
+  escolherPublico: (publico: PublicoDrill) => void
   salvarDrill: (drill: Drill) => void
   removerDrill: (id: string) => void
   registrarSessao: (sessao: SessaoReacao) => void
@@ -48,6 +55,8 @@ export const useReacaoStore = create<ReacaoState>()(
     (set) => ({
       drills: [],
       sessoes: [],
+      publico: 'todos',
+      escolherPublico: (publico) => set({ publico }),
       salvarDrill: (drill) =>
         set((s) => ({
           drills: s.drills.some((d) => d.id === drill.id) ? s.drills.map((d) => (d.id === drill.id ? drill : d)) : [...s.drills, drill],
@@ -61,7 +70,7 @@ export const useReacaoStore = create<ReacaoState>()(
       name: 'futkids-reacao',
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ drills: s.drills, sessoes: s.sessoes }),
+      partialize: (s) => ({ drills: s.drills, sessoes: s.sessoes, publico: s.publico }),
     },
   ),
 )

@@ -7,8 +7,17 @@ import { useWakeLock } from '../../hooks/useWakeLock'
 import type { Drill } from './drills'
 import { formatarMs, PLACAR_ZERO, type Placar } from './finalizar'
 import { criarMotor, type Fase, type Motor, type Retorno } from './motor'
-import { botoesDeResposta, corPorId } from './sinais'
-import { TelaSinal } from './TelaSinal'
+import { Gol, Toupeiras } from './Gol'
+import { botoesDeResposta, corPorId, temGrade } from './sinais'
+import { PlacaFinta, TelaSinal } from './TelaSinal'
+
+/** O que aparece depois de cada resposta (modo toque) */
+function textoRetorno(r: Retorno): string {
+  if (!r || 'cedo' in r) return r ? 'Calma! Espere o sinal 😉' : ''
+  if (r.certo) return r.ms !== undefined ? `✅ ${formatarMs(r.ms)}` : '✅ Segurou!'
+  if (r.finta) return '🙈 Caiu na finta!'
+  return r.perdido ? '⏰ Passou!' : '❌ Errou'
+}
 
 interface Props {
   drill: Drill
@@ -51,6 +60,8 @@ export function ExecutarDrill({ drill, aoTerminar }: Props) {
     motor.current?.continuar()
   }
 
+  const grade = toque && temGrade(drill)
+  const sinal = fase.nome === 'sinal' ? fase.sinal : null
   const botoes = toque ? botoesDeResposta(drill) : []
   // Modo automático: a cor pinta a tela inteira (dá para ver de longe)
   const fundoCor = fase.nome === 'sinal' && !toque && fase.sinal.tipo === 'cor' ? corPorId(fase.sinal.cor).fundo : undefined
@@ -84,24 +95,44 @@ export function ExecutarDrill({ drill, aoTerminar }: Props) {
             {fase.n > 0 ? fase.n : 'Já!'}
           </span>
         )}
-        {fase.nome === 'espera' && (
-          <div className="flex flex-col items-center gap-4 text-center">
-            {toque && retorno && !('cedo' in retorno) && (
-              <p className={`pop text-4xl font-black ${retorno.certo ? 'text-green-300' : 'text-red-300'}`}>
-                {retorno.certo ? `✅ ${formatarMs(retorno.ms)}` : retorno.perdido ? '⏰ Passou!' : '❌ Errou'}
+        {(fase.nome === 'espera' || fase.nome === 'sinal') &&
+          (grade ? (
+            // Gol ou toupeiras: a grade fica sempre na tela e é ela que recebe o toque
+            <div className="flex size-full flex-col items-center gap-2">
+              <p className={`grid h-10 place-items-center text-2xl font-black ${retorno && 'certo' in retorno ? (retorno.certo ? 'text-green-300' : 'text-red-300') : ''}`}>
+                {fase.nome === 'espera' ? textoRetorno(retorno) || 'Prepare-se…' : ''}
               </p>
-            )}
-            <span aria-hidden className="text-7xl">
-              👀
-            </span>
-            <p className="text-2xl font-extrabold">{retorno && 'cedo' in retorno ? 'Calma! Espere o sinal 😉' : 'Prepare-se…'}</p>
-          </div>
-        )}
-        {fase.nome === 'sinal' && (
-          <div className="absolute inset-0">
-            <TelaSinal sinal={fase.sinal} tamanho={toque ? 200 : 320} />
-          </div>
-        )}
+              <div className="grid min-h-0 w-full flex-1 place-items-center">
+                {drill.toupeira ? (
+                  <Toupeiras casa={sinal?.tipo === 'toupeira' ? sinal.casa : null} aoTocar={(i) => motor.current?.responder(`casa:${i}`)} />
+                ) : (
+                  <Gol
+                    bola={sinal?.tipo === 'canto' ? sinal.canto : null}
+                    cantos={drill.cantos ?? []}
+                    aoTocar={(c) => motor.current?.responder(`canto:${c}`)}
+                    sobre={sinal?.tipo === 'finta' && <PlacaFinta />}
+                  />
+                )}
+              </div>
+            </div>
+          ) : sinal && sinal.tipo !== 'som' ? (
+            <div className="absolute inset-0">
+              <TelaSinal sinal={sinal} tamanho={toque ? 200 : 320} />
+            </div>
+          ) : (
+            // Espera (e o apito, que não muda nada na tela: só o ouvido avisa)
+            <div className="flex flex-col items-center gap-4 text-center">
+              {toque && retorno && !('cedo' in retorno) && (
+                <p className={`pop text-4xl font-black ${retorno.certo ? 'text-green-300' : 'text-red-300'}`}>{textoRetorno(retorno)}</p>
+              )}
+              <span aria-hidden className="text-7xl">
+                {drill.som ? '👂' : '👀'}
+              </span>
+              <p className="text-2xl font-extrabold">
+                {retorno && 'cedo' in retorno ? 'Calma! Espere o sinal 😉' : drill.som ? 'Escute o apito…' : 'Prepare-se…'}
+              </p>
+            </div>
+          ))}
         {fase.nome === 'descanso' && (
           <div className="flex flex-col items-center gap-3 text-center">
             <span aria-hidden className="text-7xl">
@@ -124,7 +155,7 @@ export function ExecutarDrill({ drill, aoTerminar }: Props) {
       </div>
 
       {/* Botões de resposta (modo toque) */}
-      {toque && (
+      {botoes.length > 0 && (
         // Deitado (tablet/celular na horizontal): todos os botões numa linha só, sobra altura para o sinal
         <div className={`grid gap-2 landscape:grid-flow-col landscape:auto-cols-fr landscape:grid-cols-none ${botoes.length > 4 ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {botoes.map((b) => (

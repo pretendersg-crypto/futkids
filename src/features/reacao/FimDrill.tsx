@@ -12,7 +12,8 @@ interface Props {
 }
 
 export function FimDrill({ resultado, aoRepetir }: Props) {
-  const { sessao, novoRecorde, recordeAnteriorMs } = resultado
+  const { sessao, novoRecorde, recordeAnteriorMs, recordeAnteriorSequencia } = resultado
+  const duelo = sessao.duelo
   const acerto = sessao.acertos !== undefined ? Math.round((sessao.acertos / sessao.sinais) * 100) : undefined
   const [fala] = useState(() =>
     sortearFala(novoRecorde ? FALAS_FIM.otimo : sessao.completo && (acerto ?? 100) >= 70 ? FALAS_FIM.bom : FALAS_FIM.esforco),
@@ -23,9 +24,16 @@ export function FimDrill({ resultado, aoRepetir }: Props) {
       <Mascote humor={novoRecorde || sessao.completo ? 'comemorando' : 'torcendo'} fala={fala} tamanho={80} />
       <h1 className="text-3xl font-extrabold">{sessao.completo ? 'Drill completo!' : 'Treino salvo!'}</h1>
 
+      {duelo && (
+        <p className="pop rounded-3xl bg-teal-600 px-5 py-3 text-2xl font-extrabold text-white">
+          {duelo[0] === duelo[1] ? `🤝 Empate! ${duelo[0]} x ${duelo[1]}` : `🏆 Jogador ${duelo[0] > duelo[1] ? 1 : 2} venceu! ${Math.max(...duelo)} x ${Math.min(...duelo)}`}
+        </p>
+      )}
+
       <ul className="grid w-full grid-cols-2 gap-2 text-lg">
         <Numero rotulo="Sinais" valor={String(sessao.sinais)} emoji="🚦" />
-        <Numero rotulo="Séries" valor={`${sessao.seriesFeitas}/${sessao.seriesTotal}`} emoji="🔁" />
+        {sessao.maiorSequencia !== undefined && <Numero rotulo="Maior sequência" valor={String(sessao.maiorSequencia)} emoji="🧠" />}
+        {sessao.seriesTotal > 1 && <Numero rotulo="Séries" valor={`${sessao.seriesFeitas}/${sessao.seriesTotal}`} emoji="🔁" />}
         <Numero rotulo="Tempo" valor={formatarDuracao(sessao.duracaoS)} emoji="⏱️" />
         {acerto !== undefined && <Numero rotulo="Acertos" valor={`${acerto}%`} emoji="🎯" />}
         {sessao.mediaMs !== undefined && <Numero rotulo="Reação média" valor={formatarMs(sessao.mediaMs)} emoji="⚡" />}
@@ -33,7 +41,11 @@ export function FimDrill({ resultado, aoRepetir }: Props) {
       </ul>
 
       {novoRecorde ? (
-        <p className="pop rounded-3xl bg-green-700 px-5 py-2 text-xl font-extrabold text-white">🏅 Reação mais rápida até hoje!</p>
+        <p className="pop rounded-3xl bg-green-700 px-5 py-2 text-xl font-extrabold text-white">
+          {sessao.maiorSequencia !== undefined ? '🏅 Maior sequência até hoje!' : '🏅 Reação mais rápida até hoje!'}
+        </p>
+      ) : sessao.maiorSequencia !== undefined ? (
+        recordeAnteriorSequencia !== undefined && <p className="text-lg">Seu recorde: sequência de {recordeAnteriorSequencia}. Bora bater! 🔥</p>
       ) : (
         recordeAnteriorMs !== undefined && <p className="text-lg">Seu recorde: {formatarMs(recordeAnteriorMs)} de média. Bora bater! 🔥</p>
       )}

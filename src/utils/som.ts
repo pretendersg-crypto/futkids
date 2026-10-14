@@ -27,6 +27,29 @@ function bip(frequencia: number, duracaoMs: number, volume = 0.2) {
   oscilador.stop(agora + duracaoMs / 1000)
 }
 
+/** Som de apito: uma nota aguda que treme rápido (a "bolinha" do apito) */
+function trinado(frequencia: number, duracaoMs: number, volume = 0.25) {
+  if (!contexto || !useConfigStore.getState().somAtivo) return
+  const agora = contexto.currentTime
+  const fim = agora + duracaoMs / 1000
+  const oscilador = contexto.createOscillator()
+  const tremor = contexto.createOscillator()
+  const profundidade = contexto.createGain()
+  const ganho = contexto.createGain()
+  oscilador.frequency.value = frequencia
+  tremor.frequency.value = 28
+  profundidade.gain.value = frequencia * 0.06
+  tremor.connect(profundidade).connect(oscilador.frequency)
+  ganho.gain.setValueAtTime(volume, agora)
+  ganho.gain.setValueAtTime(volume, fim - 0.05)
+  ganho.gain.exponentialRampToValueAtTime(0.001, fim)
+  oscilador.connect(ganho).connect(contexto.destination)
+  oscilador.start(agora)
+  tremor.start(agora)
+  oscilador.stop(fim)
+  tremor.stop(fim)
+}
+
 export const sons = {
   /** 3, 2, 1... */
   contagem: () => bip(520, 150),
@@ -51,6 +74,10 @@ export const sons = {
   },
   /** Apito antes do chute */
   apito: () => bip(1400, 180, 0.15),
+  /** Nota de cada cor no jogo da memória (ajuda a lembrar a sequência pelo som) */
+  notaDaCor: (indice: number) => bip([330, 415, 494, 587, 659, 784][indice % 6], 260, 0.15),
+  /** Apito de juiz (trinado): é o sinal do treino de reação pelo ouvido */
+  apitoJuiz: () => trinado(2300, 450),
   /** Toque na bola: a nota sobe com o combo, dá vontade de não errar */
   toque: (combo = 0) => bip(500 + Math.min(combo, 20) * 25, 70, 0.15),
   /** Figurinha nova: arpejo "tcharam!" (dó, mi, sol, dó) */

@@ -14,6 +14,10 @@ export interface Placar {
   perdidos: number
   /** Tempos de reação dos acertos (ms) */
   tempos: number[]
+  /** Memória de cores: a maior sequência repetida certa */
+  maiorSequencia?: number
+  /** Duelo: pontos do jogador 1 (de baixo) e do jogador 2 (de cima) */
+  duelo?: [number, number]
 }
 
 export const PLACAR_ZERO: Placar = { serie: 1, rep: 0, sinais: 0, acertos: 0, erros: 0, perdidos: 0, tempos: [] }
@@ -24,6 +28,8 @@ export interface ResultadoDrill extends ResultadoRecompensa {
   moedas: number
   /** Melhor média anterior deste drill (modo toque) */
   recordeAnteriorMs?: number
+  /** Maior sequência anterior (memória de cores) */
+  recordeAnteriorSequencia?: number
   novoRecorde: boolean
 }
 
@@ -57,25 +63,33 @@ export function finalizarDrill(drill: Drill, placar: Placar, completo: boolean, 
       perdidos: placar.perdidos,
       ...(placar.tempos.length > 0 && { mediaMs: media(placar.tempos), melhorMs: Math.min(...placar.tempos) }),
     }),
+    ...(drill.modo === 'memoria' && { acertos: placar.acertos, erros: placar.erros, maiorSequencia: placar.maiorSequencia ?? 0 }),
+    ...(drill.modo === 'duelo' && placar.duelo && { duelo: placar.duelo }),
   }
 
   // Recorde = menor média de reação com boa pontaria, entre as vezes anteriores deste drill
   const valeRecorde = (s: SessaoReacao) => s.mediaMs !== undefined && (s.acertos ?? 0) / s.sinais >= ACERTO_MINIMO_RECORDE
   const anteriores = loja.sessoes.filter((s) => s.drillId === drill.id && valeRecorde(s)).map((s) => s.mediaMs!)
   const recordeAnteriorMs = anteriores.length ? Math.min(...anteriores) : undefined
-  const novoRecorde = valeRecorde(sessao) && recordeAnteriorMs !== undefined && sessao.mediaMs! < recordeAnteriorMs
+  // Memória: recorde = maior sequência
+  const sequencias = loja.sessoes.filter((s) => s.drillId === drill.id && s.maiorSequencia !== undefined).map((s) => s.maiorSequencia!)
+  const recordeAnteriorSequencia = sequencias.length ? Math.max(...sequencias) : undefined
+  const novoRecorde =
+    drill.modo === 'memoria'
+      ? recordeAnteriorSequencia !== undefined && (sessao.maiorSequencia ?? 0) > recordeAnteriorSequencia
+      : valeRecorde(sessao) && recordeAnteriorMs !== undefined && sessao.mediaMs! < recordeAnteriorMs
 
   loja.registrarSessao(sessao)
 
   // Recompensa pelo esforço: 1 XP por sinal (+10 se foi até o fim), teto de 50.
   // Conta como treino do dia (agenda, figurinhas) quando fez pelo menos metade.
   const total = drill.series * drill.repeticoes
-  const fezMetade = placar.sinais >= total / 2
+  const fezMetade = drill.modo === 'memoria' ? (placar.maiorSequencia ?? 0) >= 3 : placar.sinais >= total / 2
   const xp = Math.min(50, placar.sinais + (completo ? 10 : 0))
   const moedas = completo ? 2 : fezMetade ? 1 : 0
   const recompensa = entregarRecompensa(xp, moedas, fezMetade ? 'reacao' : undefined)
 
-  return { sessao, xp, moedas, recordeAnteriorMs, novoRecorde, ...recompensa }
+  return { sessao, xp, moedas, recordeAnteriorMs, recordeAnteriorSequencia, novoRecorde, ...recompensa }
 }
 
 /** 523 → "0,52 s" */

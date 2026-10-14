@@ -146,11 +146,18 @@ function LinhaSessao({ sessao: s }: { sessao: SessaoReacao }) {
           {s.nome} {!s.completo && <span className="text-xs font-bold text-orange-700">(parou antes)</span>}
         </span>
         <span className="text-sm">
-          {hora} · {s.sinais} sinais · {s.seriesFeitas}/{s.seriesTotal} séries · {formatarDuracao(s.duracaoS)}
+          {hora} · {s.sinais} {s.modo === 'memoria' ? 'toques' : 'sinais'}
+          {s.seriesTotal > 1 && ` · ${s.seriesFeitas}/${s.seriesTotal} séries`} · {formatarDuracao(s.duracaoS)}
         </span>
         {acerto !== undefined && (
           <span className="text-sm font-bold">
             🎯 {acerto}% {s.mediaMs !== undefined && `· ⚡ ${formatarMs(s.mediaMs)}`} {s.melhorMs !== undefined && `· 🚀 ${formatarMs(s.melhorMs)}`}
+          </span>
+        )}
+        {s.maiorSequencia !== undefined && <span className="text-sm font-bold">🧠 sequência de {s.maiorSequencia}</span>}
+        {s.duelo && (
+          <span className="text-sm font-bold">
+            ⚔️ Jogador 1 {s.duelo[0]} x {s.duelo[1]} Jogador 2
           </span>
         )}
       </span>
