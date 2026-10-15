@@ -59,7 +59,7 @@ export function Goleiro() {
       )}
       <Cartao para="/goleiro/saida" emoji="🔶" titulo="Saída do gol com cones" texto="Circuitos passo a passo, com o gesto técnico desenhado" />
       <Cartao para="/goleiro/fundamentos" emoji="📚" titulo="Fundamentos com bola" texto="Encaixe, saída de gol e reposição" />
-      <Cartao para="/goleiro/gestos" emoji="📖" titulo="Fundamentos e gestos" texto="Veja como fazer cada gesto (desenho e vídeo) antes de treinar" />
+      <Cartao para="/fundamentos?tipo=goleiro" emoji="📖" titulo="Fundamentos e gestos" texto="Veja como fazer cada gesto (desenho e vídeo) antes de treinar" />
     </BlocoTipo>
   )
 

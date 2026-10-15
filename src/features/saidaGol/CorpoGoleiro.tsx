@@ -5,6 +5,8 @@
 // Desenha o corpo em cima dos mesmos pontos das poses (cabeça, pescoço, quadril, cotovelos, mãos,
 // joelhos e pés no quadro de 140 x 150), então toda pose pronta já sai com o uniforme. É um desenho
 // genérico, sem marca, texto ou número na camisa.
+// Pose com "linha: true" sai com o uniforme de jogador de linha: camisa azul, calção branco, meião
+// azul, sem luvas e sem joelheiras (gestos de linha e os comuns aos dois).
 import { useId } from 'react'
 import type { P, Pose } from './gestos'
 
@@ -23,6 +25,23 @@ const CORES_UNIFORME = {
 }
 
 const C = CORES_UNIFORME
+
+/** O que muda entre o uniforme do goleiro e o do jogador de linha */
+interface Uniforme {
+  camisa: string
+  camisaEscura: string
+  gola: string
+  calcao: string
+  meiao: string
+  faixa: string
+  /** Manga longa por baixo da curta (goleiro) */
+  mangaLonga: string | null
+  luvas: boolean
+  joelheiras: boolean
+}
+
+const GOLEIRO: Uniforme = { camisa: C.laranja, camisaEscura: C.laranjaEscuro, gola: C.preto, calcao: C.preto, meiao: C.preto, faixa: C.laranja, mangaLonga: C.preto, luvas: true, joelheiras: true }
+const LINHA: Uniforme = { camisa: '#2563eb', camisaEscura: '#1e40af', gola: '#f8fafc', calcao: '#f8fafc', meiao: '#2563eb', faixa: '#f8fafc', mangaLonga: null, luvas: false, joelheiras: false }
 
 const soma = (a: P, b: P): P => ({ x: a.x + b.x, y: a.y + b.y })
 const menos = (a: P, b: P): P => ({ x: a.x - b.x, y: a.y - b.y })
@@ -49,7 +68,7 @@ function Traco({ pontos, largura, cor, contorno = C.contorno, url }: { pontos: P
 const CALCAO = 0.62
 
 /** Perna: joelho de fora do calção, joelheira, meião com faixa e chuteira. Na vista de lado, cada perna leva o seu pedaço de calção */
-function Perna({ quadril, joelho, pe, lado, vista }: { quadril: P; joelho: P; pe: P; lado: number; vista: Pose['vista'] }) {
+function Perna({ quadril, joelho, pe, lado, vista, u }: { quadril: P; joelho: P; pe: P; lado: number; vista: Pose['vista']; u: Uniforme }) {
   const fimCalcao = entre(quadril, joelho, CALCAO)
   const inicioMeiao = entre(joelho, pe, 0.2)
   // Chuteira: na vista de lado aponta para a frente (direita); de frente, um pouco para fora
@@ -59,12 +78,12 @@ function Perna({ quadril, joelho, pe, lado, vista }: { quadril: P; joelho: P; pe
   return (
     <g>
       <Traco pontos={[fimCalcao, joelho, inicioMeiao]} largura={9} cor={C.pele} />
-      {vista === 'lado' && <Traco pontos={[quadril, fimCalcao]} largura={15} cor={C.preto} />}
-      <Traco pontos={[inicioMeiao, pe]} largura={9.5} cor={C.preto} />
-      {/* Faixa laranja no alto do meião */}
-      <Traco pontos={[entre(inicioMeiao, pe, 0.12), entre(inicioMeiao, pe, 0.24)]} largura={9.5} cor={C.laranja} />
-      {/* Joelheira preta */}
-      <Traco pontos={[entre(fimCalcao, joelho, 0.6), entre(joelho, pe, 0.14)]} largura={12} cor={C.joelheira} />
+      {vista === 'lado' && <Traco pontos={[quadril, fimCalcao]} largura={15} cor={u.calcao} />}
+      <Traco pontos={[inicioMeiao, pe]} largura={9.5} cor={u.meiao} />
+      {/* Faixa no alto do meião */}
+      <Traco pontos={[entre(inicioMeiao, pe, 0.12), entre(inicioMeiao, pe, 0.24)]} largura={9.5} cor={u.faixa} />
+      {/* Joelheira preta (só o goleiro) */}
+      {u.joelheiras && <Traco pontos={[entre(fimCalcao, joelho, 0.6), entre(joelho, pe, 0.14)]} largura={12} cor={C.joelheira} />}
       {/* Chuteira preta de sola amarela, com cadarço amarelo */}
       <ellipse cx={centro.x} cy={centro.y + 2.4} rx={rx + 0.5} ry={2.4} fill={C.sola} stroke={C.contorno} strokeWidth={1.5} />
       <ellipse cx={centro.x} cy={centro.y} rx={rx} ry={5.2} fill={C.preto} stroke={C.contorno} strokeWidth={1.5} />
@@ -73,15 +92,25 @@ function Perna({ quadril, joelho, pe, lado, vista }: { quadril: P; joelho: P; pe
   )
 }
 
-function Braco({ ombro, cotovelo, mao }: { ombro: P; cotovelo: P; mao: P }) {
+function Braco({ ombro, cotovelo, mao, u }: { ombro: P; cotovelo: P; mao: P; u: Uniforme }) {
   // A mão fica um pouco além do ponto do pulso, na direção do antebraço
   const direcao = unitario(menos(mao, cotovelo))
   const palma = soma(mao, vezes(direcao, 2))
+  if (!u.luvas) {
+    // Jogador de linha: braço de fora (pele), manga curta da camisa e a mão
+    return (
+      <g>
+        <Traco pontos={[ombro, cotovelo, mao]} largura={8.5} cor={C.pele} />
+        <Traco pontos={[ombro, entre(ombro, cotovelo, 0.42)]} largura={10.5} cor={u.camisa} />
+        <circle cx={palma.x} cy={palma.y} r={4.2} fill={C.pele} stroke={C.contorno} strokeWidth={1.3} />
+      </g>
+    )
+  }
   return (
     <g>
-      <Traco pontos={[ombro, cotovelo, mao]} largura={9} cor={C.preto} />
+      <Traco pontos={[ombro, cotovelo, mao]} largura={9} cor={u.mangaLonga ?? C.pele} />
       {/* Manga curta laranja da camisa, por cima da manga longa preta */}
-      <Traco pontos={[ombro, entre(ombro, cotovelo, 0.3)]} largura={10.5} cor={C.laranja} />
+      <Traco pontos={[ombro, entre(ombro, cotovelo, 0.3)]} largura={10.5} cor={u.camisa} />
       {/* Punho preto da luva */}
       <Traco pontos={[soma(mao, vezes(direcao, -3)), soma(mao, vezes(direcao, -0.5))]} largura={10.5} cor={C.preto} />
       {/* Luva laranja aberta: dedos grandes em leque e a palma mais escura */}
@@ -161,7 +190,7 @@ function Cabeca({ centro, pescoco, vista }: { centro: P; pescoco: P; vista: Pose
 }
 
 /** Calção de frente: uma peça só (cintura, gancho e as duas pernas), sem risco no meio */
-function CalcaoDeFrente({ quadril, quadris, joelhos, descer, largura }: { quadril: P; quadris: [P, P]; joelhos: [P, P]; descer: P; largura: P }) {
+function CalcaoDeFrente({ quadril, quadris, joelhos, descer, largura, cor }: { quadril: P; quadris: [P, P]; joelhos: [P, P]; descer: P; largura: P; cor: string }) {
   const cintura = (lado: number) => soma(soma(quadril, vezes(largura, 13 * lado)), vezes(descer, -6))
   const barra = (i: 0 | 1) => {
     const fim = entre(quadris[i], joelhos[i], CALCAO)
@@ -174,12 +203,13 @@ function CalcaoDeFrente({ quadril, quadris, joelhos, descer, largura }: { quadri
   const esq = barra(0)
   const dir = barra(1)
   const pontos = [cintura(1), esq.fora, esq.dentro, soma(quadril, vezes(descer, 8)), dir.dentro, dir.fora, cintura(-1)]
-  return <polygon points={pontosSvg(pontos)} fill={C.preto} stroke={C.contorno} strokeWidth={1.6} strokeLinejoin="round" />
+  return <polygon points={pontosSvg(pontos)} fill={cor} stroke={C.contorno} strokeWidth={1.6} strokeLinejoin="round" />
 }
 
 /** O goleiro inteiro numa pose (sem chão, bola e setas, que ficam com o DesenhoGesto) */
 export function CorpoGoleiro({ pose }: { pose: Pose }) {
   const gradiente = `camisa-${useId().replace(/:/g, '')}`
+  const u = pose.linha ? LINHA : GOLEIRO
   const lado = pose.vista === 'lado'
   // Direção do tronco (do pescoço ao quadril) e a perpendicular, para achar ombros e quadris
   const descer = unitario(menos(pose.quadril, pose.pescoco))
@@ -190,17 +220,17 @@ export function CorpoGoleiro({ pose }: { pose: Pose }) {
   // Na vista de lado, o braço e a perna de trás ficam mais apagados (dá noção de profundidade)
   const tras = 0.6
 
-  const perna = (i: 0 | 1) => <Perna quadril={quadris[i]} joelho={pose.joelhos[i]} pe={pose.pes[i]} lado={i === 0 ? -1 : 1} vista={pose.vista} />
-  const braco = (i: 0 | 1) => <Braco ombro={ombros[i]} cotovelo={pose.cotovelos[i]} mao={pose.maos[i]} />
+  const perna = (i: 0 | 1) => <Perna quadril={quadris[i]} joelho={pose.joelhos[i]} pe={pose.pes[i]} lado={i === 0 ? -1 : 1} vista={pose.vista} u={u} />
+  const braco = (i: 0 | 1) => <Braco ombro={ombros[i]} cotovelo={pose.cotovelos[i]} mao={pose.maos[i]} u={u} />
 
   return (
     <g>
       <defs>
         {/* Camisa laranja, um pouco mais escura embaixo (dá volume) */}
         <linearGradient id={gradiente} gradientUnits="userSpaceOnUse" x1={pose.pescoco.x} y1={pose.pescoco.y} x2={pose.quadril.x} y2={pose.quadril.y}>
-          <stop offset="0" stopColor={C.laranja} />
-          <stop offset="0.7" stopColor={C.laranja} />
-          <stop offset="1" stopColor={C.laranjaEscuro} />
+          <stop offset="0" stopColor={u.camisa} />
+          <stop offset="0.7" stopColor={u.camisa} />
+          <stop offset="1" stopColor={u.camisaEscura} />
         </linearGradient>
       </defs>
 
@@ -213,18 +243,18 @@ export function CorpoGoleiro({ pose }: { pose: Pose }) {
         <>
           {perna(0)}
           {perna(1)}
-          <CalcaoDeFrente quadril={pose.quadril} quadris={quadris} joelhos={pose.joelhos} descer={descer} largura={largura} />
+          <CalcaoDeFrente quadril={pose.quadril} quadris={quadris} joelhos={pose.joelhos} descer={descer} largura={largura} cor={u.calcao} />
         </>
       )}
 
       {/* Pescoço, tronco (camisa, que cobre a cintura do calção) e gola em V preta */}
       <Traco pontos={[pose.pescoco, entre(pose.pescoco, pose.cabeca, 0.5)]} largura={7} cor={C.pele} />
-      {lado && <Traco pontos={[pose.quadril, pose.quadril]} largura={17} cor={C.preto} />}
-      <Traco pontos={[soma(pose.pescoco, vezes(descer, 3)), soma(pose.quadril, vezes(descer, lado ? -4 : -9))]} largura={lado ? 19 : 25} cor={C.laranja} url={`url(#${gradiente})`} />
+      {lado && <Traco pontos={[pose.quadril, pose.quadril]} largura={17} cor={u.calcao} />}
+      <Traco pontos={[soma(pose.pescoco, vezes(descer, 3)), soma(pose.quadril, vezes(descer, lado ? -4 : -9))]} largura={lado ? 19 : 25} cor={u.camisa} url={`url(#${gradiente})`} />
       <polyline
         points={pontosSvg([soma(soma(pose.pescoco, vezes(largura, 4.5)), vezes(descer, 1.5)), soma(pose.pescoco, vezes(descer, 6)), soma(soma(pose.pescoco, vezes(largura, -4.5)), vezes(descer, 1.5))])}
         fill="none"
-        stroke={C.preto}
+        stroke={u.gola}
         strokeWidth={2.4}
         strokeLinecap="round"
         strokeLinejoin="round"

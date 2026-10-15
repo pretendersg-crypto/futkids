@@ -47,7 +47,7 @@ const ROTAS: RouteObject[] = [
           // Saída do gol com cones: lista e um circuito (ex.: /goleiro/saida/saida-em-v)
           { path: 'saida', lazy: () => import('./pages/SaidaGol').then((m) => ({ Component: m.SaidaGol })) },
           { path: 'saida/:circuito', lazy: () => import('./pages/CircuitoSaida').then((m) => ({ Component: m.CircuitoSaida })) },
-          // Catálogo dos fundamentos e gestos do goleiro e um gesto (ex.: /goleiro/gestos/cruz)
+          // Endereços antigos do catálogo (hoje em /fundamentos): continuam funcionando
           { path: 'gestos', lazy: () => import('./pages/FundamentosGestos').then((m) => ({ Component: m.FundamentosGestos })) },
           { path: 'gestos/:gesto', lazy: () => import('./pages/GestoDetalhe').then((m) => ({ Component: m.GestoDetalhe })) },
           // Treino de fundamentos montado pelos pais (ex.: /goleiro/treino/basicos)
@@ -82,6 +82,14 @@ const ROTAS: RouteObject[] = [
           { path: 'lance/:lance', lazy: () => import('./pages/LanceTatico').then((m) => ({ Component: m.LanceTatico })) },
           // Criar e editar puzzles e pranchetas (pais e treinador)
           { path: 'criar', lazy: () => import('./pages/CriarTatica').then((m) => ({ Component: m.CriarTatica })) },
+        ],
+      },
+      // Fundamentos e gestos de goleiro, de linha e comuns (ex.: /fundamentos?tipo=linha, /fundamentos/conducao)
+      {
+        path: 'fundamentos',
+        children: [
+          { index: true, lazy: () => import('./pages/FundamentosGestos').then((m) => ({ Component: m.FundamentosGestos })) },
+          { path: ':gesto', lazy: () => import('./pages/GestoDetalhe').then((m) => ({ Component: m.GestoDetalhe })) },
         ],
       },
       { path: 'agenda', lazy: () => import('./pages/Agenda').then((m) => ({ Component: m.Agenda })) },

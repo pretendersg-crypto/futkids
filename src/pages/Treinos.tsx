@@ -29,6 +29,19 @@ export function Treinos() {
       </p>
       <AvisoAquecer />
 
+      <Link to="/fundamentos?tipo=linha" className="flex min-h-16 items-center gap-4 rounded-3xl border-4 border-blue-300 bg-white p-3 shadow-md">
+        <span aria-hidden className="text-4xl">
+          📖
+        </span>
+        <span className="flex flex-1 flex-col">
+          <span className="text-xl font-extrabold">Fundamentos e gestos</span>
+          <span className="text-sm">Domínio, passe, drible, chute e marcação (e os do goleiro)</span>
+        </span>
+        <span aria-hidden className="text-3xl">
+          ▶️
+        </span>
+      </Link>
+
       <Link to="/treinos/videos" className="flex min-h-16 items-center gap-4 rounded-3xl border-4 border-red-300 bg-white p-3 shadow-md">
         <span aria-hidden className="text-4xl">
           📺

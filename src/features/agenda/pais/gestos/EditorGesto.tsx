@@ -1,8 +1,9 @@
-// Criar ou mudar um fundamento/gesto do goleiro (área dos pais): nome, categoria, resumo, como
+// Criar ou mudar um fundamento/gesto (área dos pais): nome, categoria (de goleiro, de linha ou comum),
+// nível, resumo, como
 // fazer, cuidado, desenho (um dos prontos ou imagem/GIF própria) e vídeo real (YouTube/Hotmart
 // e/ou gravado). Só grava ao tocar em "Salvar gesto".
 import { useState, type ChangeEvent } from 'react'
-import { CATEGORIAS_GESTO, gestoProntoPorId, POSE_IDS, type Gesto } from '../../../saidaGol/gestos'
+import { CATEGORIAS_GESTO, gestoProntoPorId, NIVEIS_GESTO, POSE_IDS, PUBLICOS_GESTO, type Gesto } from '../../../saidaGol/gestos'
 import { DesenhoGesto } from '../../../saidaGol/DesenhoGesto'
 import { useGestos } from '../../../saidaGol/useGestos'
 import { ehGestoPronto, useGestosStore } from '../../../../stores/gestosStore'
@@ -99,10 +100,15 @@ export function EditorGesto({ id, aoVoltar }: Props) {
         <input type="text" value={g.nome} maxLength={40} onChange={(e) => mudar({ nome: e.target.value })} className={CAMPO} />
       </label>
 
-      <fieldset>
+      <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-base font-bold">Categoria</legend>
+        {PUBLICOS_GESTO.map((pub) => (
+          <div key={pub.id} className="flex flex-col gap-1">
+            <p className="text-sm font-extrabold">
+              {pub.emoji} {pub.id === 'todos' ? 'Comum a goleiro e linha' : `De ${pub.nome.toLowerCase()}`}
+            </p>
         <div className="grid grid-cols-2 gap-2">
-          {CATEGORIAS_GESTO.map((c) => (
+          {CATEGORIAS_GESTO.filter((c) => c.publico === pub.id).map((c) => (
             <button
               key={c.id}
               type="button"
@@ -116,6 +122,25 @@ export function EditorGesto({ id, aoVoltar }: Props) {
                 {c.emoji}
               </span>
               {c.nome}
+            </button>
+          ))}
+        </div>
+          </div>
+        ))}
+      </fieldset>
+
+      <fieldset>
+        <legend className="mb-1 text-base font-bold">Nível</legend>
+        <div className="grid grid-cols-3 gap-2">
+          {NIVEIS_GESTO.map((n) => (
+            <button
+              key={n.id}
+              type="button"
+              aria-pressed={(g.nivel ?? 'facil') === n.id}
+              onClick={() => mudar({ nivel: n.id })}
+              className={`min-h-12 rounded-xl border-4 px-1 text-sm font-bold ${(g.nivel ?? 'facil') === n.id ? 'border-violet-600 bg-violet-100' : 'border-violet-100 bg-white'}`}
+            >
+              {n.emoji} {n.nome}
             </button>
           ))}
         </div>

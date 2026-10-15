@@ -1,14 +1,16 @@
-// Um fundamento/gesto do goleiro (/goleiro/gestos/:gesto): desenho grande, como fazer, o erro
+// Um fundamento/gesto (/fundamentos/:gesto; ?tipo=linha|goleiro diz em qual trilha está): desenho
+// grande, nível e para quem é, como fazer, o erro
 // mais comum, os vídeos reais (gravado, YouTube ou aula da Hotmart) e os circuitos com cones que usam
 // o gesto. Embaixo, a barra de curso: Anterior / Lista / Concluída / Próximo, na ordem da trilha.
-import { Link, Navigate, useNavigate, useParams } from 'react-router'
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import { BarraAula } from '../components/ui/BarraAula'
 import { VideoReal } from '../components/video/VideoReal'
+import { atividadeDoGesto } from '../data/calendarioGoleiros'
 import { CIRCUITOS } from '../features/saidaGol/circuitos'
-import { categoriaGestoPorId } from '../features/saidaGol/gestos'
+import { categoriaGestoPorId, nivelGestoPorId, PUBLICOS_GESTO, publicoDoGesto } from '../features/saidaGol/gestos'
 import { arteDaPose } from '../features/saidaGol/arteLocal'
 import { DesenhoGesto } from '../features/saidaGol/DesenhoGesto'
-import { etapaDoGesto, filaDaTrilha } from '../features/saidaGol/trilha'
+import { etapaDoGesto, etapasDe, filaDaTrilha, trilhaDoGesto, type TipoAtleta } from '../features/saidaGol/trilha'
 import { useGestos } from '../features/saidaGol/useGestos'
 import { useGestosConcluidosStore } from '../stores/gestosConcluidosStore'
 import { useProgressStore } from '../stores/progressStore'
@@ -17,17 +19,27 @@ import { sons } from '../utils/som'
 export function GestoDetalhe() {
   const id = useParams().gesto
   const navegar = useNavigate()
-  const fila = filaDaTrilha(useGestos())
+  const [params] = useSearchParams()
+  const todos = useGestos()
+  // Em qual trilha (goleiro ou linha) a criança está: a do endereço ou a do próprio gesto
+  const daUrl = params.get('tipo')
+  const doGesto = todos.find((g) => g.id === id)
+  const atleta: TipoAtleta = daUrl === 'linha' || daUrl === 'goleiro' ? daUrl : doGesto ? trilhaDoGesto(doGesto) : 'goleiro'
+  const fila = filaDaTrilha(todos, atleta)
+  const lista = `/fundamentos?tipo=${atleta}`
   const concluida = useGestosConcluidosStore((s) => Boolean(id && s.concluidos[id]))
   const posicao = fila.findIndex((g) => g.id === id)
   const gesto = fila[posicao]
-  if (!gesto) return <Navigate to="/goleiro/gestos" replace />
+  if (!gesto) return <Navigate to={lista} replace />
   const categoria = categoriaGestoPorId(gesto.categoria)
   const etapa = etapaDoGesto(gesto)
+  const numeroDaEtapa = etapasDe(atleta).findIndex((e) => e.id === etapa.id) + 1
+  const nivel = nivelGestoPorId(gesto.nivel)
+  const publico = PUBLICOS_GESTO.find((x) => x.id === publicoDoGesto(gesto))!
   const anterior = fila[posicao - 1]
   const proximo = fila[posicao + 1]
   const irPara = (g: { id: string }) => {
-    navegar(`/goleiro/gestos/${g.id}`, { replace: true })
+    navegar(`/fundamentos/${g.id}?tipo=${atleta}`, { replace: true })
     window.scrollTo({ top: 0 })
   }
   const circuitos = CIRCUITOS.filter((c) => c.passos.some((p) => p.gesto === gesto.id))
@@ -35,7 +47,7 @@ export function GestoDetalhe() {
   return (
     <section className="flex flex-col gap-4">
       <header className="flex items-center gap-3">
-        <Link to="/goleiro/gestos" aria-label="Voltar aos gestos" className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-2xl shadow">
+        <Link to={lista} aria-label="Voltar aos gestos" className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-2xl shadow">
           ⬅️
         </Link>
         <h1 className="flex-1 text-2xl font-extrabold">{gesto.nome}</h1>
@@ -43,13 +55,19 @@ export function GestoDetalhe() {
 
       <p className="flex flex-wrap gap-2 text-sm font-extrabold">
         <span className="rounded-full bg-sky-600 px-3 py-1 text-white">
-          Etapa {etapa.numero} · {etapa.emoji} {etapa.nome}
+          Etapa {numeroDaEtapa} · {etapa.emoji} {etapa.nome}
         </span>
         <span className="rounded-full bg-white px-3 py-1">
           Gesto {posicao + 1} de {fila.length}
         </span>
         <span className="rounded-full bg-sky-100 px-3 py-1">
           {categoria.emoji} {categoria.nome}
+        </span>
+        <span className="rounded-full bg-white px-3 py-1">
+          {nivel.emoji} {nivel.nome}
+        </span>
+        <span className="rounded-full bg-white px-3 py-1">
+          {publico.emoji} {publico.nome}
         </span>
       </p>
       <div className="self-center rounded-3xl bg-green-50 p-2">
@@ -101,14 +119,14 @@ export function GestoDetalhe() {
 
       <BarraAula
         aoAnterior={anterior ? () => irPara(anterior) : undefined}
-        aoLista={() => navegar('/goleiro/gestos')}
+        aoLista={() => navegar(lista)}
         concluida={concluida}
         aoConcluir={() => {
           const loja = useGestosConcluidosStore.getState()
           if (concluida) return loja.desmarcar(gesto.id)
           loja.marcar(gesto.id)
           // Conta como treino de goleiro do dia (o gesto pode estar na agenda)
-          useProgressStore.getState().registrarAtividade('goleiro')
+          useProgressStore.getState().registrarAtividade(atividadeDoGesto(gesto))
           sons.concluido()
         }}
         aoProximo={proximo ? () => irPara(proximo) : undefined}

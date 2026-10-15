@@ -48,7 +48,7 @@ export function tipoDaRota(rota: string | undefined): TipoAtividade | undefined 
   if (!rota) return undefined
   const pedido = /[?&]tipo=(corpo|tela)\b/.exec(rota)?.[1]
   if (pedido) return pedido as TipoAtividade
-  if (/^\/treinos(\/|$)/.test(rota) || /^\/goleiro\/(fundamentos|saida|treino)/.test(rota) || rota === '/rali/contador') return 'corpo'
+  if (/^\/treinos(\/|$)/.test(rota) || /^\/fundamentos(\/|$|\?)/.test(rota) || /^\/goleiro\/(fundamentos|saida|treino|gestos)/.test(rota) || rota === '/rali/contador') return 'corpo'
   if (rota.startsWith('/tatica') || /^\/goleiro\/[^/]+\/[^/]+$/.test(rota)) return 'tela'
   return undefined
 }

@@ -5,7 +5,7 @@
 //  - a série animada do app que adapta aquele treino para criança (serie). Quando um vídeo virar
 //    animação própria, basta criar a série nova e trocar o `serie` do treino aqui.
 // A `categoria` diz a partir de qual categoria do jogador (data/categorias.ts) o vídeo é liberado.
-import { categoriaGestoPorId, type Gesto } from '../features/saidaGol/gestos'
+import { categoriaGestoPorId, publicoDoGesto, type Gesto } from '../features/saidaGol/gestos'
 import { todosOsGestos, useGestosStore } from '../stores/gestosStore'
 import type { CategoriaId } from './categorias'
 
@@ -174,10 +174,13 @@ export function treinoDeFundamentos(f: FundamentosDosPais): TreinoCalendario {
 /** Id no calendário de um gesto técnico (um fundamento sozinho, ex.: "gesto:base") */
 export const idDeGesto = (id: string) => `gesto:${id}`
 
+/** O que conta no dia quando a criança conclui o gesto */
+export const atividadeDoGesto = (g: Pick<Gesto, 'publico' | 'categoria'>) => (publicoDoGesto(g) === 'goleiro' ? 'goleiro' : 'fundamentos')
+
 export function treinoDeGesto(g: Gesto): TreinoCalendario {
   const categoria = categoriaGestoPorId(g.categoria)
-  // Abre a aula do gesto; conta como treino de goleiro
-  return { id: idDeGesto(g.id), nome: g.nome, emoji: categoria.emoji, rota: `/goleiro/gestos/${g.id}`, atividade: 'goleiro', detalhe: `Gesto técnico · ${categoria.nome}` }
+  // Abre a aula do gesto; o de goleiro conta como treino de goleiro, os outros como fundamentos
+  return { id: idDeGesto(g.id), nome: g.nome, emoji: categoria.emoji, rota: `/fundamentos/${g.id}`, atividade: atividadeDoGesto(g), detalhe: `Gesto técnico · ${categoria.nome}` }
 }
 
 /** Busca um treino do calendário, um vídeo adicionado, um treino criado pelos pais, um treino de fundamentos ou um gesto */

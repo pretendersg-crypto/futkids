@@ -14,7 +14,7 @@ export function SaidaGol() {
         <h1 className="flex-1 text-2xl font-extrabold">🔶 Saída do gol com cones</h1>
       </header>
 
-      <Link to="/goleiro/gestos" className="flex min-h-14 items-center gap-3 rounded-2xl border-4 border-sky-300 bg-white px-3 font-extrabold">
+      <Link to="/fundamentos?tipo=goleiro" className="flex min-h-14 items-center gap-3 rounded-2xl border-4 border-sky-300 bg-white px-3 font-extrabold">
         <span aria-hidden className="text-2xl">
           📖
         </span>

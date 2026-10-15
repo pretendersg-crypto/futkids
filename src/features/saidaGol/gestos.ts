@@ -1,23 +1,70 @@
-// Fundamentos e gestos técnicos do goleiro: o catálogo que vem pronto no app (os pais podem mudar
-// e criar outros na área dos pais: stores/gestosStore.ts). Cada gesto tem categoria, como fazer,
-// o erro mais comum, um desenho e, se os pais colocarem, vídeos reais (YouTube e/ou gravado).
-// Os desenhos são poses do bonequinho num quadro de 140 x 150 (chão em y = 136).
+// Fundamentos e gestos técnicos: o catálogo que vem pronto no app (os pais podem mudar e criar
+// outros na área dos pais: stores/gestosStore.ts). São de três públicos: do GOLEIRO, do jogador de
+// LINHA e os COMUNS aos dois (movimentação, visão de jogo, comunicação). Cada gesto tem categoria,
+// nível (básico, intermediário, avançado), como fazer, o erro mais comum, um desenho e, se os pais
+// colocarem, vídeos reais (YouTube e/ou gravado).
+// Os desenhos são poses do bonequinho num quadro de 140 x 150 (chão em y = 136). Poses com
+// "linha: true" saem com o uniforme de jogador de linha (camisa azul, sem luvas).
 
-export type CategoriaGesto = 'postura' | 'saida' | 'encaixe' | 'desvio' | 'queda' | 'um-contra-um' | 'reposicao' | 'pes' | 'comunicacao'
+export type PublicoGesto = 'goleiro' | 'linha' | 'todos'
 
-export const CATEGORIAS_GESTO: { id: CategoriaGesto; nome: string; emoji: string }[] = [
-  { id: 'postura', nome: 'Postura e posicionamento', emoji: '🧍' },
-  { id: 'saida', nome: 'Saída do gol', emoji: '🏃' },
-  { id: 'encaixe', nome: 'Encaixe (agarrar)', emoji: '🤲' },
-  { id: 'desvio', nome: 'Desvios', emoji: '🖐️' },
-  { id: 'queda', nome: 'Quedas', emoji: '🤸' },
-  { id: 'um-contra-um', nome: '1 contra 1', emoji: '✝️' },
-  { id: 'reposicao', nome: 'Reposição', emoji: '🎯' },
-  { id: 'pes', nome: 'Jogo com os pés', emoji: '🦶' },
-  { id: 'comunicacao', nome: 'Comunicação', emoji: '🗣️' },
+export type CategoriaGesto =
+  // goleiro
+  | 'postura'
+  | 'saida'
+  | 'encaixe'
+  | 'desvio'
+  | 'queda'
+  | 'um-contra-um'
+  | 'reposicao'
+  | 'pes'
+  // linha
+  | 'dominio'
+  | 'passe'
+  | 'conducao'
+  | 'finalizacao'
+  | 'marcacao'
+  // comuns aos dois
+  | 'movimentacao'
+  | 'visao'
+  | 'comunicacao'
+
+export const CATEGORIAS_GESTO: { id: CategoriaGesto; nome: string; emoji: string; publico: PublicoGesto }[] = [
+  { id: 'postura', nome: 'Postura e posicionamento', emoji: '🧍', publico: 'goleiro' },
+  { id: 'saida', nome: 'Saída do gol', emoji: '🏃', publico: 'goleiro' },
+  { id: 'encaixe', nome: 'Encaixe (agarrar)', emoji: '🤲', publico: 'goleiro' },
+  { id: 'desvio', nome: 'Desvios', emoji: '🖐️', publico: 'goleiro' },
+  { id: 'queda', nome: 'Quedas', emoji: '🤸', publico: 'goleiro' },
+  { id: 'um-contra-um', nome: '1 contra 1', emoji: '✝️', publico: 'goleiro' },
+  { id: 'reposicao', nome: 'Reposição', emoji: '🎯', publico: 'goleiro' },
+  { id: 'pes', nome: 'Jogo com os pés', emoji: '🦶', publico: 'goleiro' },
+  { id: 'dominio', nome: 'Domínio', emoji: '🧲', publico: 'linha' },
+  { id: 'passe', nome: 'Passe', emoji: '👟', publico: 'linha' },
+  { id: 'conducao', nome: 'Condução e drible', emoji: '🌀', publico: 'linha' },
+  { id: 'finalizacao', nome: 'Finalização', emoji: '🥅', publico: 'linha' },
+  { id: 'marcacao', nome: 'Marcação', emoji: '🛡️', publico: 'linha' },
+  { id: 'movimentacao', nome: 'Movimentação', emoji: '⚡', publico: 'todos' },
+  { id: 'visao', nome: 'Visão de jogo', emoji: '👀', publico: 'todos' },
+  { id: 'comunicacao', nome: 'Comunicação', emoji: '🗣️', publico: 'todos' },
 ]
 
 export const categoriaGestoPorId = (id: CategoriaGesto) => CATEGORIAS_GESTO.find((c) => c.id === id) ?? CATEGORIAS_GESTO[0]
+
+export type NivelGesto = 'facil' | 'intermediario' | 'avancado'
+
+export const NIVEIS_GESTO: { id: NivelGesto; nome: string; emoji: string }[] = [
+  { id: 'facil', nome: 'Básico', emoji: '🟢' },
+  { id: 'intermediario', nome: 'Intermediário', emoji: '🟡' },
+  { id: 'avancado', nome: 'Avançado', emoji: '🔴' },
+]
+
+export const nivelGestoPorId = (id: NivelGesto | undefined) => NIVEIS_GESTO.find((n) => n.id === id) ?? NIVEIS_GESTO[0]
+
+export const PUBLICOS_GESTO: { id: PublicoGesto; nome: string; emoji: string }[] = [
+  { id: 'goleiro', nome: 'Goleiro', emoji: '🧤' },
+  { id: 'linha', nome: 'Linha', emoji: '⚽' },
+  { id: 'todos', nome: 'Comum aos dois', emoji: '👥' },
+]
 
 export interface P {
   x: number
@@ -40,6 +87,8 @@ export interface Pose {
   setas?: { de: P; para: P; tracejada?: boolean; texto?: string }[]
   /** Altura do chão (mais baixo = está pulando) */
   chao?: number
+  /** Uniforme de jogador de linha (camisa azul, sem luvas) */
+  linha?: boolean
 }
 
 const p = (x: number, y: number): P => ({ x, y })
@@ -280,6 +329,173 @@ const DADOS_POSES = {
     pes: [p(48, 134), p(82, 134)],
     setas: [{ de: p(80, 24), para: p(112, 10), texto: 'fala!' }],
   },
+  // ---------- Goleiro (novas) ----------
+  levantar: {
+    vista: 'lado',
+    cabeca: p(84, 62),
+    pescoco: p(78, 72),
+    quadril: p(60, 98),
+    cotovelos: [p(80, 98), p(86, 96)],
+    maos: [p(88, 124), p(94, 122)],
+    joelhos: [p(50, 134), p(80, 112)],
+    pes: [p(30, 132), p(84, 134)],
+    setas: [{ de: p(118, 130), para: p(118, 96), texto: 'sobe!' }],
+  },
+  // ---------- Jogador de linha e comuns (uniforme azul) ----------
+  'base-linha': {
+    vista: 'frente',
+    linha: true,
+    cabeca: p(70, 34),
+    pescoco: p(70, 48),
+    quadril: p(70, 88),
+    cotovelos: [p(54, 70), p(86, 70)],
+    maos: [p(48, 86), p(92, 86)],
+    joelhos: [p(48, 110), p(92, 110)],
+    pes: [p(52, 134), p(88, 134)],
+  },
+  conducao: {
+    vista: 'lado',
+    linha: true,
+    cabeca: p(80, 30),
+    pescoco: p(76, 43),
+    quadril: p(66, 82),
+    cotovelos: [p(60, 64), p(86, 62)],
+    maos: [p(54, 78), p(94, 54)],
+    joelhos: [p(58, 108), p(84, 104)],
+    pes: [p(44, 128), p(90, 132)],
+    bola: p(106, 128),
+    setas: [{ de: p(96, 112), para: p(130, 112), texto: 'perto do pé' }],
+  },
+  'dominio-sola': {
+    vista: 'lado',
+    linha: true,
+    cabeca: p(66, 30),
+    pescoco: p(66, 44),
+    quadril: p(64, 84),
+    cotovelos: [p(52, 64), p(80, 62)],
+    maos: [p(44, 78), p(90, 74)],
+    joelhos: [p(62, 110), p(84, 104)],
+    pes: [p(60, 134), p(96, 116)],
+    bola: p(102, 127),
+  },
+  'passe-interno': {
+    vista: 'lado',
+    linha: true,
+    cabeca: p(70, 32),
+    pescoco: p(68, 46),
+    quadril: p(64, 86),
+    cotovelos: [p(52, 66), p(84, 64)],
+    maos: [p(44, 80), p(94, 78)],
+    joelhos: [p(64, 110), p(84, 112)],
+    pes: [p(64, 134), p(96, 128)],
+    bola: p(106, 128),
+    setas: [{ de: p(116, 128), para: p(138, 128), tracejada: true }],
+  },
+  chute: {
+    vista: 'lado',
+    linha: true,
+    cabeca: p(72, 32),
+    pescoco: p(68, 46),
+    quadril: p(62, 86),
+    cotovelos: [p(48, 62), p(82, 70)],
+    maos: [p(38, 54), p(90, 84)],
+    joelhos: [p(62, 112), p(86, 106)],
+    pes: [p(64, 134), p(104, 118)],
+    bola: p(116, 112),
+    setas: [{ de: p(124, 106), para: p(138, 92) }],
+  },
+  protecao: {
+    vista: 'frente',
+    linha: true,
+    cabeca: p(70, 36),
+    pescoco: p(70, 50),
+    quadril: p(70, 90),
+    cotovelos: [p(46, 62), p(94, 62)],
+    maos: [p(30, 68), p(110, 68)],
+    joelhos: [p(46, 112), p(94, 112)],
+    pes: [p(40, 134), p(100, 134)],
+    bola: p(70, 128),
+    setas: [{ de: p(120, 22), para: p(100, 22), texto: 'marcador' }],
+  },
+  'marcacao-linha': {
+    vista: 'frente',
+    linha: true,
+    cabeca: p(70, 40),
+    pescoco: p(70, 54),
+    quadril: p(70, 94),
+    cotovelos: [p(50, 76), p(90, 76)],
+    maos: [p(40, 90), p(100, 90)],
+    joelhos: [p(46, 116), p(92, 114)],
+    pes: [p(48, 134), p(84, 130)],
+  },
+  drible: {
+    vista: 'frente',
+    linha: true,
+    cabeca: p(58, 34),
+    pescoco: p(60, 48),
+    quadril: p(66, 88),
+    cotovelos: [p(42, 64), p(82, 66)],
+    maos: [p(32, 80), p(92, 82)],
+    joelhos: [p(50, 112), p(88, 110)],
+    pes: [p(44, 134), p(104, 132)],
+    bola: p(118, 128),
+    setas: [
+      { de: p(46, 16), para: p(20, 16), texto: 'finge' },
+      { de: p(96, 108), para: p(132, 108), texto: 'sai' },
+    ],
+  },
+  arrancada: {
+    vista: 'lado',
+    linha: true,
+    cabeca: p(92, 40),
+    pescoco: p(84, 50),
+    quadril: p(62, 86),
+    cotovelos: [p(62, 66), p(96, 64)],
+    maos: [p(52, 78), p(102, 52)],
+    joelhos: [p(50, 110), p(88, 100)],
+    pes: [p(30, 130), p(86, 128)],
+    setas: [{ de: p(104, 20), para: p(134, 20), texto: 'explode' }],
+  },
+  'mudanca-direcao': {
+    vista: 'frente',
+    linha: true,
+    cabeca: p(54, 38),
+    pescoco: p(58, 52),
+    quadril: p(68, 90),
+    cotovelos: [p(40, 68), p(84, 70)],
+    maos: [p(30, 84), p(96, 84)],
+    joelhos: [p(56, 112), p(98, 110)],
+    pes: [p(50, 134), p(116, 132)],
+    setas: [{ de: p(112, 22), para: p(40, 22), texto: 'freia e volta' }],
+  },
+  olhar: {
+    vista: 'frente',
+    linha: true,
+    cabeca: p(74, 32),
+    pescoco: p(70, 46),
+    quadril: p(70, 88),
+    cotovelos: [p(56, 68), p(84, 68)],
+    maos: [p(52, 86), p(88, 86)],
+    joelhos: [p(58, 112), p(84, 112)],
+    pes: [p(56, 134), p(86, 134)],
+    bola: p(14, 128),
+    setas: [
+      { de: p(84, 22), para: p(118, 10), tracejada: true, texto: 'olha' },
+      { de: p(24, 128), para: p(46, 128), tracejada: true },
+    ],
+  },
+  pedir: {
+    vista: 'frente',
+    linha: true,
+    cabeca: p(70, 32),
+    pescoco: p(70, 46),
+    quadril: p(70, 88),
+    cotovelos: [p(54, 62), p(90, 52)],
+    maos: [p(44, 74), p(104, 32)],
+    joelhos: [p(58, 112), p(84, 112)],
+    pes: [p(54, 134), p(88, 134)],
+    setas: [{ de: p(86, 22), para: p(116, 10), texto: 'aqui!' }],
+  },
 } satisfies Record<string, Pose>
 
 export type PoseId = keyof typeof DADOS_POSES
@@ -293,6 +509,10 @@ export interface Gesto {
   id: string
   nome: string
   categoria: CategoriaGesto
+  /** Básico, intermediário ou avançado (sem = básico) */
+  nivel?: NivelGesto
+  /** Quem treina (sem = o da categoria) */
+  publico?: PublicoGesto
   /** Frase curta */
   resumo: string
   comoFazer: string[]
@@ -320,6 +540,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'base',
     nome: 'Posição base',
     categoria: 'postura',
+    nivel: 'facil',
     resumo: 'Pronto para defender',
     comoFazer: [
       'Pés afastados na largura dos ombros.',
@@ -334,6 +555,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'posicionamento',
     nome: 'Posicionamento (fechar o ângulo)',
     categoria: 'postura',
+    nivel: 'intermediario',
     resumo: 'Ficar na linha entre a bola e o meio do gol',
     comoFazer: [
       'Imagine uma linha da bola até o meio do seu gol.',
@@ -349,6 +571,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'lateral',
     nome: 'Deslocamento lateral',
     categoria: 'postura',
+    nivel: 'facil',
     resumo: 'Andar de lado sem cruzar as pernas',
     comoFazer: [
       'Abra um pé para o lado e traga o outro, sem cruzar.',
@@ -364,6 +587,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'passo-cruzado',
     nome: 'Passo cruzado',
     categoria: 'postura',
+    nivel: 'intermediario',
     resumo: 'Cruzar as pernas para chegar longe e rápido',
     comoFazer: [
       'Use quando a bola vai para longe e não dá tempo de andar de lado.',
@@ -379,6 +603,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'saida',
     nome: 'Saída rápida',
     categoria: 'saida',
+    nivel: 'facil',
     resumo: 'Correr para a frente com passos curtos',
     comoFazer: [
       'Saia com passos curtos e rápidos.',
@@ -393,6 +618,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'recuo',
     nome: 'Recuo (de costas)',
     categoria: 'saida',
+    nivel: 'facil',
     resumo: 'Voltar ao gol sem virar as costas para a bola',
     comoFazer: ['Volte de costas, com passos curtos.', 'Olhos sempre na bola (para a frente).', 'Joelhos um pouco dobrados e mãos prontas.'],
     atencao: 'Virar de costas para correr: a bola pode vir e o goleiro não vê.',
@@ -403,6 +629,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'encaixe',
     nome: 'Encaixe baixo (bola rasteira)',
     categoria: 'encaixe',
+    nivel: 'facil',
     resumo: 'Ajoelhar atrás da bola e agarrar com as duas mãos',
     comoFazer: [
       'Fique atrás da linha da bola.',
@@ -417,6 +644,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'encaixe-medio',
     nome: 'Encaixe médio (barriga e peito)',
     categoria: 'encaixe',
+    nivel: 'facil',
     resumo: 'Abraçar a bola contra o corpo',
     comoFazer: [
       'Fique atrás da bola, com o corpo de frente para ela.',
@@ -431,6 +659,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'alta',
     nome: 'Encaixe alto (mãos em W)',
     categoria: 'encaixe',
+    nivel: 'intermediario',
     resumo: 'Saltar e agarrar no alto, com o joelho protegendo',
     comoFazer: [
       'Corra e salte com UMA perna.',
@@ -446,6 +675,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'espalmar',
     nome: 'Espalmar',
     categoria: 'desvio',
+    nivel: 'intermediario',
     resumo: 'Tirar a bola para fora quando não dá para agarrar',
     comoFazer: [
       'Use para bola forte ou longe demais para agarrar.',
@@ -460,6 +690,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'defesa-pe',
     nome: 'Defesa com o pé',
     categoria: 'desvio',
+    nivel: 'intermediario',
     resumo: 'Fechar a bola rasteira com a perna esticada',
     comoFazer: [
       'Bola rasteira, rápida e perto do corpo: não dá tempo de abaixar.',
@@ -475,6 +706,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'queda-lateral',
     nome: 'Queda lateral',
     categoria: 'queda',
+    nivel: 'intermediario',
     resumo: 'Cair de lado para pegar a bola baixa no canto',
     comoFazer: [
       'Comece na posição base.',
@@ -490,6 +722,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'mergulho',
     nome: 'Mergulho',
     categoria: 'queda',
+    nivel: 'avancado',
     resumo: 'Voar para pegar a bola a meia altura ou alta, no canto',
     comoFazer: [
       'Impulsione com a perna do lado da bola.',
@@ -505,6 +738,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'cruz',
     nome: 'Cruz',
     categoria: 'um-contra-um',
+    nivel: 'avancado',
     resumo: 'Fechar o chute de perto com o corpo em forma de cruz',
     comoFazer: [
       'Saia até bem perto do atacante e fique baixo.',
@@ -520,6 +754,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'abafa',
     nome: 'Bloqueio (abafa)',
     categoria: 'um-contra-um',
+    nivel: 'avancado',
     resumo: 'Ir na bola no pé do atacante e cobri-la',
     comoFazer: [
       'Só quando a bola se afasta do pé do atacante.',
@@ -535,6 +770,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'estrela',
     nome: 'Parede (estrela)',
     categoria: 'um-contra-um',
+    nivel: 'avancado',
     resumo: 'Ficar grande na frente do atacante, abrindo braços e pernas',
     comoFazer: [
       'Atacante bem perto e de frente: não dá tempo de cruz.',
@@ -550,6 +786,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'rolar',
     nome: 'Reposição rolando',
     categoria: 'reposicao',
+    nivel: 'facil',
     resumo: 'Repor a bola com a mão, rente ao chão',
     comoFazer: [
       'Dê um passo à frente com a perna do lado contrário à mão da bola.',
@@ -564,6 +801,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'reposicao-alta',
     nome: 'Reposição por cima (lançamento)',
     categoria: 'reposicao',
+    nivel: 'intermediario',
     resumo: 'Lançar a bola longe com a mão, por cima do ombro',
     comoFazer: [
       'Bola na mão, braço esticado para trás.',
@@ -579,6 +817,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'reposicao-pe',
     nome: 'Reposição com o pé',
     categoria: 'reposicao',
+    nivel: 'intermediario',
     resumo: 'Bola no chão e passe com o pé',
     comoFazer: [
       'Coloque a bola no chão, na frente do corpo.',
@@ -594,6 +833,7 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'passe-pe',
     nome: 'Passe e domínio (goleiro-linha)',
     categoria: 'pes',
+    nivel: 'avancado',
     resumo: 'Jogar com os pés como um jogador de linha',
     comoFazer: [
       'Domine a bola com a sola ou a parte de dentro do pé.',
@@ -610,6 +850,8 @@ export const GESTOS_PRONTOS: Gesto[] = [
     id: 'comunicacao',
     nome: 'Comunicação',
     categoria: 'comunicacao',
+    nivel: 'facil',
+    publico: 'goleiro',
     resumo: 'Falar e organizar a defesa',
     comoFazer: [
       'O goleiro vê a quadra inteira: avise os companheiros.',
@@ -620,6 +862,427 @@ export const GESTOS_PRONTOS: Gesto[] = [
     desenho: pose('comunicacao'),
     video: aulaFFutsal('kOXgNXoX7W'),
   },
+  // ---------- Goleiro: mais gestos ----------
+  {
+    id: 'levantar-rapido',
+    nome: 'Levantar rápido depois da queda',
+    categoria: 'queda',
+    nivel: 'intermediario',
+    resumo: 'Caiu? Já está de pé para a próxima',
+    comoFazer: [
+      'Depois de cair, apoie as mãos e um joelho no chão.',
+      'Empurre o chão e suba numa só vez, sem sentar.',
+      'Já termine na posição base, olhando a bola.',
+      'Treine com um adulto rolando uma segunda bola logo depois.',
+    ],
+    atencao: 'Ficar deitado olhando a bola: o rebote vira gol.',
+    desenho: pose('levantar'),
+  },
+  {
+    id: 'encaixe-queda',
+    nome: 'Encaixe com queda',
+    categoria: 'queda',
+    nivel: 'avancado',
+    resumo: 'Cair de lado e já segurar a bola',
+    comoFazer: [
+      'Caia de lado, como na queda lateral, com as mãos na frente.',
+      'Uma mão atrás da bola e a outra em cima.',
+      'Ao tocar o chão, puxe a bola para o peito.',
+      'Proteja a bola com o corpo e levante rápido.',
+    ],
+    atencao: 'Cair de barriga ou de costas: dói e a bola escapa.',
+    desenho: pose('queda-lateral'),
+  },
+  {
+    id: 'desvio-por-cima',
+    nome: 'Desvio por cima',
+    categoria: 'desvio',
+    nivel: 'avancado',
+    resumo: 'Tocar a bola alta por cima do gol',
+    comoFazer: [
+      'Use quando a bola vem alta e forte, difícil de agarrar.',
+      'Dê um passo para trás, de lado, e salte.',
+      'Com a palma da mão aberta, empurre a bola para cima e para trás.',
+      'A bola sai por cima do gol: é escanteio, não é gol.',
+    ],
+    atencao: 'Tentar agarrar bola alta e forte demais: ela escapa e entra.',
+    desenho: pose('espalmar'),
+  },
+  {
+    id: 'reflexo',
+    nome: 'Defesa de reflexo',
+    categoria: 'desvio',
+    nivel: 'avancado',
+    resumo: 'Bola de perto: mãos rápidas',
+    comoFazer: [
+      'Na posição base, mãos na frente do corpo, à altura da cintura.',
+      'A bola vem de perto: não dá tempo de cair.',
+      'Leve a mão mais perto direto até a bola.',
+      'Olhos abertos até o fim!',
+    ],
+    atencao: 'Fechar os olhos ou virar o rosto: a mão não acha a bola.',
+    desenho: pose('base'),
+  },
+  {
+    id: 'posicao-escanteio',
+    nome: 'Posição no escanteio',
+    categoria: 'postura',
+    nivel: 'intermediario',
+    resumo: 'Onde ficar quando a bola vem do canto',
+    comoFazer: [
+      'Fique no meio do gol, um pouco mais perto da trave longe da bola.',
+      'Corpo de frente para a quadra, olhando a bola e a área.',
+      'Organize a marcação: cada um com o seu.',
+      'Saia para a bola só se tiver certeza de que chega primeiro.',
+    ],
+    atencao: 'Ficar colado na trave da bola: o segundo pau fica todo aberto.',
+    desenho: pose('posicionamento'),
+  },
+  {
+    id: 'barreira',
+    nome: 'Montar a barreira',
+    categoria: 'postura',
+    nivel: 'avancado',
+    resumo: 'O goleiro manda onde ficam os companheiros',
+    comoFazer: [
+      'Na falta perto do gol, o goleiro escolhe quantos vão na barreira.',
+      'A barreira fecha um lado do gol; o goleiro cuida do outro.',
+      'Mande com voz alta e mãos: "mais para cá!", "parou!".',
+      'Depois, fique onde a bola é vista e espere o chute.',
+    ],
+    atencao: 'Ficar atrás da barreira: o goleiro não vê a bola sair.',
+    desenho: pose('comunicacao'),
+  },
+  // ---------- Linha: domínio ----------
+  {
+    id: 'dominio-sola',
+    nome: 'Domínio com a sola',
+    categoria: 'dominio',
+    nivel: 'facil',
+    resumo: 'Parar a bola com a sola do pé',
+    comoFazer: [
+      'Olhe a bola chegando até o fim.',
+      'Levante o pé um pouco e deixe a sola em cima da bola.',
+      'Encoste sem pisar forte: a bola para "grudada".',
+      'Joelho da outra perna dobrado, braços abertos para o equilíbrio.',
+    ],
+    atencao: 'Pisar forte em cima da bola: ela escapa e você pode cair.',
+    desenho: pose('dominio-sola'),
+  },
+  {
+    id: 'dominio-orientado',
+    nome: 'Domínio orientado',
+    categoria: 'dominio',
+    nivel: 'intermediario',
+    resumo: 'Receber já levando a bola para o lado livre',
+    comoFazer: [
+      'Antes de a bola chegar, olhe onde está o espaço livre.',
+      'Receba com a parte de dentro do pé, de lado.',
+      'Em vez de parar, empurre a bola de leve para o espaço.',
+      'Já saia jogando: passe, condução ou chute.',
+    ],
+    atencao: 'Parar a bola embaixo do corpo: o marcador chega e rouba.',
+    desenho: pose('passe-interno'),
+  },
+  {
+    id: 'dominio-de-costas',
+    nome: 'Domínio de costas (pivô)',
+    categoria: 'dominio',
+    nivel: 'avancado',
+    resumo: 'Receber com o marcador nas costas',
+    comoFazer: [
+      'De costas para o gol, abra os braços e "sinta" o marcador.',
+      'Receba com a sola ou a parte de dentro, longe do marcador.',
+      'Corpo entre a bola e o adversário.',
+      'Segure, espere o companheiro chegar e toque para ele.',
+    ],
+    atencao: 'Virar logo de cara para o marcador: ele rouba a bola.',
+    desenho: pose('protecao'),
+  },
+  // ---------- Linha: passe ----------
+  {
+    id: 'passe-interno',
+    nome: 'Passe com a parte de dentro',
+    categoria: 'passe',
+    nivel: 'facil',
+    resumo: 'O passe mais seguro do futsal',
+    comoFazer: [
+      'Pé de apoio ao lado da bola, apontando para o companheiro.',
+      'Vire o outro pé para fora e trave o tornozelo.',
+      'Bata no meio da bola com a parte de dentro do pé.',
+      'Depois do passe, o pé continua na direção do companheiro.',
+    ],
+    atencao: 'Passar com o bico: a bola sai torta e sem controle.',
+    desenho: pose('passe-interno'),
+  },
+  {
+    id: 'passe-sola',
+    nome: 'Passe de sola',
+    categoria: 'passe',
+    nivel: 'intermediario',
+    resumo: 'Rolar a bola com a sola, curtinho',
+    comoFazer: [
+      'Com a sola em cima da bola, puxe ou empurre para o lado do companheiro.',
+      'É um passe curto, de perto, muito usado no futsal.',
+      'Olhe para o companheiro antes de rolar.',
+      'Bom para fugir da marcação sem chutar a bola.',
+    ],
+    atencao: 'Usar a sola para passe longo: a bola chega fraca e é cortada.',
+    desenho: pose('dominio-sola'),
+  },
+  {
+    id: 'passe-primeira',
+    nome: 'Passe de primeira',
+    categoria: 'passe',
+    nivel: 'avancado',
+    resumo: 'Passar sem parar a bola',
+    comoFazer: [
+      'Antes de a bola chegar, olhe onde está o companheiro.',
+      'Pé de apoio firme, já virado para ele.',
+      'Encoste na bola com a parte de dentro e deixe ela seguir.',
+      'Rápido assim, a defesa não tem tempo de fechar.',
+    ],
+    atencao: 'Decidir só quando a bola chega: aí já é tarde.',
+    desenho: pose('passe-interno'),
+  },
+  // ---------- Linha: condução e drible ----------
+  {
+    id: 'conducao',
+    nome: 'Condução de bola',
+    categoria: 'conducao',
+    nivel: 'facil',
+    resumo: 'Correr com a bola colada no pé',
+    comoFazer: [
+      'Toques curtos, com a parte de dentro ou de fora do pé.',
+      'A bola fica sempre perto: no máximo um passo à frente.',
+      'Olhe para a frente entre um toque e outro, não só para a bola.',
+      'Corpo um pouco inclinado para a frente.',
+    ],
+    atencao: 'Empurrar a bola longe demais: o marcador chega antes.',
+    desenho: pose('conducao'),
+  },
+  {
+    id: 'conducao-sola',
+    nome: 'Condução com a sola',
+    categoria: 'conducao',
+    nivel: 'intermediario',
+    resumo: 'A bola rolando debaixo da sola',
+    comoFazer: [
+      'Role a bola com a sola, para a frente ou para o lado.',
+      'Os toques são curtinhos: a bola nunca sai de baixo do pé.',
+      'Braços abertos e corpo protegendo a bola.',
+      'Ótimo em espaço apertado.',
+    ],
+    atencao: 'Olhar só para o pé: você não vê o companheiro livre.',
+    desenho: pose('dominio-sola'),
+  },
+  {
+    id: 'drible-corte',
+    nome: 'Corte (mudar de direção)',
+    categoria: 'conducao',
+    nivel: 'intermediario',
+    resumo: 'Levar a bola para o outro lado de repente',
+    comoFazer: [
+      'Conduza a bola na direção do marcador.',
+      'Perto dele, puxe a bola para o lado com a parte de dentro ou a sola.',
+      'Mude a direção do corpo junto, com um passo forte.',
+      'Acelere depois do corte!',
+    ],
+    atencao: 'Cortar longe demais do marcador: dá tempo de ele acompanhar.',
+    desenho: pose('drible'),
+  },
+  {
+    id: 'finta-corpo',
+    nome: 'Finta de corpo',
+    categoria: 'conducao',
+    nivel: 'avancado',
+    resumo: 'Fingir que vai para um lado e ir para o outro',
+    comoFazer: [
+      'Incline o corpo e os ombros para um lado, sem tocar na bola.',
+      'O marcador vai junto.',
+      'Saia rápido com a bola para o lado contrário.',
+      'Acelere para ele não alcançar.',
+    ],
+    atencao: 'Fingir devagar: o marcador não acredita e espera.',
+    desenho: pose('drible'),
+  },
+  {
+    id: 'protecao',
+    nome: 'Proteção de bola',
+    categoria: 'conducao',
+    nivel: 'intermediario',
+    resumo: 'O corpo entre a bola e o marcador',
+    comoFazer: [
+      'Fique entre o marcador e a bola.',
+      'Corpo largo: pernas abertas, joelhos dobrados, braços abertos (sem empurrar).',
+      'A bola fica no pé longe do marcador.',
+      'Levante a cabeça e procure um companheiro.',
+    ],
+    atencao: 'Deixar a bola no pé perto do marcador: fica fácil para ele roubar.',
+    desenho: pose('protecao'),
+  },
+  // ---------- Linha: finalização ----------
+  {
+    id: 'chute-bico',
+    nome: 'Chute de bico',
+    categoria: 'finalizacao',
+    nivel: 'facil',
+    resumo: 'O chute rápido do futsal',
+    comoFazer: [
+      'Pé de apoio ao lado da bola.',
+      'Bata com a ponta do pé, rápido, sem levantar muito a perna.',
+      'No futsal ele é ótimo: sai rápido e o goleiro não espera.',
+      'Mire num canto, não no goleiro.',
+    ],
+    atencao: 'Chutar com força e sem mirar: a bola vai no goleiro ou para fora.',
+    desenho: pose('chute'),
+  },
+  {
+    id: 'chute-peito-pe',
+    nome: 'Chute com o peito do pé',
+    categoria: 'finalizacao',
+    nivel: 'intermediario',
+    resumo: 'O chute forte, com o cadarço',
+    comoFazer: [
+      'Pé de apoio ao lado da bola, joelho por cima dela.',
+      'Estique a ponta do pé para baixo e trave o tornozelo.',
+      'Bata no meio da bola com o cadarço da chuteira.',
+      'Corpo por cima da bola: assim ela sai baixa e forte.',
+    ],
+    atencao: 'Corpo jogado para trás: a bola sobe e vai por cima do gol.',
+    desenho: pose('chute'),
+  },
+  {
+    id: 'finalizacao-canto',
+    nome: 'Tocar no canto',
+    categoria: 'finalizacao',
+    nivel: 'avancado',
+    resumo: 'No 1 contra 1, colocar em vez de chutar forte',
+    comoFazer: [
+      'Perto do gol, olhe onde o goleiro está.',
+      'Escolha o canto mais longe dele.',
+      'Toque com a parte de dentro, com precisão.',
+      'Se o goleiro se jogar antes, toque por cima ou dê um drible.',
+    ],
+    atencao: 'Chutar forte em cima do goleiro: ele defende fácil.',
+    desenho: pose('passe-interno'),
+  },
+  // ---------- Linha: marcação ----------
+  {
+    id: 'marcacao-postura',
+    nome: 'Posição de marcação',
+    categoria: 'marcacao',
+    nivel: 'facil',
+    resumo: 'Pronto para defender, sem dar espaço',
+    comoFazer: [
+      'Fique entre o adversário e o seu gol.',
+      'Joelhos dobrados, um pé um pouco à frente do outro.',
+      'Olhe a bola, não o corpo do adversário.',
+      'Acompanhe com passos laterais curtos.',
+    ],
+    atencao: 'Ficar de pernas esticadas e de frente: um drible e você fica para trás.',
+    desenho: pose('marcacao-linha'),
+  },
+  {
+    id: 'desarme',
+    nome: 'Desarme (o bote certo)',
+    categoria: 'marcacao',
+    nivel: 'intermediario',
+    resumo: 'Roubar a bola na hora certa',
+    comoFazer: [
+      'Espere o adversário errar: bola longe do pé ou cabeça baixa.',
+      'Aí dê o bote rápido, com a parte de dentro do pé na bola.',
+      'Na bola, nunca na perna.',
+      'Se não der, volte para a posição de marcação.',
+    ],
+    atencao: 'Dar o bote toda hora: o adversário espera e passa por você.',
+    desenho: pose('marcacao-linha'),
+  },
+  // ---------- Comuns aos dois ----------
+  {
+    id: 'base-atletica',
+    nome: 'Posição de expectativa',
+    categoria: 'movimentacao',
+    nivel: 'facil',
+    resumo: 'Pronto para sair para qualquer lado',
+    comoFazer: [
+      'Pés na largura dos ombros, joelhos levemente dobrados.',
+      'Peso na ponta dos pés, calcanhar quase saindo do chão.',
+      'Tronco um pouco à frente e braços soltos.',
+      'É assim que todo jogador espera a bola, goleiro ou de linha.',
+    ],
+    atencao: 'Ficar parado de pernas esticadas: o primeiro passo sai atrasado.',
+    desenho: pose('base-linha'),
+  },
+  {
+    id: 'arrancada',
+    nome: 'Arrancada (primeiro passo)',
+    categoria: 'movimentacao',
+    nivel: 'facil',
+    resumo: 'Sair rápido do lugar',
+    comoFazer: [
+      'Corpo inclinado para a frente.',
+      'Primeiros passos curtos e muito rápidos.',
+      'Braços dobrados, indo e vindo com força.',
+      'Só depois os passos ficam mais longos.',
+    ],
+    atencao: 'Começar com passo comprido: você demora para sair do lugar.',
+    desenho: pose('arrancada'),
+  },
+  {
+    id: 'mudanca-direcao',
+    nome: 'Frear e mudar de direção',
+    categoria: 'movimentacao',
+    nivel: 'intermediario',
+    resumo: 'Parar firme e sair para o outro lado',
+    comoFazer: [
+      'Para frear, abaixe o corpo e abra as pernas.',
+      'O pé de fora freia, bem plantado no chão.',
+      'Empurre o chão com esse pé e saia para o outro lado.',
+      'Olhos sempre no jogo.',
+    ],
+    atencao: 'Frear com o corpo alto e as pernas juntas: escorrega e cai.',
+    desenho: pose('mudanca-direcao'),
+  },
+  {
+    id: 'olhar-antes',
+    nome: 'Olhar antes de receber',
+    categoria: 'visao',
+    nivel: 'intermediario',
+    resumo: 'Saber o que fazer antes de a bola chegar',
+    comoFazer: [
+      'Enquanto a bola não vem, olhe por cima do ombro.',
+      'Veja onde estão o marcador, os companheiros e o espaço livre.',
+      'Olhe de novo um pouco antes de receber.',
+      'Quando a bola chegar, você já sabe a jogada.',
+    ],
+    atencao: 'Olhar só a bola: quando ela chega, o marcador já está em cima.',
+    desenho: pose('olhar'),
+  },
+  {
+    id: 'pedir-bola',
+    nome: 'Pedir a bola',
+    categoria: 'comunicacao',
+    nivel: 'facil',
+    resumo: 'Mostrar onde você quer receber',
+    comoFazer: [
+      'Fique livre, longe do marcador.',
+      'Aponte com a mão para o pé onde quer a bola.',
+      'Fale o nome do companheiro ou "aqui!".',
+      'Peça na hora certa: quando ele levanta a cabeça.',
+    ],
+    atencao: 'Pedir parado atrás do marcador: o passe não tem como chegar.',
+    desenho: pose('pedir'),
+  },
 ]
 
 export const gestoProntoPorId = (id: string) => GESTOS_PRONTOS.find((g) => g.id === id)
+
+/** Quem treina o gesto: o que o gesto diz ou o da categoria */
+export const publicoDoGesto = (g: Pick<Gesto, 'publico' | 'categoria'>): PublicoGesto => g.publico ?? categoriaGestoPorId(g.categoria).publico
+
+/** O gesto aparece na trilha deste atleta? (os comuns aparecem para os dois) */
+export const gestoServePara = (g: Pick<Gesto, 'publico' | 'categoria'>, atleta: 'goleiro' | 'linha') => {
+  const publico = publicoDoGesto(g)
+  return publico === 'todos' || publico === atleta
+}

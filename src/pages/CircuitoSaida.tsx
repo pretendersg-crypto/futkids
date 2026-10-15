@@ -124,7 +124,7 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
         </div>
         <p className="rounded-xl bg-amber-50 p-2 text-sm">⚠️ {gesto.atencao}</p>
         <VideoReal titulo={gesto.nome} video={gesto.video} videoLocal={gesto.videoLocal} />
-        <Link to={`/goleiro/gestos/${gesto.id}`} className="self-start text-sm font-bold text-sky-800 underline">
+        <Link to={`/fundamentos/${gesto.id}?tipo=goleiro`} className="self-start text-sm font-bold text-sky-800 underline">
           Ver tudo sobre {gesto.nome} 📖
         </Link>
 

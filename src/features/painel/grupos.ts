@@ -2,7 +2,7 @@
 // gestos técnicos (um por categoria), treinos de fundamentos, treinos do app, o calendário de
 // goleiros e o que os pais criaram. O plano da turma usa só o que vem no app.
 import { TREINOS_CALENDARIO, treinoDeExtra, treinoDeFundamentos, treinoDeGesto, treinoDeSerie, type FundamentosDosPais, type SerieDosPais, type TreinoExtra } from '../../data/calendarioGoleiros'
-import { CATEGORIAS_GESTO, type Gesto } from '../saidaGol/gestos'
+import { CATEGORIAS_GESTO, publicoDoGesto, type Gesto } from '../saidaGol/gestos'
 import type { GrupoDeTreinos } from './GradePlano'
 
 // Os treinos do próprio app têm "(app)" no nome; os outros são do calendário de goleiros (FFutsal)
@@ -18,11 +18,20 @@ interface Fontes {
 }
 
 export function gruposDoPlano({ gestos, fundamentos, series = [], extras = [] }: Fontes): GrupoDeTreinos[] {
+  // Uma aba para cada público (goleiro, linha, comuns), com um grupo por categoria
+  const SECAO = { goleiro: '🧤 Gestos de goleiro', linha: '⚽ Gestos de linha', todos: '👥 Gestos comuns' } as const
   const gruposDeGestos = CATEGORIAS_GESTO.map((c) => ({
-    secao: '🧤 Gestos técnicos',
+    secao: SECAO[c.publico],
     titulo: `${c.emoji} ${c.nome}`,
-    treinos: gestos.filter((g) => g.categoria === c.id).map(treinoDeGesto),
+    treinos: gestos.filter((g) => g.categoria === c.id && publicoDoGesto(g) === c.publico).map(treinoDeGesto),
   }))
+  // Gesto com público diferente do da categoria (ex.: comunicação do goleiro) vai para a aba dele
+  const foraDaCategoria = gestos.filter((g) => publicoDoGesto(g) !== CATEGORIAS_GESTO.find((c) => c.id === g.categoria)?.publico)
+  for (const g of foraDaCategoria) {
+    const secao = SECAO[publicoDoGesto(g)]
+    const grupo = gruposDeGestos.find((x) => x.secao === secao)
+    if (grupo) grupo.treinos.push(treinoDeGesto(g))
+  }
   return [
     ...gruposDeGestos,
     { secao: '📚 Treinos de fundamentos', titulo: 'Treinos de fundamentos (vários gestos seguidos)', treinos: fundamentos.map(treinoDeFundamentos) },

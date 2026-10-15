@@ -1,4 +1,4 @@
-// Área dos pais: lista dos fundamentos e gestos do goleiro, por categoria, para mudar (textos,
+// Área dos pais: lista dos fundamentos e gestos (goleiro, linha e comuns), por categoria, para mudar (textos,
 // desenho, vídeo real) ou criar novos.
 import { CATEGORIAS_GESTO } from '../../../saidaGol/gestos'
 import { DesenhoGesto } from '../../../saidaGol/DesenhoGesto'
@@ -11,10 +11,10 @@ export function GestosDoGoleiro({ aoEditar }: { aoEditar: (id: string | null) =>
 
   return (
     <section className="flex flex-col gap-2 rounded-3xl border-4 border-violet-200 bg-white p-3">
-      <h2 className="text-xl font-extrabold">🧤 Fundamentos e gestos do goleiro</h2>
+      <h2 className="text-xl font-extrabold">📖 Fundamentos e gestos (goleiro e linha)</h2>
       <p className="text-sm">
-        Mude os textos e o desenho, coloque vídeos reais (link do YouTube ou gravados no celular) ou crie gestos novos. Eles aparecem em Goleiro → 📖
-        Fundamentos e gestos.
+        Mude os textos e o desenho, coloque vídeos reais (link do YouTube ou gravados no celular) ou crie gestos novos. Eles aparecem em 📖 Fundamentos e
+        gestos (no Goleiro e em Treinos).
       </p>
       <button
         type="button"
