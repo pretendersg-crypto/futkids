@@ -9,6 +9,7 @@ import { useContaStore } from '../../conta/contaStore'
 import { useTurmasStore, type TaticaGuardada } from '../../conta/turmasStore'
 import { useCircuitosStore } from '../../stores/circuitosStore'
 import { CIRCUITOS, conferirCircuito, type Circuito } from './circuitos'
+import { todosOsGestos, useGestosStore } from '../../stores/gestosStore'
 import { GESTOS_PRONTOS } from './gestos'
 import { useGestos } from './useGestos'
 
@@ -39,6 +40,19 @@ export function juntarCircuitos(familia: Circuito[], videos: Record<string, stri
   })
   const todos = [...CIRCUITOS, ...familia.map((c) => ({ ...c, origem: ORIGEM_FAMILIA_CIRCUITO })).filter((c) => valido(c, gestos)), ...daTurma]
   return todos.map((c) => (videos[c.id] ? { ...c, video: videos[c.id] } : c))
+}
+
+/** Todos os circuitos agora, fora do React (agenda, plano) */
+export function todosOsCircuitos(): Circuito[] {
+  const { criados, videos } = useCircuitosStore.getState()
+  const atleta = useContaStore.getState().atletaAtivo
+  const turma = (atleta && useTurmasStore.getState().taticasPorAtleta[atleta]) || SEM_TATICAS
+  return juntarCircuitos(
+    criados,
+    videos,
+    turma,
+    todosOsGestos(useGestosStore.getState()).map((g) => g.id),
+  )
 }
 
 /** Todos os circuitos que o atleta ativo pode fazer */

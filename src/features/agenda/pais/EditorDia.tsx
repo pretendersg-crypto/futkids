@@ -1,7 +1,8 @@
 // Editor de uma data da agenda (área dos pais): trocar, tirar ou incluir treinos, mudar o vídeo
 // só daquele dia, marcar descanso ou voltar ao que o programa diz.
 import { useState } from 'react'
-import { TREINOS_CALENDARIO, treinoDeExtra, treinoDeFundamentos, treinoDeGesto, treinoDeSerie, treinoPorId, type ItemDia } from '../../../data/calendarioGoleiros'
+import { TREINOS_CALENDARIO, treinoDeCircuito, treinoDeExtra, treinoDeFundamentos, treinoDeGesto, treinoDeSerie, treinoPorId, type ItemDia } from '../../../data/calendarioGoleiros'
+import { useCircuitos } from '../../saidaGol/fontesCircuitos'
 import { useGestos } from '../../saidaGol/useGestos'
 import { useTreinosFundamentosStore } from '../../../stores/treinosFundamentosStore'
 import { pontuarTreinador } from '../../../stores/treinadorStore'
@@ -22,6 +23,7 @@ export function EditorDia({ data, aoFechar }: Props) {
   const seriesDosPais = useTreinosStore((s) => s.seriesExtras)
   const fundamentos = useTreinosFundamentosStore((s) => s.treinos)
   const gestos = useGestos()
+  const circuitos = useCircuitos()
   const original = diaDoProgramaOriginal(data, programa)
   const [itens, setItens] = useState<ItemDia[]>(() => (programa.alteracoes[data] ?? original).itens.filter((i) => i.treino !== 'aquecimento'))
   const [novo, setNovo] = useState('')
@@ -35,6 +37,7 @@ export function EditorDia({ data, aoFechar }: Props) {
     ...seriesDosPais.map(treinoDeSerie),
     ...fundamentos.map(treinoDeFundamentos),
     ...gestos.map(treinoDeGesto),
+    ...circuitos.map(treinoDeCircuito),
   ]
 
   function salvar(lista: ItemDia[]) {

@@ -1,7 +1,8 @@
 // Os treinos que dá para pôr no plano (painel), em grupos e abas ("seções"):
 // gestos técnicos (um por categoria), treinos de fundamentos, treinos do app, o calendário de
 // goleiros e o que os pais criaram. O plano da turma usa só o que vem no app.
-import { TREINOS_CALENDARIO, treinoDeExtra, treinoDeFundamentos, treinoDeGesto, treinoDeSerie, type FundamentosDosPais, type SerieDosPais, type TreinoExtra } from '../../data/calendarioGoleiros'
+import { TREINOS_CALENDARIO, treinoDeCircuito, treinoDeExtra, treinoDeFundamentos, treinoDeGesto, treinoDeSerie, type FundamentosDosPais, type SerieDosPais, type TreinoExtra } from '../../data/calendarioGoleiros'
+import type { Circuito } from '../saidaGol/circuitos'
 import { CATEGORIAS_GESTO, publicoDoGesto, type Gesto } from '../saidaGol/gestos'
 import type { GrupoDeTreinos } from './GradePlano'
 
@@ -12,12 +13,14 @@ const semAquecimento = TREINOS_CALENDARIO.filter((t) => t.id !== 'aquecimento')
 interface Fontes {
   gestos: Gesto[]
   fundamentos: FundamentosDosPais[]
+  /** Circuitos com cones (do app, da família, da turma) */
+  circuitos?: Circuito[]
   /** Só no plano de casa */
   series?: SerieDosPais[]
   extras?: TreinoExtra[]
 }
 
-export function gruposDoPlano({ gestos, fundamentos, series = [], extras = [] }: Fontes): GrupoDeTreinos[] {
+export function gruposDoPlano({ gestos, fundamentos, circuitos = [], series = [], extras = [] }: Fontes): GrupoDeTreinos[] {
   // Uma aba para cada público (goleiro, linha, comuns), com um grupo por categoria
   const SECAO = { goleiro: '🧤 Gestos de goleiro', linha: '⚽ Gestos de linha', todos: '👥 Gestos comuns' } as const
   const gruposDeGestos = CATEGORIAS_GESTO.map((c) => ({
@@ -34,6 +37,7 @@ export function gruposDoPlano({ gestos, fundamentos, series = [], extras = [] }:
   }
   return [
     ...gruposDeGestos,
+    { secao: '🔶 Circuitos com cones', titulo: 'Circuitos com cones (saída do gol)', treinos: circuitos.map(treinoDeCircuito) },
     { secao: '📚 Treinos de fundamentos', titulo: 'Treinos de fundamentos (vários gestos seguidos)', treinos: fundamentos.map(treinoDeFundamentos) },
     { secao: '📱 Treinos do app', titulo: 'Treinos e jogos do app', treinos: semAquecimento.filter((t) => doApp(t.nome)) },
     { secao: '📅 Calendário de goleiros', titulo: 'Calendário de goleiros (com vídeo)', treinos: semAquecimento.filter((t) => !doApp(t.nome)) },

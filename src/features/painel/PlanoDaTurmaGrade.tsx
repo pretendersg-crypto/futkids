@@ -4,11 +4,12 @@
 // Monta na grade e salva na nuvem. Só treinos do app (os criados em casa não existem para a turma).
 import { useCallback, useEffect, useState } from 'react'
 import { Modal } from '../../components/ui/Modal'
-import { treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
+import { idDeCircuito, treinoPorId, type ItemDia } from '../../data/calendarioGoleiros'
 import type { DadosEscolinha, DiasDaTurma, Membro } from '../../conta/nuvemEscolinha'
 import { TREINOS_FUNDAMENTOS_INICIAIS } from '../../stores/treinosFundamentosStore'
 import { BOTAO, useAcao } from '../conta/acao'
 import { MensagemErro } from '../conta/comum'
+import { CIRCUITOS, type Circuito } from '../saidaGol/circuitos'
 import { GESTOS_PRONTOS } from '../saidaGol/gestos'
 import { GradePlano } from './GradePlano'
 import { gruposDoPlano } from './grupos'
@@ -18,8 +19,9 @@ import { useContaStore } from '../../conta/contaStore'
 
 const nuvem = () => import('../../conta/nuvemEscolinha')
 
-// A turma só usa o que vem no app (o que cada família criou não existe nos aparelhos dos atletas)
-const GRUPOS = gruposDoPlano({ gestos: GESTOS_PRONTOS, fundamentos: TREINOS_FUNDAMENTOS_INICIAIS })
+// A turma só usa o que vem no app e os circuitos da própria turma (o que cada família criou não
+// existe nos aparelhos dos atletas)
+const gruposDaTurma = (circuitos: Circuito[]) => gruposDoPlano({ gestos: GESTOS_PRONTOS, fundamentos: TREINOS_FUNDAMENTOS_INICIAIS, circuitos: [...CIRCUITOS, ...circuitos] })
 
 const nomeDe = (id: string) => {
   const t = treinoPorId(id, [], [], TREINOS_FUNDAMENTOS_INICIAIS)
@@ -41,6 +43,8 @@ export function PlanoDaTurmaGrade({ escolinha }: { escolinha: string }) {
   const [aviso, setAviso] = useState('')
   const [videos, setVideos] = useState<Video[]>([])
   const uid = useContaStore((s) => s.uid)
+  /** Circuitos com cones criados para esta turma (entram na lista do plano) */
+  const [circuitosDaTurma, setCircuitosDaTurma] = useState<Circuito[]>([])
   const { ocupado, erro, rodar } = useAcao()
 
   useEffect(() => {
@@ -86,6 +90,29 @@ export function PlanoDaTurmaGrade({ escolinha }: { escolinha: string }) {
       vivo = false
     }
   }, [escolinha, turma, para])
+
+  useEffect(() => {
+    if (!turma) return
+    let vivo = true
+    import('../../conta/nuvemTatica')
+      .then((n) => n.listarTaticas(escolinha, turma))
+      .then((lista) => {
+        if (!vivo) return
+        const circuitos = lista.flatMap((t) => {
+          if (t.tipo !== 'circuito') return []
+          try {
+            return [{ ...(JSON.parse(t.json) as Circuito), id: t.id }]
+          } catch {
+            return []
+          }
+        })
+        setCircuitosDaTurma(circuitos)
+      })
+      .catch(() => vivo && setCircuitosDaTurma([]))
+    return () => {
+      vivo = false
+    }
+  }, [escolinha, turma])
 
   // Sair com mudanças sem salvar: o navegador pergunta antes
   useEffect(() => {
@@ -211,13 +238,17 @@ export function PlanoDaTurmaGrade({ escolinha }: { escolinha: string }) {
       ) : (
         <GradePlano
           videos={videos}
-          grupos={GRUPOS}
+          grupos={gruposDaTurma(circuitosDaTurma)}
           itensDo={itensDo}
           definir={(data, itens) => {
             setDias((d) => ({ ...(d ?? {}), [data]: itens }))
             setMudou(true)
           }}
-          nomeDe={nomeDe}
+          nomeDe={(id) => {
+            // Circuito da turma: o nome vem da lista da turma (no aparelho do treinador ele não está na agenda)
+            const c = circuitosDaTurma.find((x) => idDeCircuito(x.id) === id)
+            return c ? { emoji: c.emoji, nome: c.nome } : nomeDe(id)
+          }}
           vazio={para === 'turma' ? 'Sem treino da turma' : 'Sem treino individual'}
         />
       )}

@@ -12,6 +12,7 @@ import { useTreinosStore } from '../../stores/treinosStore'
 import { formatarData } from '../../utils/data'
 import { diaDoProgramaOriginal, planoDoDia } from '../agenda/semana'
 import { useGestos } from '../saidaGol/useGestos'
+import { useCircuitos } from '../saidaGol/fontesCircuitos'
 import { GradePlano, type FichaDeOutroPlano } from './GradePlano'
 import { gruposDoPlano } from './grupos'
 
@@ -24,7 +25,8 @@ export function PlanoDeCasa() {
   const planosDaTurma = useTurmasStore((s) => (atleta ? s.porAtleta[atleta] : undefined))
 
   const gestos = useGestos()
-  const grupos = gruposDoPlano({ gestos, fundamentos, series, extras: programa.extras })
+  const circuitos = useCircuitos()
+  const grupos = gruposDoPlano({ gestos, fundamentos, circuitos, series, extras: programa.extras })
 
   const itensDo = useCallback(
     (data: string): ItemDia[] => (programa.alteracoes[data] ?? diaDoProgramaOriginal(data, programa)).itens.filter((i) => i.treino !== 'aquecimento'),

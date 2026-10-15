@@ -5,6 +5,8 @@
 //  - a série animada do app que adapta aquele treino para criança (serie). Quando um vídeo virar
 //    animação própria, basta criar a série nova e trocar o `serie` do treino aqui.
 // A `categoria` diz a partir de qual categoria do jogador (data/categorias.ts) o vídeo é liberado.
+import type { Circuito } from '../features/saidaGol/circuitos'
+import { todosOsCircuitos } from '../features/saidaGol/fontesCircuitos'
 import { categoriaGestoPorId, publicoDoGesto, type Gesto } from '../features/saidaGol/gestos'
 import { todosOsGestos, useGestosStore } from '../stores/gestosStore'
 import type { CategoriaId } from './categorias'
@@ -183,8 +185,20 @@ export function treinoDeGesto(g: Gesto): TreinoCalendario {
   return { id: idDeGesto(g.id), nome: g.nome, emoji: categoria.emoji, rota: `/fundamentos/${g.id}`, atividade: atividadeDoGesto(g), detalhe: `Gesto técnico · ${categoria.nome}` }
 }
 
-/** Busca um treino do calendário, um vídeo adicionado, um treino criado pelos pais, um treino de fundamentos ou um gesto */
+/** Id no calendário de um circuito com cones (do app, da família ou da turma), ex.: "circuito:saida-em-v" */
+export const idDeCircuito = (id: string) => `circuito:${id}`
+
+export function treinoDeCircuito(c: Circuito): TreinoCalendario {
+  // Abre o circuito (o "Fiz o circuito" conta como treino de goleiro)
+  return { id: idDeCircuito(c.id), nome: c.nome, emoji: c.emoji, rota: `/goleiro/saida/${c.id}`, atividade: 'goleiro', detalhe: 'Circuito com cones' }
+}
+
+/** Busca um treino do calendário, um vídeo adicionado, um treino criado pelos pais, um treino de fundamentos, um gesto ou um circuito */
 export function treinoPorId(id: string, extras: TreinoExtra[] = [], series: SerieDosPais[] = [], fundamentos: FundamentosDosPais[] = []): TreinoCalendario | undefined {
+  if (id.startsWith('circuito:')) {
+    const circuito = todosOsCircuitos().find((c) => idDeCircuito(c.id) === id)
+    return circuito && treinoDeCircuito(circuito)
+  }
   if (id.startsWith('gesto:')) {
     // Os gestos do aparelho: os do app (com as mudanças dos pais) e os criados
     const gesto = todosOsGestos(useGestosStore.getState()).find((g) => idDeGesto(g.id) === id)
