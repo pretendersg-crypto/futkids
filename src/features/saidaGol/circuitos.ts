@@ -46,13 +46,22 @@ export interface Circuito {
   seguranca?: string
 }
 
-/** Cor e traço de cada movimento nas setas do desenho (e na legenda) */
-export const ESTILO_MOVIMENTO: Record<Exclude<Movimento, 'parado'>, { cor: string; traco?: string; nome: string }> = {
-  saida: { cor: '#ea580c', nome: 'Saída (de frente)' },
-  recuo: { cor: '#2563eb', traco: '5 3', nome: 'Recuo (de costas)' },
-  lateral: { cor: '#9333ea', traco: '1.5 2.5', nome: 'Lateral (de lado)' },
-  bola: { cor: '#111827', traco: '2 3', nome: 'Caminho da bola' },
+/** Cor, traço, ícone e explicação de cada movimento (setas do desenho e o selo do passo) */
+export const ESTILO_MOVIMENTO: Record<Exclude<Movimento, 'parado'>, { cor: string; traco?: string; nome: string; emoji: string; dica: string }> = {
+  saida: { cor: '#ea580c', nome: 'Saída de frente', emoji: '🏃', dica: 'Corra para a frente, de frente para a bola.' },
+  recuo: { cor: '#2563eb', traco: '5 3', nome: 'Recuo de costas', emoji: '🔙', dica: 'Volte andando de costas, sem virar.' },
+  lateral: { cor: '#9333ea', traco: '1.5 2.5', nome: 'Passo lateral', emoji: '↔️', dica: 'Vá de lado, sem cruzar as pernas.' },
+  bola: { cor: '#111827', traco: '2 3', nome: 'A bola vai', emoji: '⚽', dica: 'Você fica no lugar: quem vai é a bola.' },
 }
+
+/** O passo em que o goleiro não sai do lugar */
+export const ESTILO_PARADO = { cor: '#ca8a04', nome: 'No lugar', emoji: '🧍', dica: 'Faça o gesto em cima do cone.' }
+
+/** Estilo de qualquer movimento (incluindo o parado) */
+export const estiloDoMovimento = (m: Movimento) => (m === 'parado' ? ESTILO_PARADO : ESTILO_MOVIMENTO[m])
+
+/** 2.5 → "2,5" (distância em metros, sem sinal) */
+export const metros = (m: number) => Math.abs(m).toLocaleString('pt-BR', { maximumFractionDigits: 1 })
 
 export const NOME_NIVEL = { facil: '🟢 Fácil', medio: '🟡 Médio', dificil: '🔴 Difícil' }
 
