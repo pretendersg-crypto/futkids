@@ -36,7 +36,7 @@ export function GestosDoGoleiro({ aoEditar }: { aoEditar: (id: string | null) =>
                 <li key={g.id}>
                   <button type="button" onClick={() => aoEditar(g.id)} className="flex min-h-14 w-full items-center gap-2 rounded-2xl border-2 border-violet-100 p-1 text-left">
                     <span className="shrink-0 rounded-xl bg-green-50">
-                      <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={44} />
+                      <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={44} gesto={g.id} />
                     </span>
                     <span className="flex flex-1 flex-col leading-tight">
                       <span className="font-bold">{g.nome}</span>

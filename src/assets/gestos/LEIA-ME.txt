@@ -1,0 +1,3 @@
+Coloque aqui a arte PUBLICADA de cada gesto: <id do gesto>.gif / .webp / .png / .mp4
+(ex.: passe-primeira.gif). Nunca foto ou video de crianca de verdade.
+A lista dos nomes e as regras estao em ARTE_DOS_GESTOS.md, na raiz do projeto.

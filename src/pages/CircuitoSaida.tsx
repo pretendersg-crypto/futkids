@@ -110,7 +110,7 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
         <p className="text-xl leading-snug font-extrabold">{atual.texto}</p>
         <div className="flex items-center gap-3">
           <div className="shrink-0 rounded-2xl bg-green-50 p-1">
-            <DesenhoGesto key={atual.gesto} desenho={gesto.desenho} nome={gesto.nome} tamanho={130} />
+            <DesenhoGesto key={atual.gesto} desenho={gesto.desenho} nome={gesto.nome} tamanho={130} gesto={gesto.id} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs font-bold tracking-wide text-sky-800 uppercase">Gesto técnico</p>

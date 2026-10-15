@@ -49,7 +49,7 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ['**/*.{js,css,html,svg,png,webp,json,mp3,ogg}'],
         // O Firebase (conta da família, ~150 KB) não vai no pacote inicial: só quem usa a conta baixa
         globIgnores: ['**/nuvem-*.js'],
-        // Vídeos curtos dos gestos (src/assets/goleiro3d): ficam fora do pacote inicial e são guardados
+        // Vídeos curtos e GIFs dos gestos (src/assets/gestos e goleiro3d): ficam fora do pacote inicial e são guardados
         // na 1ª vez que a criança abre o gesto; depois tocam sem internet. "rangeRequests" é o que
         // deixa o vídeo guardado tocar no iPhone (ele pede o vídeo em pedaços).
         runtimeCaching: [
@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => ({
             options: { cacheName: 'conta-familia', expiration: { maxEntries: 4 } },
           },
           {
-            urlPattern: /\.(?:mp4|webm)$/i,
+            urlPattern: /\.(?:mp4|webm|gif)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'videos-gestos',

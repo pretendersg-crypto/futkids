@@ -113,7 +113,7 @@ function Treino({ treino }: { treino: TreinoFundamentos }) {
                 >
                   <span className={`grid size-8 shrink-0 place-items-center rounded-full font-black text-white ${feito ? 'bg-green-500' : 'bg-sky-600'}`}>{feito ? '✓' : i + 1}</span>
                   <span className="shrink-0 rounded-xl bg-green-50">
-                    <DesenhoGesto desenho={it.g.desenho} nome={it.g.nome} tamanho={52} />
+                    <DesenhoGesto desenho={it.g.desenho} nome={it.g.nome} tamanho={52} gesto={it.g.id} />
                   </span>
                   <span className="flex flex-1 flex-col leading-tight">
                     <span className="text-lg font-extrabold">{it.g.nome}</span>
@@ -200,7 +200,7 @@ function PassoGesto({ item, gesto, concluida, aoConcluir, aoAnterior, aoLista, a
     <div className="flex flex-col items-center gap-3 text-center">
       <h2 className="text-3xl font-extrabold">{gesto.nome}</h2>
       <div className="rounded-3xl bg-green-50 p-2">
-        <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={190} />
+        <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={190} gesto={gesto.id} />
       </div>
       <p className="rounded-full bg-sky-100 px-5 py-1 text-2xl font-black">{porTempo ? `⏱️ ${Math.ceil(restanteMs / 1000)} s` : `🔁 ${item.quantidade} vezes`}</p>
       {porTempo && !concluida && !acabou && (

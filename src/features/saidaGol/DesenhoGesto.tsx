@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { useImagemLocal } from '../../hooks/useImagemLocal'
 import { ANIMACOES, poseNoTempo } from './animacoes'
-import { arteDaPose, type Arte } from './arteLocal'
+import { arteDoGesto, type Arte } from './arteLocal'
 import { CorpoGoleiro } from './CorpoGoleiro'
 import { POSES, type Desenho, type Pose, type PoseId } from './gestos'
 
@@ -20,12 +20,15 @@ interface Props {
   comNome?: boolean
   /** Anima a pose (quando ela tem animação). Padrão: sim, a partir de 90 px */
   animado?: boolean
-  /** Mostra a arte 3D (imagem ou vídeo) no lugar do desenho, quando existe (padrão: sim) */
+  /** Mostra a arte (imagem, GIF ou vídeo) no lugar do desenho, quando existe (padrão: sim) */
   comArte?: boolean
+  /** Id do gesto: a arte publicada só deste gesto vale mais que a da pose */
+  gesto?: string
 }
 
-export function DesenhoGesto({ desenho, nome, tamanho = 160, comNome = false, animado = tamanho >= 90, comArte = true }: Props) {
-  const arte = desenho.tipo === 'pose' && comArte ? arteDaPose(desenho.pose) : undefined
+export function DesenhoGesto({ desenho, nome, tamanho = 160, comNome = false, animado = tamanho >= 90, comArte = true, gesto }: Props) {
+  // A imagem que os pais puseram no aparelho vale mais; depois a arte publicada do gesto e a da pose
+  const arte = desenho.tipo === 'pose' && comArte ? arteDoGesto(gesto, desenho.pose) : undefined
   return (
     <figure className="flex flex-col items-center gap-1">
       {desenho.tipo === 'imagem' ? (

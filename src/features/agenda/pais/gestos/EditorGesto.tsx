@@ -92,7 +92,7 @@ export function EditorGesto({ id, aoVoltar }: Props) {
       {pronto && <p className="rounded-2xl bg-violet-50 p-3 text-sm">Este gesto vem no app. {editado && 'Ele já foi mudado neste aparelho.'}</p>}
 
       <div className="self-center rounded-3xl bg-green-50 p-2">
-        <DesenhoGesto desenho={g.desenho} nome={g.nome || 'Novo gesto'} tamanho={150} />
+        <DesenhoGesto desenho={g.desenho} nome={g.nome || 'Novo gesto'} tamanho={150} gesto={g.id} />
       </div>
 
       <label className="flex flex-col gap-1 text-base font-bold">

@@ -107,7 +107,7 @@ export function EditorTreinoFundamentos({ id, aoVoltar }: Props) {
             return (
               <li key={it.gesto} className="flex flex-col gap-2 rounded-2xl border-4 border-violet-100 bg-white p-2">
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 rounded-xl bg-green-50">{g && <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={44} />}</span>
+                  <span className="shrink-0 rounded-xl bg-green-50">{g && <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={44} gesto={g.id} />}</span>
                   <span className="flex-1 leading-tight font-bold">
                     {i + 1}. {g?.nome ?? '(gesto apagado)'}
                   </span>
@@ -219,7 +219,7 @@ export function EditorTreinoFundamentos({ id, aoVoltar }: Props) {
                     <label key={g.id} className={`flex min-h-12 items-center gap-2 rounded-xl border-2 p-1 ${marcado ? 'border-violet-500 bg-violet-50' : 'border-violet-100'}`}>
                       <input type="checkbox" checked={marcado} onChange={() => alternar(g.id)} className="size-6 shrink-0 accent-violet-600" />
                       <span className="shrink-0 rounded-lg bg-green-50">
-                        <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={36} />
+                        <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={36} gesto={g.id} />
                       </span>
                       <span className="text-sm leading-tight font-bold">{g.nome}</span>
                     </label>

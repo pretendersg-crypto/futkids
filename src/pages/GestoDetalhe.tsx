@@ -8,7 +8,7 @@ import { VideoReal } from '../components/video/VideoReal'
 import { atividadeDoGesto } from '../data/calendarioGoleiros'
 import { CIRCUITOS } from '../features/saidaGol/circuitos'
 import { categoriaGestoPorId, nivelGestoPorId, PUBLICOS_GESTO, publicoDoGesto } from '../features/saidaGol/gestos'
-import { arteDaPose } from '../features/saidaGol/arteLocal'
+import { arteDoGesto } from '../features/saidaGol/arteLocal'
 import { DesenhoGesto } from '../features/saidaGol/DesenhoGesto'
 import { etapaDoGesto, etapasDe, filaDaTrilha, trilhaDoGesto, type TipoAtleta } from '../features/saidaGol/trilha'
 import { useGestos } from '../features/saidaGol/useGestos'
@@ -71,13 +71,13 @@ export function GestoDetalhe() {
         </span>
       </p>
       <div className="self-center rounded-3xl bg-green-50 p-2">
-        <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={220} />
+        <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={220} gesto={gesto.id} />
       </div>
-      {/* Com a arte 3D no lugar, o goleiro desenhado (com as setas do movimento) aparece menor, ao lado */}
-      {gesto.desenho.tipo === 'pose' && arteDaPose(gesto.desenho.pose) && (
+      {/* Com a arte no lugar, o desenho (com as setas do movimento) aparece menor, ao lado */}
+      {gesto.desenho.tipo === 'pose' && arteDoGesto(gesto.id, gesto.desenho.pose) && (
         <div className="flex items-center gap-3 self-center rounded-2xl bg-white p-2">
           <DesenhoGesto desenho={gesto.desenho} nome={gesto.nome} tamanho={90} comArte={false} />
-          <p className="max-w-40 text-sm font-bold">🎞️ O movimento, no goleiro desenhado</p>
+          <p className="max-w-40 text-sm font-bold">🎞️ O movimento, no desenho</p>
         </div>
       )}
       <p className="text-center text-xl font-extrabold">{gesto.resumo}</p>

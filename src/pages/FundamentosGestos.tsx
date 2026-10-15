@@ -123,7 +123,7 @@ export function FundamentosGestos() {
                           ✅
                         </span>
                       )}
-                      <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={100} />
+                      <DesenhoGesto desenho={g.desenho} nome={g.nome} tamanho={100} gesto={g.id} />
                       <span className="text-base leading-tight font-extrabold">{g.nome}</span>
                       <span className="text-xs leading-tight">{g.resumo}</span>
                       <span className="flex flex-wrap justify-center gap-1 text-xs font-bold">
