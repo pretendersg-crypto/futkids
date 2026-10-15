@@ -30,7 +30,8 @@ function lerItens(lista: TaticaDaTurma[]): { puzzles: Puzzle[]; pranchetas: Pran
     try {
       const x = { ...JSON.parse(t.json), id: t.id }
       if (t.tipo === 'puzzle') puzzles.push(x as Puzzle)
-      else pranchetas.push(x as Prancheta)
+      else if (t.tipo === 'prancheta') pranchetas.push(x as Prancheta)
+      // (circuitos com cones ficam no gerenciador dos circuitos)
     } catch {
       // ignorado: registro quebrado
     }

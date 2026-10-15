@@ -46,6 +46,8 @@ const ROTAS: RouteObject[] = [
           { path: 'fundamentos', lazy: () => import('./pages/FundamentosGoleiro').then((m) => ({ Component: m.FundamentosGoleiro })) },
           // Saída do gol com cones: lista e um circuito (ex.: /goleiro/saida/saida-em-v)
           { path: 'saida', lazy: () => import('./pages/SaidaGol').then((m) => ({ Component: m.SaidaGol })) },
+          // Criar e editar circuitos (pais e treinador)
+          { path: 'saida/criar', lazy: () => import('./pages/CriarCircuito').then((m) => ({ Component: m.CriarCircuito })) },
           { path: 'saida/:circuito', lazy: () => import('./pages/CircuitoSaida').then((m) => ({ Component: m.CircuitoSaida })) },
           // Endereços antigos do catálogo (hoje em /fundamentos): continuam funcionando
           { path: 'gestos', lazy: () => import('./pages/FundamentosGestos').then((m) => ({ Component: m.FundamentosGestos })) },

@@ -2,6 +2,8 @@
 // Posições em METROS, olhando da quadra para o gol: x = 0 é o meio do gol (de -10 a 10, a largura
 // da quadra), y = 0 é a linha do gol e cresce para dentro da quadra (a área vai até 6 m).
 // Cada passo diz de onde para onde o goleiro vai, como se mexe e qual gesto técnico usar.
+// Pais e treinador também criam circuitos (editor em ./editor) e põem um vídeo de exemplo em qualquer
+// um; a lista completa (do app, da família e da turma) vem de ./fontesCircuitos.
 
 export type CorCone = 'laranja' | 'amarelo' | 'azul' | 'vermelho'
 
@@ -44,6 +46,10 @@ export interface Circuito {
   bola?: { x: number; y: number; texto: string }
   passos: PassoCircuito[]
   seguranca?: string
+  /** Vídeo de exemplo do treino (YouTube ou aula da Hotmart) */
+  video?: string
+  /** De onde veio, preenchido na hora de mostrar (ex.: "⚽ Sub-9", "🏠 Família") */
+  origem?: string
 }
 
 /** Cor, traço, ícone e explicação de cada movimento (setas do desenho e o selo do passo) */
@@ -228,3 +234,78 @@ export const circuitoPorId = (id: string | undefined) => CIRCUITOS.find((c) => c
 
 /** Onde o goleiro está depois de cada passo (o cone `para`, ou continua no `de`) */
 export const ondeTermina = (passo: PassoCircuito) => (passo.movimento === 'parado' || passo.movimento === 'bola' ? passo.de : (passo.para ?? passo.de))
+
+// ---------- Criados por pais e treinador ----------
+
+/** Até onde os cones podem ir (metros): a largura da quadra e um bom pedaço à frente do gol */
+export const LIMITES_CONE = { x: 9.5, yMin: 0.3, yMax: 14 }
+
+export const NOMES_MOVIMENTO: Record<Movimento, string> = {
+  parado: '🧍 No lugar (faz o gesto)',
+  saida: '🏃 Saída de frente',
+  recuo: '🔙 Recuo de costas',
+  lateral: '↔️ Passo lateral',
+  bola: '⚽ A bola vai (reposição)',
+}
+
+/** Gesto que combina com cada movimento (sugestão do editor) */
+export const GESTO_DO_MOVIMENTO: Record<Movimento, string> = { parado: 'base', saida: 'saida', recuo: 'recuo', lateral: 'lateral', bola: 'rolar' }
+
+/** Texto do passo quando o adulto não escreveu um */
+export function textoPadrao(p: PassoCircuito): string {
+  switch (p.movimento) {
+    case 'parado':
+      return `No cone ${p.de}, faça o gesto.`
+    case 'saida':
+      return `Saia rápido até o cone ${p.para}.`
+    case 'recuo':
+      return `Volte de costas até o cone ${p.para}.`
+    case 'lateral':
+      return `Passos laterais até o cone ${p.para}.`
+    case 'bola':
+      return `Mande a bola até o cone ${p.para}.`
+  }
+}
+
+export function circuitoEmBranco(): Circuito {
+  return {
+    id: `cc-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+    nome: '',
+    emoji: '🔶',
+    nivel: 'facil',
+    objetivo: '',
+    repeticoes: '4 vezes · 30 s de descanso',
+    cones: [
+      { id: 'G', x: 0, y: 0.6, cor: 'azul', papel: 'meio do gol (começo)' },
+      { id: 'A', x: 0, y: 3.5, cor: 'laranja' },
+    ],
+    passos: [
+      { de: 'G', movimento: 'parado', gesto: 'base', texto: 'No meio do gol, fique na posição base.' },
+      { de: 'G', para: 'A', movimento: 'saida', gesto: 'saida', texto: 'Saia rápido até o cone A.' },
+    ],
+  }
+}
+
+/** Problemas num circuito (lista vazia = tudo certo). `gestos` = ids de gestos que existem. */
+export function conferirCircuito(c: Circuito, gestos: string[]): string[] {
+  const erros: string[] = []
+  const ids = new Set(c.cones.map((k) => k.id))
+  if (!c.nome.trim()) erros.push('falta o nome')
+  if (!c.objetivo.trim()) erros.push('falta dizer para que serve')
+  if (c.cones.length === 0) erros.push('coloque pelo menos um cone')
+  if (ids.size !== c.cones.length) erros.push('dois cones com a mesma letra')
+  for (const k of c.cones) {
+    if (!k.id.trim()) erros.push('um cone está sem letra')
+    if (Math.abs(k.x) > LIMITES_CONE.x || k.y < LIMITES_CONE.yMin || k.y > LIMITES_CONE.yMax) erros.push(`cone ${k.id} fora da quadra`)
+  }
+  if (c.passos.length === 0) erros.push('coloque pelo menos um passo')
+  c.passos.forEach((p, i) => {
+    const n = `passo ${i + 1}`
+    if (!ids.has(p.de)) erros.push(`${n}: escolha o cone de onde sai`)
+    if (p.movimento !== 'parado' && (!p.para || !ids.has(p.para))) erros.push(`${n}: escolha o cone para onde vai`)
+    if (p.movimento !== 'parado' && p.para === p.de) erros.push(`${n}: sai e chega no mesmo cone`)
+    if (!gestos.includes(p.gesto)) erros.push(`${n}: escolha o gesto`)
+    if (!p.texto.trim()) erros.push(`${n}: falta o texto`)
+  })
+  return erros
+}

@@ -71,10 +71,10 @@ service cloud.firestore {
         && v.caminho is string && v.bytes is int
         && v.declaracaoImagem.por == request.auth.uid;
     }
-    // Puzzle ou prancheta do Futsal Tático: só texto (JSON), de tamanho limitado
+    // Puzzle ou prancheta do Futsal Tático, ou circuito com cones: só texto (JSON), de tamanho limitado
     function taticaValida() {
       let d = request.resource.data;
-      return d.tipo in ['puzzle', 'prancheta']
+      return d.tipo in ['puzzle', 'prancheta', 'circuito']
         && d.titulo is string && d.titulo.size() <= 80
         && d.json is string && d.json.size() <= 100000
         && d.em is number
@@ -240,7 +240,7 @@ service cloud.firestore {
           allow create: if treinadorDe(e) && videoValido();
         }
 
-        // Futsal Tático da turma (puzzles e pranchetas do treinador): os treinadores e os leitores da turma
+        // Futsal Tático e circuitos com cones da turma (feitos pelo treinador): os treinadores e os leitores da turma
         match /taticas/{x} {
           allow read: if treinadorDe(e) || leitorDaTurma(e, t);
           allow delete: if treinadorDe(e);

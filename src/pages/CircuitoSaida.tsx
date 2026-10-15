@@ -3,15 +3,19 @@
 //  2. Passo a passo: o desenho mostra só a seta do passo (o goleiro desliza), o tipo de movimento,
 //     o que fazer e o gesto técnico desenhado. "Ver andando" passa os passos sozinho;
 //  3. Repita: quantas vezes e "Fiz o circuito" (XP e moedas).
+// Em cima, o vídeo de exemplo do treino (e, para o adulto, pôr ou trocar o link). Serve para os
+// circuitos do app, da família e da turma; o editor usa a mesma tela para "Ver como a criança vê".
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import { PainelRecompensa } from '../components/ui/PainelRecompensa'
 import { VideoReal } from '../components/video/VideoReal'
-import { circuitoPorId, estiloDoMovimento, metros, NOME_NIVEL, type Circuito, type Cone, type CorCone } from '../features/saidaGol/circuitos'
+import { estiloDoMovimento, metros, NOME_NIVEL, type Circuito, type Cone, type CorCone } from '../features/saidaGol/circuitos'
 import { DesenhoGesto } from '../features/saidaGol/DesenhoGesto'
 import { gestoProntoPorId } from '../features/saidaGol/gestos'
 import { QuadraCones } from '../features/saidaGol/QuadraCones'
 import { useGestos } from '../features/saidaGol/useGestos'
+import { useCircuitos } from '../features/saidaGol/fontesCircuitos'
+import { VideoDoCircuito } from '../features/saidaGol/VideoDoCircuito'
 import { entregarRecompensa, type ResultadoRecompensa } from '../stores/progressStore'
 
 const COR_CONE: Record<CorCone, { nome: string; fundo: string }> = {
@@ -43,12 +47,14 @@ function Titulo({ numero, children }: { numero: number; children: string }) {
 }
 
 export function CircuitoSaida() {
-  const circuito = circuitoPorId(useParams().circuito)
+  const id = useParams().circuito
+  const circuito = useCircuitos().find((c) => c.id === id)
   if (!circuito) return <Navigate to="/goleiro/saida" replace />
   return <TelaCircuito key={circuito.id} circuito={circuito} />
 }
 
-function TelaCircuito({ circuito }: { circuito: Circuito }) {
+/** A tela de um circuito. teste = visualização do editor (sem botão de voltar nem recompensa) */
+export function TelaCircuito({ circuito, teste = false }: { circuito: Circuito; teste?: boolean }) {
   const [passo, setPasso] = useState(0)
   const [andando, setAndando] = useState(false)
   const [maisGesto, setMaisGesto] = useState(false)
@@ -85,9 +91,11 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
   return (
     <section className="flex flex-col gap-4">
       <header className="flex items-center gap-3">
-        <Link to="/goleiro/saida" aria-label="Voltar aos circuitos" className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-2xl shadow">
-          ⬅️
-        </Link>
+        {!teste && (
+          <Link to="/goleiro/saida" aria-label="Voltar aos circuitos" className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-2xl shadow">
+            ⬅️
+          </Link>
+        )}
         <h1 className="flex-1 text-2xl leading-tight font-extrabold">
           <span aria-hidden>{circuito.emoji} </span>
           {circuito.nome}
@@ -99,10 +107,12 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
           <span className="rounded-full bg-white px-3 py-1 shadow">🔺 {circuito.cones.length} cones</span>
           <span className="rounded-full bg-white px-3 py-1 shadow">👣 {total} passos</span>
           <span className="rounded-full bg-white px-3 py-1 shadow">🔁 {circuito.repeticoes}</span>
+          {circuito.origem && <span className="rounded-full bg-sky-100 px-3 py-1 shadow">{circuito.origem}</span>}
         </p>
         <p className="rounded-2xl bg-sky-50 p-3 text-base">
           🎯 <b>Para que serve:</b> {circuito.objetivo}
         </p>
+        <VideoDoCircuito circuito={circuito} comEdicao={!teste} />
       </div>
 
       {/* 1. Montar */}
@@ -272,7 +282,9 @@ function TelaCircuito({ circuito }: { circuito: Circuito }) {
       <div className="flex flex-col gap-3 rounded-3xl border-4 border-green-400 bg-white p-3">
         <Titulo numero={3}>Repita e marque</Titulo>
         <p className="text-lg font-bold">🔁 {circuito.repeticoes}</p>
-        {recompensa ? (
+        {teste ? (
+          <p className="text-sm font-bold text-slate-600">🧪 Visualização: aqui a criança marca que fez.</p>
+        ) : recompensa ? (
           <div className="flex flex-col items-center gap-2 text-center">
             <p className="text-2xl font-extrabold">🎉 Circuito feito!</p>
             <PainelRecompensa xp={XP_CIRCUITO} moedas={MOEDAS_CIRCUITO} resultadoXP={recompensa.resultadoXP} bonusSequencia={recompensa.bonusSequencia} />

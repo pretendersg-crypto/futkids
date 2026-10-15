@@ -3,9 +3,11 @@
 //  - montagem: só os cones, com a distância de cada um (para o adulto montar);
 //  - percurso: o caminho todo, sem números (miniatura da lista);
 //  - passo: só a seta do passo atual, bem grossa, e o goleiro deslizando até o lugar.
+// No editor (prop "edicao"), os cones e a bola se arrastam com o dedo e a vista fica parada.
 // Escala: 1 metro = 10 unidades do SVG. x = 0 é o meio do gol; y = 0 é a linha do gol.
+import { useRef, type PointerEvent } from 'react'
 import '../tatica/tatica.css'
-import { ESTILO_MOVIMENTO, metros, ondeTermina, type Circuito, type Cone, type CorCone, type PassoCircuito } from './circuitos'
+import { ESTILO_MOVIMENTO, LIMITES_CONE, metros, ondeTermina, type Circuito, type Cone, type CorCone, type PassoCircuito } from './circuitos'
 
 const COR_CONE: Record<CorCone, [string, string]> = {
   laranja: ['#fb923c', '#9a3412'],
@@ -19,12 +21,25 @@ const sy = (y: number) => 105 - y * 10
 
 export type ModoQuadra = 'montagem' | 'percurso' | 'passo'
 
+/** Editor: arrastar cones e a bola ("bola" = a bola) */
+export interface EdicaoCones {
+  selecionado: string | null
+  aoSelecionar: (id: string | null) => void
+  /** Posição nova em metros */
+  aoMover: (id: string, x: number, y: number) => void
+}
+
 interface Props {
   circuito: Circuito
   modo: ModoQuadra
   /** No modo "passo": qual passo (0...) */
   passo?: number
+  edicao?: EdicaoCones
 }
+
+const limitar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
+/** Posição de 10 em 10 cm (o adulto ajusta fino) */
+const arredondar = (v: number) => Math.round(v * 10) / 10
 
 /** Seta de um passo (de um cone a outro), afastada das pontas; a volta (recuo) fica um pouco ao lado */
 function geometria(a: Cone, b: Cone, recuo: boolean) {
@@ -42,26 +57,65 @@ function geometria(a: Cone, b: Cone, recuo: boolean) {
   }
 }
 
-export function QuadraCones({ circuito, modo, passo = 0 }: Props) {
-  const cone = (id: string) => circuito.cones.find((c) => c.id === id)!
-  const atual: PassoCircuito | null = modo === 'passo' ? circuito.passos[passo] : null
+export function QuadraCones({ circuito, modo, passo = 0, edicao }: Props) {
+  const svg = useRef<SVGSVGElement>(null)
+  const arrasto = useRef<{ id: string; mexeu: boolean } | null>(null)
+  const cone = (id: string | undefined) => circuito.cones.find((c) => c.id === id)
+  const atual: PassoCircuito | null = modo === 'passo' ? (circuito.passos[passo] ?? null) : null
   // Onde o goleiro está: no fim do passo (ou no começo do circuito)
-  const posGoleiro = cone(atual ? ondeTermina(atual) : circuito.passos[0].de)
+  const inicio = circuito.passos[0]?.de
+  const posGoleiro = cone(atual ? ondeTermina(atual) : inicio)
+
+  /** Ponto da quadra (metros) debaixo do dedo */
+  function metrosDoToque(e: { clientX: number; clientY: number }) {
+    const matriz = svg.current?.getScreenCTM()
+    if (!matriz) return null
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(matriz.inverse())
+    return { x: arredondar(limitar(q.x / 10, -LIMITES_CONE.x, LIMITES_CONE.x)), y: arredondar(limitar((105 - q.y) / 10, LIMITES_CONE.yMin, LIMITES_CONE.yMax)) }
+  }
+  const pegar = (id: string) => (e: PointerEvent) => {
+    if (!edicao) return
+    e.preventDefault()
+    e.stopPropagation()
+    svg.current?.setPointerCapture(e.pointerId)
+    arrasto.current = { id, mexeu: false }
+    edicao.aoSelecionar(id)
+  }
+  function mover(e: PointerEvent) {
+    const a = arrasto.current
+    if (!a || !edicao) return
+    const m = metrosDoToque(e)
+    if (!m) return
+    a.mexeu = true
+    edicao.aoMover(a.id, m.x, m.y)
+  }
 
   // Enquadra só a região do circuito (cones, bola, área e gol), para os cones ficarem grandes
   const xs = [...circuito.cones.map((c) => c.x), ...(circuito.bola ? [circuito.bola.x] : [])]
   const ys = [...circuito.cones.map((c) => c.y), ...(circuito.bola ? [circuito.bola.y] : [])]
-  const minX = Math.max(-10, Math.min(-5, Math.min(...xs) - 1.8))
-  const maxX = Math.min(10, Math.max(5, Math.max(...xs) + 1.8))
-  const maxY = Math.max(6.8, Math.max(...ys) + 1.4)
+  // No editor a vista é maior e quase parada (só cresce se um cone chegar perto da borda): assim dá
+  // espaço para arrastar sem a quadra "andar" debaixo do dedo
+  const minX = edicao ? Math.max(-10, Math.min(-6.5, Math.min(...xs) - 2)) : Math.max(-10, Math.min(-5, Math.min(...xs) - 1.8))
+  const maxX = edicao ? Math.min(10, Math.max(6.5, Math.max(...xs) + 2)) : Math.min(10, Math.max(5, Math.max(...xs) + 1.8))
+  const maxY = edicao ? Math.max(9, Math.max(...ys) + 2) : Math.max(6.8, Math.max(...ys) + 1.4)
   const vista = `${sx(minX)} ${sy(maxY)} ${sx(maxX) - sx(minX)} ${sy(-1.4) - sy(maxY)}`
 
   const setas = circuito.passos
     .map((p, i) => ({ p, i }))
-    .filter(({ p, i }) => p.movimento !== 'parado' && p.para && (modo === 'percurso' || (modo === 'passo' && i === passo)))
+    .filter(({ p, i }) => p.movimento !== 'parado' && cone(p.de) && cone(p.para) && (modo === 'percurso' || (modo === 'passo' && i === passo)))
 
   return (
-    <svg viewBox={vista} className="w-full rounded-2xl bg-green-700" role="img" aria-label={`Circuito ${circuito.nome}: ${circuito.cones.length} cones`}>
+    <svg
+      ref={svg}
+      viewBox={vista}
+      className={`w-full rounded-2xl bg-green-700 ${edicao ? 'tatica-editor touch-none' : ''}`}
+      role="img"
+      aria-label={`Circuito ${circuito.nome}: ${circuito.cones.length} cones`}
+      onPointerMove={edicao ? mover : undefined}
+      onPointerUp={edicao ? () => (arrasto.current = null) : undefined}
+      onPointerCancel={edicao ? () => (arrasto.current = null) : undefined}
+      onClick={edicao ? (e) => e.target === e.currentTarget && edicao.aoSelecionar(null) : undefined}
+    >
       <defs>
         {Object.entries(ESTILO_MOVIMENTO).map(([m, e]) => (
           <marker key={m} id={`seta-cone-${m}`} viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto-start-reverse">
@@ -101,7 +155,8 @@ export function QuadraCones({ circuito, modo, passo = 0 }: Props) {
 
       {/* Bola de onde o adulto rola/lança */}
       {circuito.bola && (
-        <g>
+        <g onPointerDown={pegar('bola')} cursor={edicao ? 'grab' : undefined}>
+          {edicao?.selecionado === 'bola' && <circle cx={sx(circuito.bola.x)} cy={sy(circuito.bola.y)} r={7} fill="none" stroke="#fde047" strokeWidth={1.4} />}
           <circle cx={sx(circuito.bola.x)} cy={sy(circuito.bola.y)} r={3.4} fill="#fff" stroke="#111827" strokeWidth={1} />
           <circle cx={sx(circuito.bola.x)} cy={sy(circuito.bola.y)} r={1.1} fill="#111827" />
           <text x={sx(circuito.bola.x) + 5} y={sy(circuito.bola.y) + 2} fontSize={5} fill="#fff" fontWeight={800}>
@@ -112,7 +167,7 @@ export function QuadraCones({ circuito, modo, passo = 0 }: Props) {
 
       {/* Setas */}
       {setas.map(({ p, i }) => {
-        const { x1, y1, x2, y2 } = geometria(cone(p.de), cone(p.para!), p.movimento === 'recuo')
+        const { x1, y1, x2, y2 } = geometria(cone(p.de)!, cone(p.para)!, p.movimento === 'recuo')
         const estilo = ESTILO_MOVIMENTO[p.movimento as keyof typeof ESTILO_MOVIMENTO]
         const grossa = modo === 'passo'
         return (
@@ -149,7 +204,9 @@ export function QuadraCones({ circuito, modo, passo = 0 }: Props) {
         const parado = atual?.movimento === 'parado' && atual.de === c.id
         const destino = atual && atual.movimento !== 'parado' && atual.para === c.id && atual.movimento !== 'bola'
         return (
-          <g key={c.id}>
+          <g key={c.id} onPointerDown={pegar(c.id)} cursor={edicao ? 'grab' : undefined}>
+            {edicao && <circle cx={x} cy={y} r={9} fill="transparent" />}
+            {edicao?.selecionado === c.id && <circle cx={x} cy={y} r={8} fill="none" stroke="#fde047" strokeWidth={1.6} />}
             {(parado || destino) && <circle cx={x} cy={y} r={9} fill="none" stroke="#fde047" strokeWidth={1.6} className="tatica-pulso" />}
             <ellipse cx={x} cy={y + 3.6} rx={5} ry={1.4} fill="#000" opacity={0.25} />
             <path d={`M${x} ${y - 5.5} L${x - 4.4} ${y + 3.6} L${x + 4.4} ${y + 3.6} Z`} fill={cor} stroke={borda} strokeWidth={0.9} strokeLinejoin="round" />
@@ -180,8 +237,8 @@ export function QuadraCones({ circuito, modo, passo = 0 }: Props) {
       })}
 
       {/* Goleiro: desliza até o lugar do passo (na montagem, mostra onde começa) */}
-      {modo !== 'percurso' && (
-        <g className="tatica-jogador" style={{ transform: `translate(${sx(posGoleiro.x)}px, ${sy(posGoleiro.y) - 10}px)` }}>
+      {modo !== 'percurso' && posGoleiro && (
+        <g pointerEvents="none" className="tatica-jogador" style={{ transform: `translate(${sx(posGoleiro.x)}px, ${sy(posGoleiro.y) - 10}px)` }}>
           <circle r={6} fill="#f28a1b" stroke="#fff" strokeWidth={1.4} />
           <text y={2.3} fontSize={6.5} textAnchor="middle">
             🧤

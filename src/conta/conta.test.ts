@@ -29,6 +29,7 @@ describe('versão do formato dos dados', () => {
     'futkids-reacao': 1,
     'futkids-tatica': 1,
     'futkids-tatica-criada': 1,
+    'futkids-circuitos': 1,
     'futkids-treinador': 1,
     'futkids-treinos-fundamentos': 1,
     'futkids-treinos': 1,

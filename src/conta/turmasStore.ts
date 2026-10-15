@@ -26,10 +26,10 @@ export interface VideoGuardado {
   turma: string
 }
 
-/** Puzzle ou prancheta do Futsal Tático feito pelo treinador para a turma */
+/** Puzzle, prancheta (Futsal Tático) ou circuito com cones feito pelo treinador para a turma */
 export interface TaticaGuardada {
   id: string
-  tipo: 'puzzle' | 'prancheta'
+  tipo: 'puzzle' | 'prancheta' | 'circuito'
   titulo: string
   /** O puzzle ou a prancheta, em JSON (conferido antes de mostrar) */
   json: string

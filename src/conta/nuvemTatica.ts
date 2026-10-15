@@ -1,5 +1,5 @@
-// Futsal Tático da turma: puzzles e pranchetas que o treinador cria e que chegam ao app de cada
-// atleta da turma. Só texto (JSON), no Firestore, então funciona no plano grátis do Firebase.
+// Futsal Tático e circuitos com cones da turma: puzzles, pranchetas e circuitos que o treinador cria
+// e que chegam ao app de cada atleta da turma. Só texto (JSON), no Firestore, então funciona no plano grátis do Firebase.
 //   escolinhas/{e}/turmas/{t}/taticas/{id}  { tipo, titulo, json, em, por }
 // Quem lê: os treinadores e os "leitores" da turma (aparelho/responsável registrado por um atleta
 // que ainda está na turma, como nos vídeos). Ver firestore.rules.
@@ -7,9 +7,13 @@ import { collection, deleteDoc, doc, getDocs, onSnapshot, orderBy, query, setDoc
 import { iniciar } from './nuvem'
 import { useTurmasStore, type TaticaGuardada } from './turmasStore'
 
+/** O que o treinador manda para a turma: puzzle e prancheta do Futsal Tático e circuito com cones */
+export type TipoDaTurma = 'puzzle' | 'prancheta' | 'circuito'
+const TIPOS: TipoDaTurma[] = ['puzzle', 'prancheta', 'circuito']
+
 export interface TaticaDaTurma {
   id: string
-  tipo: 'puzzle' | 'prancheta'
+  tipo: TipoDaTurma
   titulo: string
   json: string
   em: number
@@ -21,7 +25,7 @@ export const MAX_JSON_TATICA = 100_000
 const pasta = (e: string, t: string) => collection(iniciar().db, 'escolinhas', e, 'turmas', t, 'taticas')
 
 function lerRegistro(id: string, d: Record<string, unknown>): TaticaDaTurma {
-  return { id, tipo: d.tipo === 'prancheta' ? 'prancheta' : 'puzzle', titulo: String(d.titulo ?? ''), json: String(d.json ?? ''), em: Number(d.em ?? 0) }
+  return { id, tipo: TIPOS.includes(d.tipo as TipoDaTurma) ? (d.tipo as TipoDaTurma) : 'puzzle', titulo: String(d.titulo ?? ''), json: String(d.json ?? ''), em: Number(d.em ?? 0) }
 }
 
 /** Treinador: o que já foi criado para a turma (mais novo primeiro) */
@@ -31,7 +35,7 @@ export async function listarTaticas(e: string, t: string): Promise<TaticaDaTurma
 }
 
 /** Treinador: cria ou troca um puzzle/prancheta na turma */
-export async function salvarTatica(e: string, t: string, item: { id: string; tipo: 'puzzle' | 'prancheta'; titulo: string; dados: unknown }, uid: string) {
+export async function salvarTatica(e: string, t: string, item: { id: string; tipo: TipoDaTurma; titulo: string; dados: unknown }, uid: string) {
   const json = JSON.stringify(item.dados)
   if (json.length > MAX_JSON_TATICA) throw new Error('Ficou grande demais. Tire alguns quadros ou perguntas.')
   await setDoc(doc(pasta(e, t), item.id), { tipo: item.tipo, titulo: item.titulo.slice(0, 80), json, em: Date.now(), por: uid })
